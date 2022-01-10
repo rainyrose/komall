@@ -1,0 +1,18 @@
+<!-- 글작성Confirm시 패스워드 별로도 빼서 사용하시면 됩니다 -->
+<form action="<?=$common_actionString?>" method="post" name="auth_form" />
+<input type="hidden" name="mode" value="<?=$return_mode?>" />
+<input type="hidden" name="no" value="<?=$no?>" />
+<input type="hidden" name="mid" value="<?=$mid?>" />
+<input type="hidden" name="start" value="<?=$start?>" />
+<input type="hidden" name="keyword" value="<?=$keyword?>" />
+<input type="hidden" name="search_key" value="<?=$search_key?>" />
+<input type="hidden" name="category" value="<?=$category?>" />
+<input type="hidden" name="return_url" value="<?=$common_actionString?>" />
+<div class="secret_area">
+	<p>Please enter the password you set when you created the post.</p>
+	<input type="password" id="passwd" name="password" maxlength="30" placeholder="password">
+	<a href="#" onclick="auth_form.submit();" class="button">Confirm</a>
+	<a href="#" onclick="history.go(-1);" class="button gray">cancel</a>
+</div>
+</form>
+<!-- //글작성Confirm시 패스워드 -->

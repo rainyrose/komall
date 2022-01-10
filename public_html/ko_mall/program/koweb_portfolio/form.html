@@ -1,0 +1,152 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/auth_manager.php";
+
+$mode_title = $program[title]." 등록";
+
+$sort_ = mysql_fetch_array(mysql_query("SELECT * FROM $program_table ORDER BY sort_value DESC LIMIT 1"));
+$sort = $sort_[sort_value]+1;
+
+if($mode == "modify"){ 
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysql_query($query);
+	$row = mysql_fetch_array($result);
+	$mode_title = $program[title]." 수정";
+
+	$category = explode("|", $row[category]);
+
+} 
+
+if(!$row[sort_value]) $row[sort_value] = $sort;
+?>
+<form action="<?=$PHP_SELF?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="program_id" value="<?=$program_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="return_url" value="<?=$url?>" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title">제목</label></th>
+				<td><input type="text" name="title" id="title" class="inputFull required" value="<?=$row[title]?>" title="제목" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span>작업구분</th>
+				<td>
+					<input type="radio" name="work_category" id="work_category01" value="홈페이지 제작" checked/><label for="work_category01">홈페이지 제작</label>
+					<input type="radio" name="work_category" id="work_category02" value="쇼핑몰 제작" /><label for="work_category02">쇼핑몰 제작</label>
+					<input type="radio" name="work_category" id="work_category03" value="유지보수" /><label for="work_category03">유지보수</label>
+					<input type="radio" name="work_category" id="work_category04" value="온라인 광고" /><label for="work_category04">온라인 광고</label>
+					<input type="radio" name="work_category" id="work_category05" value="모바일 홈페이지 제작" /><label for="work_category05">모바일 홈페이지 제작</label>
+					<input type="radio" name="work_category" id="work_category06" value="반응형 홈페이지 제작" /><label for="work_category06">반응형 홈페이지 제작</label> 
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span>메인노출</th>
+				<td>
+					<input type="checkbox" name="show_main" id="show_main" value="Y" /><label for="show_main">메인 표출</label>
+				</td>
+			</tr>
+			<script type="text/javascript">
+				if("<?=$row[show_main]?>" == "Y"){
+					$("#show_main").attr("checked",true);
+				}
+			</script>
+			<tr>
+				<th scope="row">정렬값</th>
+				<td>
+					<input type="text" name="sort_value" id="" value="<?=$row[sort_value]?>"/>(높은값이 처음으로 나옴)
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="category">키워드</label></th>
+				<td id="category_area" class="category"><input type="text" name="category[]" value="<?=$category[0]?>" title="키워드" /> <a href="#" id="add_category" class="button gray">+ 추가</a>
+				<?
+					$count = 0;
+					foreach($category as $value){ 
+						if($count != 0){
+						$del_id = "#category_".$count;
+				?>
+					<div id="category_<?=$count?>">
+						<input type="text" name="category[]" value="<?=$value?>" /> 
+						<a href="#" id="del_category_<?=$count?>" onclick="$('<?=$del_id?>').remove();" class="button white">- 삭제</a>
+					</div>
+				<? 
+					}
+					$count++;
+				} 
+				?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="link_url">사이트 주소</label></th>
+				<td><input type="text" name="link_url" id="link_url" value="<?=$row[link_url]?>" title="사이트 주소" class="input300"/></td>
+			</tr>
+			<tr>
+				<th scope="row">내용</th>
+				<td>
+					<textarea name="contents" id="smart_content" rows="2" cols="2" style="display:none;" class="inputFull"><?=$row[contents]?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="link_url">대표 이미지</label></th>
+				<td class="file">
+					<span>
+						<?
+							$file_title = $row[title_img];
+							$del_ = "파일선택";
+							$del_2 = "";
+							if($file_title){
+								 $del_2 = "<label for='title_img' class='button white'><span>기존 첨부파일 : <a href='/upload/program/$program_id/$file_title' target='_blank'>$file_title</a></label>&nbsp;<input type='checkbox' name='title_img_del' value='Y' id='title_img_del'/> <label for='title_img_del'>첨부파일 삭제</label>";
+							}
+							echo "<div class='designFile'><input type='text' readonly='readonly' value=''/><input type='file' name='title_img' id='title_img' data-file-thumb='target' /> <label for='title_img' class='button white' > $del_</label> $del_2 </div>";
+						?>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">첨부파일</th>
+				<td class="file">
+					<?
+						for($i = 1; $i <= 5; $i++) {
+							$file_title = $row["file_".$i];
+							$del_ = "파일선택";
+							$del_2 = "";
+							if($file_title){
+								 $del_2 = "<label for='file_$i' class='button white'><span>기존 첨부파일 : <a href='/upload/program/$program_id/$file_title' target='_blank'>$file_title</a></label>&nbsp;<input type='checkbox' name='file_del_$i' value='Y'/> <label for='title_img_del'>첨부파일 삭제</label>";
+							}
+							echo "<div class='designFile'><input type='text' readonly='readonly' value=''/><input type='file' name='file_$i' id='file_$i' data-file-thumb='target' /> <label for='file_$i' class='button white' > $del_</label> $del_2 </div>";
+
+						 }
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="complete_date">완공일자</label></th>
+				<td><input type="text" name="complete_date" id="complete_date" value="<?=$row[complete_date]?>"  class="datepicker"/></td>
+			</tr>		
+		</tbody>
+	</table>
+	<script type="text/javascript">
+		$("input:radio[name='work_category']:radio[value='<?=$row[work_category]?>']").prop("checked",true); 
+	</script>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" onclick="msgImpletion();" class="button" value="저장" />
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;mode=list&amp;start=<?=$start?>&amp;no=<?=$row[no]?>" class="button gray">취소</a>
+	</div>
+</form>
+
+<!-- //버튼 -->
+<script type="text/javascript">
+	$("#add_category").click(function(){
+		var count = $("#category_area > div").size() + 1;
+		var del_id = "category_"+count;
+		$("#category_area").append("<div id='category_"+count+"'><input type='text' name='category[]' /> <a href='#' id='del_category_"+count+"' onclick='$(\"#"+del_id+"\").remove();' class='button white'><span>- 삭제</span></a></div>");
+	});
+</script>

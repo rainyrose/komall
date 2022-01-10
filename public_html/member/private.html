@@ -1,0 +1,14 @@
+<?
+//개인정보 처리방침
+$info1 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='private_info' AND lang='{$site_language}'"));
+
+//개인정보 수집 및 이용동의
+$info2 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='private_agree_regist' AND lang='{$site_language}'"));
+
+?>
+
+<!-- 개인정보 처리방침 -->
+<?=htmlspecialchars_decode($info1[contents])?>
+
+<!-- 개인정보 수집 및 이용동의 -->
+<?=htmlspecialchars_decode($info2[contents])?>

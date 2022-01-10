@@ -1,0 +1,56 @@
+<div id="paypal-button-container"></div>
+ <? $price = "11"; ?>
+<script src="https://www.paypal.com/sdk/js?client-id=AXroK-b_pcA5R5WE0itHfqGbWGMXWrv1utO4Q61COL5Vt9OmQ9hoSEmQr5HkX8HOe-DvHz0WBrIAb4_7&commit=false"></script>
+<form action="" id="form" name="pay" method="POST">
+	<input type="hidden" name="mode" value="order_proc" />
+	<input type="hidden" name="add_delivery_price" value="<?=get_add_delivery_price($connect, $_SESSION[member_id])?>" data-add-deliveryhidden/>
+	<input type="hidden" name="id" value="<?=$id?>" />
+	<input type="hidden" name="category" value="<?=$category?>" />
+	<input type="hidden" name="option_" value="<?=htmlspecialchars($options_json1, ENT_QUOTES)?>" />
+	<input type="hidden" name="order_id" value="<?=$order_id?>" />
+	<input type="hidden" name="ref_product" value="<?=$product_id?>" />
+	<input type="hidden" name="mid" value="<?=$mid?>" />
+</form>
+<script>
+  paypal.Buttons({
+
+    createOrder: function(data, actions) {
+      // This function sets up the details of the transaction, including the amount and line item details.
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: '<?=$price?>'
+          }
+	
+        }]
+      });
+    },
+
+
+    onApprove: function(data, actions) {
+      // This function captures the funds from the transaction.
+      return actions.order.capture().then(function(details) {
+        // This function shows a transaction success message to your buyer.
+		if(details.status == "COMPLETED"){
+			//넘어가자~~~넘어가자~~~
+			var form = document.pay;
+			form.action = "/ko_mall/product/user/proc.php";
+			form.submit();
+		} else {
+			//캔슬이다~
+			alert("실패되었습니다.");
+		}
+      });
+    }
+
+
+
+
+  }).render('#paypal-button-container');
+  //This function displays Smart Payment Buttons on your web page.
+
+</script>
+
+</body>
+
+</html>

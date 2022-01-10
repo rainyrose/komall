@@ -1,0 +1,129 @@
+<? include $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/top.html"; ?>
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/header.html"; ?>
+
+			<!-- visual -->
+			<?
+			$visual_query = "SELECT * FROM koweb_main_visual order by sort ASC";
+			$visual_result = query($visual_query);
+			$visual_num = mysqli_num_rows($visual_result);
+			if($visual_num){ ?>
+			<div class="area_visual">
+				<!-- 관리자연동 -->
+				<ul class="list">
+					<!-- 반복 -->
+
+					<? while($visual_row = mysqli_fetch_array($visual_result)){ ?>
+					<? if($visual_row[link]){ ?>
+						<li>
+							<!-- 링크가 있는경우 / 새창여부 -->
+							<a href="<?=$visual_row[link]?>" target="_blank">
+								<span class="web"><img src="/upload/program/koweb_main_visual/<?=$visual_row[pc_img]?>" alt="<?=$visual_row[title]?>"/></span><!-- pc 최적사이즈 1680 x 544 -->
+								<!-- mobile이미지없는경우 mob노출하지않기 -->
+								<span class="mob"><img src="/upload/program/koweb_main_visual/<?=$visual_row[mob_img]?>" alt="<?=$visual_row[title]?>"/></span><!-- mobile 최적사이즈 860 x 755 -->
+							</a>
+						</li>
+					<? }else{ ?>
+						<li>
+							<!-- 링크가 없는경우 -->
+							<div>
+								<span class="web"><img src="/upload/program/koweb_main_visual/<?=$visual_row[pc_img]?>" alt="<?=$visual_row[title]?>"/></span>
+								<span class="mob"><img src="/upload/program/koweb_main_visual/<?=$visual_row[mob_img]?>" alt="<?=$visual_row[title]?>"/></span>
+							</div>
+						</li>
+					<? } ?>
+					<? } ?>
+				</ul>
+			</div>
+			<? } ?>
+			<!-- //visual -->
+
+			<div id="container">
+				<!-- 본문 -->
+				<div id="content">
+
+					<?
+					$best_query = "SELECT * FROM koweb_product WHERE best='Y' AND shower='Y' AND seller='Y' ORDER BY sort ASC";
+					$best_result = query($best_query);
+					$best_num = mysqli_num_rows($best_result);
+
+					if($best_num){ ?>
+						<script type="text/javascript" src="/js/product.js"></script>
+					<div class="area_best">
+						<h2><i>BEST PRODUCT</i>베스트 상품</h2>
+
+						<!-- 목록 best체트한대로 노출되게해주세요. 갯수제한없음 -->
+						<ul class="list" data-shop-list="default">
+							<!-- 반복 -->
+							<? while($best_row = mysqli_fetch_array($best_result)){ ?>
+							<li>
+								<a href="/product/product.html?category=<?=$best_row[category]?>&id=<?=$best_row[id]?>&mode=view">
+									<!-- 이미지  -->
+									<span class="img">
+										<!-- 대표이미지 -->
+										<i><img src="/upload/product/<?=rawurlencode($best_row[title_img])?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+										<? if($pick_row[img_1]){?>
+										<i><img src="/upload/product/<?=rawurlencode($best_row[img_1])?>" alt="" onError="this.src='/images/board/no_image.gif';"/></i>
+										<? } ?>
+									</span>
+									<!-- 상품명 -->
+									<em><?=$best_row[product_title]?></em>
+									<!-- 간략설명 -->
+									<i><?=$best_row[simple_info]?></i>
+									<!-- 판매가격 / 시중가격 -->
+									<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+									<span class="price"><? if($best_row[origin_price]){?><i><?=number_format($best_row[origin_price])?></i><?}?><i><?=number_format($best_row[price])?></i></span>
+									<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+									<? if($best_row[origin_price]){?>
+										<span class="percent"><i>DC</i><?=100 - floor(($best_row[price]/$best_row[origin_price]) * 100)?>%</span>
+									<? } ?>
+									<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+									<span data-shop-icon="icon">
+										<!-- best -->
+										<i data-shop-icon="best">BEST</i>
+									</span>
+								</a>
+								<!-- 장바구니/관심상품/상세보기 -->
+								<div data-shop-list="util">
+									<a href="javascript:void(0)" onclick="wish_form_submit('<?=$best_row['id']?>')" class="interest">관심상품</a>
+									<a href="/product/product.html?category=<?=$best_row[category]?>&id=<?=$best_row[id]?>&mode=view" target="_blank" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<? } ?>
+							<!-- //반복 -->
+						</ul>
+
+						<div class="btn">
+							<a href="/product/product.html" class="more">더보기</a>
+							<a href="/contents/03_board/board.html?board_id=board_question">문의하기</a>
+						</div>
+					</div>
+					<? } ?>
+
+					<div class="area_info">
+						<div class="customer">
+							<h2>CUSTOMER</h2>
+							<a href="tel:<?=mall_config[company_phone]?>"><?=$mall_config[company_phone]?></a>
+							<ul>
+								<li><i>평일</i><span>오전 10:00 - 오후 5:00</span></li>
+								<li><i>토.일.공휴일</i><span>휴무</span></li>
+							</ul>
+						</div>
+						<?
+						//관리자 - 설정 - 사업자정보 설정 - 노출계좌에서 수정가능합니다.
+						echo htmlspecialchars_decode ($mall_config[company_bank])
+						?>
+						<div class="category">
+							<h2>ILMI CATEGORY</h2>
+							<ul class="site">
+							</ul>
+						</div>
+					</div>
+
+				</div>
+				<!-- //본문 -->
+			</div>
+
+
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/footer.html"; ?>

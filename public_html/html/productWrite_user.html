@@ -1,0 +1,96 @@
+<? include("../inc/top.html") ?>
+
+
+			<!-- 상품선택  -->
+			<div class="list_shop_review">
+				<!-- 작성된 해당상품 링크 상품상세 -->
+				<a href="#">
+					<!-- 대표이미지 -->
+					<i class="img"><img src="/images/shop/sample.jpg" alt=""/></i>
+					<!-- 제품명 -->
+					<em>
+						<!-- 블릿 아이콘이 없는경우 span까지 노출금지 -->
+						<span data-shop-icon="icon">
+							<i data-shop-icon="best">BEST</i>
+							<i data-shop-icon="new">NEW</i>
+						</span>
+						무항생제 한우 불고기용(1+등급)
+					</em>
+					<span data-shop-view="price">
+						<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+						<span class="price"><i>100,000</i><i>50,000</i></span>
+						<!-- 품절일경우 -->
+						<span class="sold">품절</span>
+					</span>
+				</a>
+			</div>
+			<!-- //상품선택  -->
+			
+			<!-- 글쓰기 -->
+			<table class="bbsView">
+				<caption>게시판 글쓰기</caption>
+				<colgroup>
+					<col data-write="th" style="width:15%"/>
+					<col data-write="td" style="width:85%"/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span><label for="title">제목</label></th>
+						<td><input type="text" name="title" id="title" class="inputFull"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span><label for="name">작성자</label></th>
+						<td><input type="text" name="name" id="name"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span>평점</th>
+						<td>
+							<div class="designRadio">
+								<input type="radio" name="" id=""/><label for=""><span data-shop-accordion="eval"><i class="on">매우불만족</i><i>불만족</i><i>보통</i><i>만족</i><i>매우만족</i></span></label>
+								<input type="radio" name="" id=""/><label for=""><span data-shop-accordion="eval"><i class="on">매우불만족</i><i class="on">불만족</i><i>보통</i><i>만족</i><i>매우만족</i></span></label>
+								<input type="radio" name="" id=""/><label for=""><span data-shop-accordion="eval"><i class="on">매우불만족</i><i class="on">불만족</i><i class="on">보통</i><i>만족</i><i>매우만족</i></span></label>
+								<input type="radio" name="" id=""/><label for=""><span data-shop-accordion="eval"><i class="on">매우불만족</i><i class="on">불만족</i><i class="on">보통</i><i class="on">만족</i><i>매우만족</i></span></label>
+								<input type="radio" name="" id=""/><label for=""><span data-shop-accordion="eval"><i class="on">매우불만족</i><i class="on">불만족</i><i class="on">보통</i><i class="on">만족</i><i class="on">매우만족</i></span></label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">비밀글 여부</th>
+						<td><div class="designCheck"><input type="checkbox" name="secret" id="secret"/><label for="secret">비밀글 사용</label></div></td>
+					</tr>
+					<tr>
+						<th scope="row">내용</th>
+						<td>
+							<textarea name="" id="" class="inputFull"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">첨부파일</th>
+						<td>
+							<div class="designFile">
+								<input type="text" readonly="readonly" value=""/>
+								<input type="file" name="fileUpload" id="fileUpload"/>
+								<label for="fileUpload" class="button white">파일선택</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span><label for="pin">비밀번호</label></th>
+						<td>
+							<input type="password" name="pin" id="pin"/>
+							<em>※ 글 수정, 삭제시 필요합니다.</em>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- //글쓰기 -->
+			
+			<!-- 버튼 -->
+			<div class="btn_area">
+				<a href="#" class="button">저장</a>
+				<a href="#" class="button gray">취소</a>
+			</div>
+			<!-- //버튼 -->
+
+
+<? include("../inc/footer.html") ?>

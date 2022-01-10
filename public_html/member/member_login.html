@@ -1,0 +1,189 @@
+
+	<!-- 내용 -->
+	<div class="area_shopLogin">
+		<a href="#tab01" class="tab title">회원정보입력</a>
+		<a href="#tab02" class="tab title">비회원 주문조회</a>
+
+		<!-- 회원 -->
+		<div data-login-tab="tab01">
+			<form method="post" action="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="mem_form">
+				<input type="hidden" name="mode" value="login_proc">
+				<input type="hidden" name="return_url" value="<?=$return_url?>">
+				<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+				<?
+				/*
+				2020-06-04
+				미로그인 상태일때 상품구매시 로그인후 다시 뷰페이지로 넘어가는 로직-> 바로 주문서로 넘어가도록 수정
+
+				1.product.php $order_data 생성 및 url에 추가
+				2.member_login.html에 order_data를 form태그안에 삽입
+				3.order_data 를 parse_str한다음, 해당 데이터를 return_url에서 /로 자른 데이터에 연결 login_proc , guest_login_proc에 추가.
+
+				*/
+				$_SESSION['sns_orderdata'] = $orderdata;
+				$_SESSION['sns_return_url'] = $return_url;
+				$_SESSION['sns_return_url2'] = $return_url22;
+				?>
+				<input type="hidden" name="order_data" value="<?=$orderdata?>">
+				<ul>
+					<li data-shop-login="id">
+						<label for="id">회원아이디</label>
+						<input type="text" id="id" name="id" class="inputFull" title="아이디" />
+					</li>
+					<li data-shop-login="pw">
+						<label for="password">비밀번호</label>
+						<input type="password" id="password" name="password" class="inputFull" title="비밀번호" />
+					</li>
+				</ul>
+				<input type="submit" class="btn_submit" value="Login" title="회원로그인">
+				<input type="button" class="btn_submit none" value="비회원구매" data-btn-event="login" title="비회원구매">
+
+				<? if($naver_login_flag || $kakao_login_flag || $facebook_login_flag){ ?>
+				<div class="login_social">
+					<? if($naver_login_flag){ ?>
+					<a href="<?=$naver_apiURL?>" class="btn_login_naver">네이버 아이디로 로그인</a>
+					<? } ?>
+
+					<? if($kakao_login_flag){ ?>
+					<a href="<?=$kakao_apiURL?>" class="btn_login_kakao">카카오계정으로 로그인</a>
+					<? } ?>
+
+					<? if($facebook_login_flag){ ?>
+					<script>
+					  window.fbAsyncInit = function() {
+						FB.init({
+							appId      : '922843571515241',
+							cookie     : true,
+							xfbml      : true,
+							version    : 'v7.0'
+						});
+
+						FB.AppEvents.logPageView();
+
+					  };
+
+					  (function(d, s, id){
+						 var js, fjs = d.getElementsByTagName(s)[0];
+						 if (d.getElementById(id)) {return;}
+						 js = d.createElement(s); js.id = id;
+						 js.src = "https://connect.facebook.net/en_US/sdk.js";
+						 fjs.parentNode.insertBefore(js, fjs);
+					   }(document, 'script', 'facebook-jssdk'));
+
+					   function loginPopup(){
+						 FB.login(function(response) {
+
+							 if(response.status == "connected"){
+								 $("#facebook").val("Y");
+								 $.ajax({
+									 type : "POST",
+									 url : "/member/facebook_login_session.php",
+									 data : response,
+									 success : function(args) {
+										 $("#mem_form").submit();
+									 }
+								 });
+							 }
+						 }, {scope: 'public_profile,email'});
+					   }
+					</script>
+					<input type="hidden" id="facebook" name="facebook" value="">
+					<a href="javascript:void(0)" onclick="loginPopup()"  class="btn_login_facebook">페이스북계정으로 로그인</a>
+					<? } ?>
+				</div>
+				<? } ?>
+
+			</form>
+			<!-- 버튼 -->
+			<div class="btn_area social">
+				<a href="/<?=$add_folder?>member/member.html?mode=agree">회원가입</a>
+				<a href="/<?=$add_folder?>member/member.html?mode=find_id">아이디 찾기</a>
+				<a href="/<?=$add_folder?>member/member.html?mode=find_pw">비밀번호 찾기</a>
+			</div>
+			<!-- //버튼 -->
+		</div>
+
+		<!-- 비회원 -->		
+		<div data-login-tab="tab02">
+			<form method="post" action="/<?=$add_folder?>member/member.html?start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="gform">
+				<input type="hidden" name="mode" value="guest_search_proc" />
+
+				<input type="hidden" name="return_url" value="<?=rawurldecode($return_url)?>">
+				<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+				<input type="hidden" name="order_data" value="<?=$orderdata?>">
+				<ul>
+					<li data-shop-login="id">
+						<label for="guest_id">주문자 아이디</label>
+						<input type="text" id="guest_id" name="guest_id" class="inputFull" title="주문자이름" />
+					</li>
+					<li data-shop-login="pw">
+						<label for="guest_password">주문조회 비밀번호</label>
+						<input type="password" id="guest_password" name="guest_password" class="inputFull" title="비회원주문조회 비밀번호입력" />
+					</li>
+				</ul>
+				
+				<button type="submit" class="btn_submit">Search</button>									
+			</form>
+		</div>
+
+	</div>
+
+	<script type="text/javascript">
+		$(function(){
+		$("[data-btn-event]").click(function(){
+			$("#gform input[name='mode']").val("guest_login_proc");
+			$("#gform").submit();
+			return false;
+			//
+			// var form = $('<form></form>');
+			// form.attr('action', '/<?=$add_folder?>member/member.html');
+			// form.attr('method', 'post');
+			// form.appendTo('body');
+			//
+			// var mode = $("<input type='hidden' value='guest_search_proc' name='mode'>");
+			// var guest_id = $("<input type='hidden' value='"+$("#guest_id").val()+"' name='guest_id'>");
+			// var guest_password = $("<input type='hidden' value='"+$("#guest_password").val()+"' name='guest_password'>");
+			// form.append(mode);
+			// form.append(guest_id);
+			// form.append(guest_password);
+			// form.submit();
+		});
+
+		$("#mem_form").submit(function(){
+
+			if(!$("#id").val()){
+				$("#id").focus();
+				alert("회원아이디를 입력하세요");
+				return false;
+			}
+
+			if(!$("#password").val()){
+				$("#password").focus();
+				alert("회원비밀번호를 입력하세요");
+				return false;
+			}
+		});
+
+
+		$("#gform").submit(function(){
+			if($("#gform input[name='mode']").val() == "guest_search_proc"){
+
+				if(!$("#guest_id").val()){
+					$("#guest_id").focus();
+					alert("주문자 아이디를 입력하세요");
+					return false;
+				}
+
+				if(!$("#guest_password").val()){
+					$("#guest_password").focus();
+					alert("주문조회 비밀번호를 입력하세요");
+					return false;
+				}
+			}
+		});
+
+
+		});
+	</script>
+
+	<!-- //내용 -->

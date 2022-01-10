@@ -1,0 +1,1284 @@
+<?
+if($_SESSION['order_type'] == "member"){
+	$mem = get_member($_SESSION['member_id']);
+    $member_id = $mem['id'];
+}else{
+    $member_id = $_SESSION['member_id'];
+}
+if(!$id) error("잘못된 접근입니다.");
+$product = get_product($id);
+
+
+if(!$product){
+	error("잘못된 접근입니다.");
+}
+$options_query = "SELECT * FROM koweb_option_set WHERE ref_product = '{$product['no']}' AND option_type = 'P' ORDER BY sort ASC";
+$options_result = mysqli_query($connect, $options_query);
+$options_num = mysqli_num_rows($options_result);
+
+?>
+			<form name='form' method="POST">
+				<input type='hidden' name='mode' value='order'/>
+				<input type='hidden' name='product_id' value='<?=$id?>' />
+				<input type='hidden' name='options' value=''/>
+				<input type='hidden' name='add_options' value=''/>
+				<input type='hidden' name='option_flag' value='<?=$options_num == 0 ? "N" : "Y"?>'/>
+				<input type='hidden' name='direct_option_name' id='direct_option_name' value='' />
+				<input type='hidden' name='direct_option' id="direct_option" value=''/>
+			</form>
+
+
+			<!-- 내용 -->
+			<div class="area_shopView">
+				<!-- 사진 / info -->
+				<div class="top">
+					<!-- photo -->
+					<div data-shop-view="photo">
+						<div class="img">
+							<? //타이틀 이미지
+							$img = $product['title_img'];
+							if($img){
+								$ext = end(explode(".", strtolower($img)));
+								if($ext == "jpg" || $ext == "png" || $ext == "jpeg" || $ext == "bmp"){ ?>
+									<img src="/upload/product/<?=$img?>" onError="this.src='/images/board/no_image.gif';"/>
+							<?	}
+							}
+							?>
+						</div>
+						<!-- 대표이미지 및 추가이미지는 순서대로 표시 -->
+						<ul class="list shopSliderView">
+							<? //타이틀 이미지
+							$img = $product['title_img'];
+							if($img){
+								$ext = end(explode(".", strtolower($img)));
+								if($ext == "jpg" || $ext == "png" || $ext == "jpeg" || $ext == "bmp"){ ?>
+									<li><a href="#"><img src="/upload/product/<?=$img?>" onError="this.src='/images/board/no_image.gif';"/></a></li>
+							<?	}
+							}
+							?>
+
+							<?
+							for($i = 1; $i <= 9; $i++){
+								$img = $product['img_'.$i];
+								if($img){
+									$ext = end(explode(".", strtolower($img)));
+									if($ext == "jpg" || $ext == "png" || $ext == "jpeg" || $ext == "bmp"){ ?>
+										<li><a href="#"><img src="/upload/product/<?=$img?>"/></a></li>
+								<?	}
+								}
+							}
+							?>
+						</ul>
+
+						<!-- 소셜 공유사용시 -->
+						<!-- 사용하지않을때 div까지 전체 노출금지 -->
+						<!-- <div data-shop-sns="sns">
+							<em>SNS LINK</em>
+							<a href="#" class="face"id="facebook">페이스북</a>
+							<a href="#" class="twitter" id="twitter">트위터</a>
+							<a href="#" class="kakao" id="kakao">카카오톡</a>
+						</div> -->
+						<!-- //소셜 공유사용시 -->
+					</div>
+
+					<!-- info -->
+					<div data-shop-view="info">
+						<!-- 상품명 및 블릿아이콘 노출 -->
+						<p class="title">
+							<!-- 블릿 아이콘이 없는경우 span까지 노출금지 -->
+							<?
+							$icon_arr = array(
+								"new"=>$product['new'],
+								"best"=>$product['best']
+							);
+							if(in_array("Y",$icon_arr) ){ ?>
+							<span data-shop-icon="icon">
+								<? foreach ($icon_arr as $key => $value) { ?>
+									<? if($value == "Y"){ ?>
+									<i data-shop-icon="<?=$key?>"><?=strtoupper($key)?></i>
+									<? } ?>
+								<? } ?>
+							</span>
+							<? } ?>
+							<span id="product_title"><?=$product['product_title']?></span>
+						</p>
+						<!-- 간략설명  -->
+						<span class="sub" id="simple_info"><?=$product['simple_info']?></span>
+
+						<!-- 가격 -->
+						<dl data-shop-view="price">
+							<?=dt_dd_html("제조사",$product['manufacturer'])?>
+							<?=dt_dd_html("원산지",$product['origin'])?>
+							<?=dt_dd_html("브랜드",$product['brand'])?>
+							<?=dt_dd_html("모델",$product['model'])?>
+							<dt  data-change-language>판매가격</dt>
+							<dd>
+								<? if($product[use_telform] == "Y"){ ?>
+									<span class="sold">
+										전화 문의
+									</span>
+									<span class="price">[<?=$mall_config[company_phone]?>]</span>
+								<? }else{ ?>
+									<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+									<span class="price">
+										<?if($product['origin_price']){ ?>
+											<i><?=number_format($product['origin_price'])?></i>
+										<? } ?>
+										<i><?=number_format($product['price'])?></i>
+									</span>
+									<!-- 품절일경우 -->
+									<?
+
+									// 2020-06-03 율마마보면서 seller가 노출에도 영향을 끼침을 꺠닫고 전먼 수정함.
+									// ------------------ 수정내용 --------------
+									// list 에서 seller = 'Y' 제거
+									// 품절에서 seller !='Y' 조건추가
+									//
+									// function get_product 에서 seller 빼기.
+									//
+									// view에서 품절노출부분에 조건 seller != 'Y' 추가
+									// refer 상품에도 조건추가
+									// 바로구매버튼을 품절일시에는 동작안하게
+									//
+									// order 에 soldout , get_stock , seller 조건추가및 필터
+									//
+									// cart에 all click함수에 :enabled 추가 , $soldout 변수 선언
+									// 품절조건은 체크박스 disalbed처리, 주문하기는 품절버튼으로
+
+									?>
+									<? if($product['use_soldout'] == "Y" || get_stock($connect,$id) || $product['seller'] != "Y"){ ?>
+									<span class="sold" data-change-language>품절</span>
+									<? } ?>
+								<? } ?>
+							</dd>
+							<dt data-change-language>배송비</dt>
+							<dd>
+								<?
+								if($product[deli_type] == "fix"){
+								?>
+									<?=change_free_and_add_won($product[deli_price])?>
+								<? }else if($product[deli_type] == "free"){ ?>
+									<span data-change-language>무료</span>
+								<? }else{ ?>
+
+									<?
+									$default_deli_query = "SELECT * FROM koweb_pay_config order by no desc limit 0,1";
+									$default_deli_result = mysqli_query($connect,$default_deli_query);
+									$default_deli_ = mysqli_fetch_array($default_deli_result);
+									?>
+
+									<? if($default_deli_['deli_type'] == "free"){ ?>
+									<span data-change-language>무료</span>
+									<? } ?>
+
+									<? if($default_deli_['deli_type'] == "def"){
+										$deli_price_type_list = explode("|",$default_deli_['deli_price_type']);
+										$deli_price_list = explode("|",$default_deli_['deli_price']);
+										$deli_price_list = change_free_and_add_won($deli_price_list);
+										foreach ($deli_price_type_list as $key => $value) {
+											if(change_free_and_add_won($value) == "무료"){ echo "<span data-change-language>".$deli_price_list[$key]."</span><br>"; continue;}
+											?>
+											<span class='deli_txt' data-change-language><?=change_free_and_add_won($value)?> 이상 배송비 <?=$deli_price_list[$key]?></span><br>
+									<?  }
+									} ?>
+
+									<? if($default_deli_['deli_type'] == "fix"){
+										echo "<span data-change-language>number_format($default_deli_[deli_price])<span>"."원";
+									}
+								} ?>
+							</dd>
+						</dl>
+						<!-- //가격 -->
+
+						<!-- 옵션 -->
+						<? if($options_num > 0){ ?>
+						<dl id='option_list' data-shop-view="option">
+							<?
+							$option_index = 0;
+							while($options_ = mysqli_fetch_array($options_result)){
+								if($options_num == ($option_index+1)) $func = "option_add();";
+								else $func = "";
+							?>
+							<dt ><?=$options_[title]?></dt>
+							<dd>
+								<span class='none_txt'  data-change-language>상위옵션을 선택해주세요</span>
+								<!-- 컬러옵션에 선택된 컬러코드 및 컬러명 노출 -->
+								<? if($options_[use_color] == "Y"){?>
+									<ul style='display:none;' class="color">
+										<?
+											$options_detail_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$product[no]' AND option_type = 'C' AND ref_parents = '$options_[no]' AND option_state != 'N' ORDER BY sort ASC, no ASC";
+											$options_detail_result = mysqli_query($connect, $options_detail_query);
+
+											while($options_detail = mysqli_fetch_array($options_detail_result)){
+										?>
+
+											<li>
+												<a href="javascript:void(0)" data-option-index="<?=$option_index?>" onclick="use_color(this);<?=$func?>"><span data-origin-color="<?=$options_detail[color_value]?>" style="background-color:<?=$options_detail[color_value]?>"><?=$options_detail[option_title]?></span></a>
+											</li>
+										<? } ?>
+									</ul>
+									<!-- 컬러 클릭시 노출 처음에 노출안함 -->
+									<p class="color_choice" style="display:none";><span style="background-color:"></span>  </p>
+								<? } else { ?>
+
+									<select style='display:none;' data-option-index="<?=$option_index?>" class='option_select' onchange="set_next_option(this);<?=$func?>">
+									<option value="">선택해주세요</option>
+									<?
+										$options_detail_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$product[no]' AND option_type = 'C' AND ref_parents = '$options_[no]' AND option_state != 'N' ORDER BY sort ASC, no ASC";
+										$options_detail_result = mysqli_query($connect, $options_detail_query);
+
+										while($options_detail = mysqli_fetch_array($options_detail_result)){
+										?>
+											<option value="<?=$options_detail[option_title]?>"><?=$options_detail[option_title]?></option>
+										<? } ?>
+									</select>
+								<? } ?>
+							</dd>
+								<?
+								$option_index++;
+								} ?>
+						</dl>
+						<? } ?>
+
+						<?
+						$options_add_query = "SELECT * FROM koweb_option_detail WHERE ref_product = '$product[no]' AND otype = 'add' AND state='Y' ORDER BY sort ASC";
+						$options_add_result = mysqli_query($connect, $options_add_query);
+						$options_add_num = mysqli_num_rows($options_add_result);
+						?>
+						<!-- 추가상품 -->
+						<? if($options_add_num > 0){ ?>
+						<dl id='add_option_list' data-shop-view="option">
+							<dt>추가옵션</dt>
+							<dd>
+								<select class='option_select' onchange="set_next_add_option(this);">
+									<option value="">선택해주세요</option>
+								<? while($options_add_ = mysqli_fetch_array($options_add_result)){ ?>
+									<option <?=$options_add_['soldout'] == "Y"? "disabled" : "" ?> value="<?=$options_add_['title']?>">
+										<?=$options_add_['title']?> [<?=$options_add_['price_type']?><?=$options_add_['price']?>]
+										<? if($options_add_['soldout'] == "Y"){ ?> [품절] <? } ?>
+									</option>
+								<? } ?>
+								</select>
+							</dd>
+						</dl>
+						<? } ?>
+							<!-- 직접입력 옵션 -->
+							<?
+								/*$options_direct_query = "SELECT * FROM koweb_option_detail WHERE ref_product = '$product[no]' AND otype = 'direct' AND state='Y' ORDER BY sort ASC";
+								$options_direct_result = mysqli_query($connect, $options_direct_query);
+								$options_direct_row = mysqli_fetch_array($options_direct_result);
+								$options_direct_num = mysqli_num_rows($options_direct_result);*/
+							?>
+							<?	//if($options_direct_num > 0){?>
+									<!--<dl id='add_option_list' data-shop-view="option">
+										<dt><?=$options_direct_row[title]?></dt>
+										<dd>
+											<input type="text" name="input_option" id="input_option"  class="input400"/>
+										</dd>
+									</dl>-->
+							<?	//}?>
+						
+						<!-- 최소구매 최대구매갯수 -->
+						<div data-shop-view="number">
+							<!-- 값이 없는경우 노출안해도댐 -->
+							<? if($product['min_count']){ ?>
+							<span data-change-language>최소 주문수량 갯수는 <i><?=$product['min_count']?></i> 개 이상</span>
+							<? } ?>
+							<? if($product['max_count']){ ?>
+							<span data-change-language>최대 주문수량 갯수는 <i><?=$product['max_count']?></i> 개 이하</span>
+							<? } ?>
+						</div>
+
+						<!-- 옵션 선택완료된 상품 -->
+						<div data-shop-view="choice">
+							<ul id='option_choice'>
+								<!-- 반복 -->
+								<li id="option_choice_clone" style='display:none;'>
+									<!-- 선택한상품 -->
+									<span>제목</span>
+									<span>
+										<div class="count">
+											<button onclick="option_minus(this)" type="button" class="minus">빼기</button>
+											<input <?=__only_float?> type="text" class="option_count" value="1"/>
+											<button onclick="option_plus(this)" type="button" class="plus">더하기</button>
+										</div>
+										<!-- <span>[남은수량 : <i class='stock'>재고</i>개]</span> -->
+									</span>
+									<span class='option_total_price'>금액</span>
+									<a href="javascript:void(0);" onclick="option_del(this)" class="del">삭제</a>
+								</li>
+								<!-- //반복 -->
+								<? if($options_num == 0){ ?>
+								<li id="" class="none" data-option-id="<?=$product['id']?>" data-option-price="" data-option-price-type="+" data-option-stock="<?=$product['stock_count']?>">
+									<!-- 선택한상품 -->
+									<span><?=$product['product_title']?></span>
+									<span>
+										<div class="count">
+											<button onclick="option_minus(this)" type="button" class="minus">빼기</button>
+											<input <?=__only_float?> type="text" class="option_count" value="1"/>
+											<button onclick="option_plus(this)" type="button" class="plus">더하기</button>
+										</div>
+										<!-- <span>[남은수량 : <i><?=number_format($product['stock_count'])?></i>개]</span> -->
+									</span>
+								</li>
+								<? } ?>
+							</ul>
+						</div>
+						<!-- //옵션 선택완료된 상품 -->
+
+						<!-- total 가격 -->
+						<div data-shop-view="total">
+							<i  data-change-language>총 상품금액(수량) :</i>
+							<? if($product['use_telform'] == "Y"){ ?>
+							<em style='display:none;'  id="option_total_price"  data-change-language>0원</em>
+							<i  style='display:none;' id="option_total_count"  data-change-language>(0개)</i>
+							<em  data-change-language>전화문의</em>
+							<? }else{ ?>
+							<em id="option_total_price"  data-change-language>0원</em>
+							<i id="option_total_count"  data-change-language>(0개)</i>
+							<? } ?>
+						</div>
+
+						<!-- btn -->
+						<div class="box_btn">
+							<? if($product['use_soldout'] == "Y" || get_stock($connect,$id) || $product['seller'] != "Y"){ ?>
+								<a href="javascript:void(0)" class="button lg red"  data-change-language>품절</a>
+							<? }else{ ?>
+							<a href="javascript:void(0)" onclick="order_submit()" class="button lg"  data-change-language>바로구매</a>
+							<? if($product[use_telform] != "Y"){ ?>
+								<a href="javascript:void(0)" onclick="set_cart();" class="button lg white"  data-change-language>장바구니</a>
+							<? } ?>
+							<? } ?>
+							<a href="javascript:void(0)" onclick="wish_form_submit('<?=$product['id']?>');" class="button lg white" data-change-language>관심상품</a>
+						</div>
+					</div>
+				</div>
+
+				<div data-shop-view="conts">
+					<!-- tab -->
+					<ul data-shop-view="tab">
+						<li><a href="#shopView01" data-change-language>상품<br/>상세정보</a></li>
+						<li><a href="#shopView02" data-change-language>상품<br/>구매안내</a></li>
+						<li><a href="#shopView03" data-change-language>상품<br/>사용후기</a></li>
+						<!-- <li><a href="#shopView04">상품<br/>Q&A</a></li> -->
+						<li><a href="#shopView05" data-change-language>관련<br/>상품</a></li>
+					</ul>
+					<!-- //tab -->
+
+					<!-- 상품상세정보 -->
+					<div id="shopView01">
+
+						<!--pc-->
+						<div><?=htmlspecialchars_decode($product[web_content])?></div>
+						<!--mob-->
+						<div><?=htmlspecialchars_decode($product[mob_content])?></div>
+						<!--상세-->
+						<div>
+						<table class="bbsView mt20" data-load-simpleinfo>
+							<caption  data-change-language>상품요약정보</caption>
+							<colgroup>
+								<col data-write="th" style="width:25%"/>
+								<col data-write="td" style="width:75%"/>
+							</colgroup>
+							<tbody>
+							<?
+							$setting_table = "koweb_product_simple_info_data";
+							$query = "SELECT * FROM $setting_table WHERE category = '$product[set_type]' ORDER BY no ASC";
+
+							$result = mysqli_query($connect, $query);
+							$count = 1;
+							$data_query =  mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_simple_info WHERE ref_product = '$product[no]' order by no desc LIMIT 1"));
+							while($row2 = mysqli_fetch_array($result)){
+								echo "<tr><th scope=\"row\">".$row2[field_name]."</th><td>".$data_query["field_".$count]."<p class=\"info\">".$row2[field_txt]."</p></td></tr>";
+								$count++;
+							}
+							?>
+							</tbody>
+						</table>
+						</div>
+
+
+					</div>
+					<!-- //상품상세정보 -->
+
+
+
+					<!-- 상품구매안내 -->
+					<div id="shopView02">
+						<!--<?=htmlspecialchars_decode($site_pay[deli_content])?>-->
+
+						<? $regist_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='regist_info' AND lang='{$site_language}'")); ?>
+						<? if($regist_i[contents]){?>
+							<?=htmlspecialchars_decode($regist_i[contents])?>
+						<? } ?>
+
+						<? $order_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='order_info' AND lang='{$site_language}'")); ?>
+						<? if($order_i[contents]){?>
+							<?=htmlspecialchars_decode($order_i[contents])?>
+						<? } ?>
+
+						<? $pay_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='pay_info' AND lang='{$site_language}'")); ?>
+						<? if($pay_i[contents]){?>
+							<?=htmlspecialchars_decode($pay_i[contents])?>
+						<? } ?>
+
+
+						<? $deli_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='deli_info' AND lang='{$site_language}'")); ?>
+						<? if($deli_i[contents]){?>
+							<?=htmlspecialchars_decode($deli_i[contents])?>
+						<? } ?>
+
+						<? $ex_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='ex_info' AND lang='{$site_language}'")); ?>
+						<? if($ex_i[contents]){?>
+							<?=htmlspecialchars_decode($ex_i[contents])?>
+						<? } ?>
+
+						<? $refund_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='refund_info' AND lang='{$site_language}'")); ?>
+						<? if($refund_i[contents]){?>
+							<?=htmlspecialchars_decode($refund_i[contents])?>
+						<? } ?>
+
+						<? $point_i = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='point_info' AND lang='{$site_language}'")); ?>
+						<? if($point_i[contents]){?>
+							<?=htmlspecialchars_decode($point_i[contents])?>
+						<? } ?>
+					</div>
+					<!-- //상품구매안내 -->
+
+					<!-- 상품사용후기 -->
+					<div id="shopView03">
+					</div>
+					<!-- //상품사용후기 -->
+					<script>
+					$(function(){
+						getAjaxList("0","<?=$product['no']?>","board_review<?=$add_board_id?>","review","shopView03");
+					})
+
+					function getAjaxList(start,no,board_id,file,target){
+						$.ajax({
+							type : "POST",
+							url : "/ko_mall/product/"+file+"/<?=$add_folder?>ajax_list.php",
+							data : {
+								start : start,
+								no : no,
+								board_id : board_id,
+								site_language : '<?=$site_language?>'
+							},
+							success : function(args) {
+									$("#"+target).html(args);
+									shopAccor();
+							}
+						});
+					}
+
+					$(function(){
+						// getAjaxList("0","<?=$product['no']?>","board_qna<?=$add_board_id?>","qna","shopView04");
+					})
+
+					function check_password(no,obj){
+					    var no = no;
+						var password = find_class_in_obj("password",obj.parentElement).value;
+						$.ajax({
+							type : "POST",
+							url : "/ko_mall/product/qna/<?=$add_folder?>ajax_password_check.php",
+							data : {
+								no : no,
+								password : password,
+								board_id : 'board_qna<?=$add_board_id?>'
+							},
+							success : function(args) {
+								if(args.trim() == "false"){
+									alert('비밀번호가 틀렸습니다.');
+								}else{
+									obj.parentElement.parentElement.innerHTML = args
+								}
+							}
+						});
+					}
+					</script>
+					<!-- 상품Q&A -->
+					<!-- <div id="shopView04">
+					</div> -->
+					<!-- //상품Q&A -->
+					<?
+					$targets_index = str_replace("|","','",$product['refer_product']);
+					$refer_query = "SELECT * FROM koweb_product WHERE id in('{$targets_index}')";
+					$refer_result = mysqli_query($connect,$refer_query);
+					$refer_num = mysqli_num_rows($refer_result);
+					?>
+					<!-- 관련상품 -->
+
+					<div id="shopView05">
+						<p class="title">RECOMMEND ITEMS</p>
+						<span class="sub"  data-change-language>같이 보면 좋은 상품을 소개해드립니다.</span>
+						<?if($refer_num > 0){ ?>
+						<!-- 목록 -->
+						<ul data-shop-list="default" class="shopSliderGroup">
+							<!-- 반복 -->
+							<?
+							while($refer_product = mysqli_fetch_array($refer_result)){
+								$origin_price_flag = false;
+								if(!empty($refer_product['origin_price'])) $origin_price_flag = true;
+							?>
+							<li>
+								<a href="/<?=$add_folder?>product/product.html?category=<?=$category?>&id=<?=$refer_product['id']?>&mode=view&sort_mode=<?=$sort_mode?>">
+									<!-- 이미지  -->
+									<span class="img">
+										<!-- 대표이미지 -->
+										<i><img src="/upload/product/<?=$refer_product['title_img']?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+										<? if($refer_product['img_1']){?>
+										<i><img src="/upload/product/<?=$refer_product['img_1']?>" alt=""/></i>
+										<? } ?>
+									</span>
+									<!-- 상품명 -->
+									<em><?=$refer_product['product_title']?></em>
+									<!-- 간략설명 -->
+									<i><?=$refer_product['simple_info']?></i>
+									<!-- 판매가격 / 시중가격 -->
+									<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+									<? if(get_stock($connect, $refer_product[id]) || $refer_product['seller'] != "Y" || $refer_product['use_soldout'] == "Y"){ ?>
+										<span class="sold">품절</span>
+									<? } else {?>
+										<span class="price">
+											<? if($refer_product['use_telform'] != "Y"){ ?>
+												<? if($refer_product[origin_price]){ ?>
+												<i><?=number_format($refer_product[origin_price])?></i>
+												<? } ?>
+												<? if($refer_product[price]){ ?>
+												<i><?=number_format($refer_product[price])?></i>
+												<? } ?>
+											<? }else{ ?>
+												전화문의
+											<? } ?>
+										</span>
+										<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+										<? if($refer_product[origin_price]){?>
+											<span class="percent"><i>DC</i><?=100 - floor(($refer_product[price]/$refer_product[origin_price]) * 100)?>%</span>
+										<? } ?>
+									<? } ?>
+									<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+									<? if($refer_product[best] == "Y" || $refer_product['new'] == "Y"){ ?>
+									<span data-shop-icon="icon">
+										<!-- best -->
+										<? if($refer_product[best] == "Y"){ ?> <i data-shop-icon="best">BEST</i> <? } ?>
+										<!-- new -->
+										<? if($refer_product['new'] == "Y"){ ?> <i data-shop-icon="new">NEW</i> <? } ?>
+									</span>
+									<? } ?>
+								</a>
+								<!-- 관심상품/상세보기 -->
+								<div data-shop-list="util">
+									<a href="javascript:void(0)" onclick="wish_form_submit('<?=$refer_product['id']?>')" class="interest">관심상품</a>
+									<a href="/<?=$add_folder?>product/product.html?category=&id=<?=$refer_product['id']?>&mode=view&sort_mode=<?=$sort_mode?>" target="_blank" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<!-- //반복 -->
+						<? } ?>
+
+						</ul>
+						<? }else{ ?>
+							<div class="shop_nodata"  data-change-language>연관 상품이 없습니다.</div>
+						<? } ?>
+					</div>
+					<!-- //관련상품 -->
+				</div>
+
+			</div>
+			<!-- //내용 -->
+
+<script>
+	
+	var doc = window.document;
+	var price = "<?=$product['price']?>";
+	var minCount = "<?=$product['min_count']?>";
+	var maxCount = "<?=$product['max_count']?>";
+	//2020-07-15
+
+	var removed_array_0 = $("[data-option-index=0]").html();
+	var removed_array_1 = $("[data-option-index=1]").html();
+	var removed_array_2 = $("[data-option-index=2]").html();
+
+	<?
+	$sold_query = "SELECT type_id FROM koweb_option_detail WHERE ref_product='{$product['no']}' AND (soldout='Y' OR stock='0')";
+	$result = mysqli_query($connect,$sold_query);
+	$soldout_tmp_type_id_array = array();
+	while($option = mysqli_fetch_array($result)){
+		if($option['type_id'] != "")
+		array_push($soldout_tmp_type_id_array,$option['type_id']);
+	}
+
+	$state_query = "SELECT type_id FROM koweb_option_detail WHERE ref_product='{$product['no']}' AND state !='N' AND otype='detail'";
+	$result = mysqli_query($connect,$state_query);
+	$state_tmp_type_id_array = array();
+	while($option = mysqli_fetch_array($result)){
+		if($option['type_id'] != "")
+		array_push($state_tmp_type_id_array,$option['type_id']);
+	}
+
+	$price_query = "SELECT type_id,price,price_type FROM koweb_option_detail WHERE ref_product='{$product['no']}' AND state = 'Y' AND otype='detail'";
+	$result = mysqli_query($connect,$price_query);
+	$price_tmp_type_id_array = array();
+	while($option = mysqli_fetch_array($result)){
+		if($option['type_id'] != "")
+		array_push($price_tmp_type_id_array,"'{$option['type_id']}' : '{$option['price_type']}".number_format($option['price'])."'");
+	}
+	?>
+	var soldoutList = new Array("<?=join('","',$soldout_tmp_type_id_array)?>");
+	if(soldoutList[0] == "") soldoutList = new Array();
+	var stateList = new Array("<?=join('","',$state_tmp_type_id_array)?>");
+	if(stateList[0] == "") stateList = new Array();
+	var priceList = {<?=join(',',$price_tmp_type_id_array)?>};
+
+	if(doc.getElementById('option_list'))
+	var optionList = doc.getElementById('option_list').querySelectorAll('dd');
+	else
+	var optionList = new Array();
+
+	var optionTotalPrice = 0;
+	var optionTotalCount = 0;
+	set_next_option();
+
+	function loop_option_list(callback,startIndex){
+		var index = startIndex||0;
+		for(var i=index;i<optionList.length;i++){
+			var option = optionList[i];
+			var type = option.children[1].nodeName;
+			if(callback(option,type,i)===false) break;
+		}
+	}
+
+	function loop_option_choice(callback){
+		var choiceOptionList = doc.getElementById("option_choice").children;
+		for(var i=0;i<choiceOptionList.length;i++){
+			var countObj = choiceOptionList[i].children[1].children[0].children[1]
+			var choiceOption = choiceOptionList[i];
+			if(choiceOption.getAttribute("id")!="option_choice_clone"){
+				callback(choiceOption,countObj);
+			}
+		}
+	}
+
+	function set_next_add_option(obj){
+		var options = obj.options;
+		var title = obj.value;
+
+		$.ajax({
+			type : "POST",
+			url : "/ko_mall/product/user/ajax_add_option.php",
+			data : {
+				product_id : "<?=$product['no']?>",
+				title : title
+			},
+			success : function(args) {
+				var res = JSON.parse(args);
+				if(res.flag == "OK"){
+					var price = res.price_type+res.price;
+					append_option(title,price,res.id,res.stock,"add");
+					cal_option_price();
+					obj.value="";
+				}
+			}
+		});
+	}
+
+	function set_next_option(obj){
+
+		var changeIndex = 0;
+		var nextIndex = 0;
+		var valueList = new Array();
+		var tmpList;
+
+
+		//not first check
+		if(typeof obj != "undefined"){
+			//now option index check
+			changeIndex = Number(obj.dataset.optionIndex);
+			nextIndex = Number(obj.dataset.optionIndex)+1;
+		}
+
+
+
+
+
+
+		//delete option
+		//전체적인 옵션은 기본적으로 display none처리 되어있고, 상위옵션을 선택해주세요 텍스트가 노출
+		//아래 loop는 현재 선택이 필요한 옵션하위 모두 none 및 텍스트처리(상위옵션~~)
+		loop_option_list(function(option,type){
+			if(type == "UL"){ //color
+				//target is Element of color value
+				var target = option.querySelectorAll('.color_choice')[0];
+				target.children[0].innerText="";
+				target.style.display = "none";
+			}else{ // other
+				var target = option.querySelectorAll('.option_select')[0];
+				target.value = ""
+			}
+			//현재선택한 옵션의 다음을 제외한 오브젝트 논 처리
+			if(i != nextIndex){
+				//0 of option children is text
+				//1 of option children is optionElement
+				option.children[0].style.display="block";
+				option.children[1].style.display="none";
+				target.style.display = "none";
+			}
+
+
+		},nextIndex);
+
+		//show option
+		for(var i=0;i<=nextIndex;i++){
+			var option = optionList[i];
+			if(option){
+				var type = option.children[1].nodeName;
+				var target = option.children[1];
+				if(type == "UL"){ //color
+					if(option.querySelectorAll(".color_choice")[0].style.display != "none"){
+						var optionValue = option.querySelectorAll(".color_choice")[0].innerText;
+						valueList.push(optionValue.replace(/ /gi, ""));
+					}
+				}else{ // other
+					if(target.value != ""){
+						var optionValue = target.value;
+						valueList.push(optionValue.replace(/ /gi, ""));
+					}
+				}
+				option.children[0].style.display="none";
+				target.style.display = "block";
+			}
+		}
+
+
+		//2020-07-19
+		//참조할 복사 데이터를 중심으로 돌아가는 이후, delete_option이전의 로직들은 불필요.
+		// 이후 마지막 인덱스 체크는 delete_option로 이전
+        if( (optionList.length-1) == nextIndex){
+            // check_soldout();
+        }
+		delete_option(nextIndex,valueList);
+	}
+
+	function delete_option(nextIndex,valueList){
+		var valueTxt;
+		var nowValueEmpty = false;
+		if(valueList.length == nextIndex) nowValueEmpty = true;
+		valueTxt = valueList.join("|").replace(/ /gi, "");
+
+		loop_option_list(function(option,type){
+			if(type == "UL"){ //color
+				var target = option.querySelectorAll('.color_choice')[0];
+				var targets = target.parentElement.querySelectorAll("ul.color li a span");
+			}else{ // other
+
+				//2020-07-15 자바스크립트 어렵노 걍 jquery ㄱㄱ
+				$("[data-option-index='"+nextIndex+"']").html(this['removed_array_'+nextIndex]);
+				var target = option.querySelectorAll('.option_select')[0];
+				var targets = target.children;
+			}
+			targetsLen = targets.length;
+
+			//console.log(nextIndex);
+			//console.log(this['removed_array_'+nextIndex]);
+			for(var i=0; i< targetsLen; i++){
+				if(targets[i] && targets[i].value != ""){
+
+					var tmpValueList = new Array();
+					if(valueTxt != "")
+					tmpValueList.push(valueTxt);
+					if(targets[i].nodeName == "OPTION"){
+						tmpValueList.push(targets[i].value);
+					}else{
+						tmpValueList.push(targets[i].innerText);
+					}
+					var selectValue = tmpValueList.join("|").replace(/ /gi, "");
+					var agreeList = stateList.filter(function(v,i){
+						$tmp_s = v.split("|");
+						$tmp_s2 = selectValue.split("|");
+
+						$tmp_str = $tmp_s[0];
+						$tmp_str2 = $tmp_s2[0];
+
+						$tmp_last_str = $tmp_s[nextIndex];
+						$tmp_last_str2 = $tmp_s2[nextIndex];
+						// if($tmp_str == $tmp_str2) return stateList[i];
+
+						//2020-07-19
+						//첫 옵션 선택이 SS (덕용)인데, S도 같이 검색되는 현생 발견. 맨처음만 일치하면 |가 섞이면서 검색가능함.
+						//그러므로 첫인덱스 텍스트만 비교. 후 indexOf로 풀텍스트 일치 체크.
+						if($tmp_str == $tmp_str2 && $tmp_last_str ==  $tmp_last_str2 && v.indexOf(selectValue) == 0) return stateList[i];
+					})
+					if(agreeList.length <= 0){
+                        if(type == "UL"){
+                            targets[i].parentElement.setAttribute('style','display:none !important');
+                        }else{
+							//alert(this['removed_array_'+nextIndex]);
+							//alert(removed_array_1[1]);
+                           //targets[i].setAttribute('style','display:none !important');
+							//targets[i].remove();
+
+							//2020-07-15
+							target.removeChild(targets[i]);
+
+							//2020-07-19 removeChild 가 진행될때마다 target이 재배열됨. i타겟을 2단계 뛰어넘는 버그 발생.
+							// 그러므로 i와 len 둘다 -1씩 처리해줌
+							i--;
+							targetsLen--;
+
+                        }
+                    }else{
+                        if(type == "UL"){
+                            targets[i].parentElement.setAttribute('style','display:block !important');
+                        }else{
+                            targets[i].setAttribute('style','display:block !important');
+                        }
+                    }
+				}
+			}
+
+			if( (optionList.length-1) == nextIndex){
+				set_option_price(nextIndex);
+				check_soldout()
+			}
+			return false;
+		},nextIndex)
+
+
+	}
+
+	function set_option_price(lastIndex){
+		var valueList = new Array();
+
+		//옵션들 loop돌면서 선택되지않은 옵션이있다면 Stop
+		loop_option_list(function(option,type){
+			if(type == "UL"){ //color
+				var target = option.querySelectorAll('.color_choice')[0];
+				if(target.style.display == "none") return;
+				var optionValue = target.innerText;
+			}else{ // other
+				var target = option.querySelectorAll('.option_select')[0];
+				if(target.value == "") return;
+				var optionValue = target.value;
+			}
+			valueList.push(optionValue);
+		})
+		//현재 선택된 메뉴를 기반으로 마지막 선택지에서 품절 표시되기위한 데이터 get
+		var valueTxt = valueList.join("|").replace(/ /gi, "");
+		var targetPriceList = check_object_filed(valueTxt,priceList);
+
+		//품절 표시 로직
+		var option = optionList[optionList.length-1];
+		var type = option.children[1].nodeName;
+		target = option.children[1];
+		if(type == "UL"){ //color
+			for(var i = 0; i < target.children.length; i++){
+				var spanObj = target.children[i].children[0].children[0];
+				var aObj = target.children[i].children[0];
+				var eventStart = target.children[i].children[0].getAttribute("onclick").replace("alert('품절');return; ","");
+				var tmpArray = valueList.slice();
+				tmpArray.push(spanObj.innerText);
+				var checkText = tmpArray.join("|").replace(/ /gi, "");
+				aObj.innerHTML = aObj.innerHTML.replace(/<i>\[(\+|\-){0,1}[0-9|\,]*\]<\/i>/gi, "");
+				if(targetPriceList[checkText]){
+					aObj.innerHTML = aObj.innerHTML+"<i>["+targetPriceList[checkText]+"]</i>";
+				}
+				target.children[i].children[0].setAttribute("onclick",eventStart);
+				aObj.className = aObj.className.replace("sold ","");
+			}
+		}else{ // other
+			for(var i = 0; i < target.children.length; i++){
+				var tmpArray = valueList.slice();
+				tmpArray.push(target.children[i].value);
+				var checkText = tmpArray.join("|").replace(/ /gi, "");
+				target.children[i].innerText = target.children[i].innerText.replace(/\[(\+|\-){0,1}[0-9|\,]*\]/gi, "");
+				if(targetPriceList[checkText]){
+					if( targetPriceList[checkText] == "+"){
+						var tx_price = "";
+					} else {
+						var tx_price = " ["+targetPriceList[checkText]+"]";
+					}
+					target.children[i].innerText = target.children[i].innerText+tx_price;
+				}
+			}
+		}
+
+	}
+
+	function check_soldout(){
+		var valueList = new Array();
+
+		//옵션들 loop돌면서 선택되지않은 옵션이있다면 Stop
+
+		loop_option_list(function(option,type){
+			if(type == "UL"){ //color
+				var target = option.querySelectorAll('.color_choice')[0];
+				if(target.style.display == "none") return;
+				var optionValue = target.innerText;
+			}else{ // other
+				var target = option.querySelectorAll('.option_select')[0];
+				if(target.value == "") return;
+				var optionValue = target.value;
+			}
+			valueList.push(optionValue);
+		})
+		//현재 선택된 메뉴를 기반으로 마지막 선택지에서 품절 표시되기위한 데이터 get
+		var valueTxt = valueList.join("|").replace(/ /gi, "");
+		var banFieldList = check_array_filed(valueTxt,soldoutList);
+		//품절 표시 로직
+		var option = optionList[optionList.length-1];
+		var type = option.children[1].nodeName;
+		target = option.children[1];
+		if(type == "UL"){ //color
+			for(var i = 0; i < target.children.length; i++){
+				var spanObj = target.children[i].children[0].children[0];
+				var aObj = target.children[i].children[0];
+				var eventStart = target.children[i].children[0].getAttribute("onclick").replace("alert('품절');return; ","");
+				var tmpArray = valueList.slice();
+				tmpArray.push(spanObj.innerText);
+				var checkText = tmpArray.join("|").replace(/ /gi, "");
+
+				target.children[i].children[0].setAttribute("onclick",eventStart);
+				aObj.className = aObj.className.replace("sold ","");
+				//품절은 아래 처리
+				if(banFieldList.indexOf(checkText) >= 0){
+					var eventStop = "alert('품절');return; "+target.children[i].children[0].getAttribute("onclick");
+					target.children[i].children[0].setAttribute("onclick",eventStop);
+					aObj.className = "sold "+aObj.className;
+				}
+
+			}
+		}else{ // other
+			for(var i = 0; i < target.children.length; i++){
+				var tmpArray = valueList.slice();
+				tmpArray.push(target.children[i].value);
+				var checkText = tmpArray.join("|").replace(/ /gi, "");
+
+				target.children[i].innerText = target.children[i].innerText.replace(" [품절]","");
+				if(banFieldList.indexOf(checkText) >= 0){
+					target.children[i].setAttribute('disabled','disabled');
+					target.children[i].innerText = target.children[i].innerText+" [품절]";
+				}else{
+					target.children[i].removeAttribute('disabled');
+				}
+			}
+		}
+	}
+
+	function check_stock(){
+		var loopFlag = true;
+		loop_option_choice(function(optionObj,countObj){
+			var optionType = optionObj.dataset.optionType;
+			var optionId = optionObj.dataset.optionId;
+			var optionStock = optionObj.dataset.optionStock;
+
+			if(Number(optionStock) < Number(countObj.value)){
+				alert('남은수량을 확인해주세요.');
+				loopFlag = false;
+				return false;
+			}
+		})
+
+		return loopFlag;
+	}
+
+	//색상 옵션 선택 로직
+	function use_color(obj){
+		var color = obj.children[0].style.backgroundColor;
+		var color_text = obj.children[0].innerText;
+		var colorChoiceObj = obj.parentNode.parentNode.parentElement.getElementsByClassName('color_choice')[0];
+		colorChoiceObj.style.display="block";
+		colorChoiceObj.children[0].style.backgroundColor=color;
+		colorChoiceObj.innerHTML=colorChoiceObj.children[0].outerHTML + color_text;
+		set_next_option(obj);
+	}
+
+	//하단 선택된 옵션 노출 로직
+	function option_add(){
+		var valueList = new Array();
+
+		loop_option_list(function(option,type){
+			if(type == "UL"){ //color
+				var target = option.querySelectorAll('.color_choice')[0];
+				if(target.style.display == "none") return alert('옵션을 선택해주세요.');
+				var optionValue = target.innerText;
+			}else{ // other
+				var target = option.querySelectorAll('.option_select')[0];
+				if(target.value == "") return alert('옵션을 선택해주세요.');
+				var optionValue = target.value;
+			}
+			valueList.push(optionValue);
+		})
+
+		//ajax처리 후 reset처리,하단에 옵션추가
+		set_option_choice(valueList);
+		reset_option();
+	}
+
+	//ajax로 해당 옵션 유무 검색후 있다면 옵션li추가및 금액 계산
+	function set_option_choice(optionList){
+		var optionText = optionList.join("|").replace(/ /gi, "");
+		var optionChoiceText = optionList.join(" / ").replace(/ /gi, "");
+
+
+		if(optionChoiceText != ""){
+			$.ajax({
+				type : "POST",
+				url : "/ko_mall/product/user/ajax_option.php",
+				data : {
+					product_id : "<?=$product['no']?>",
+					type_id : optionText
+				},
+				success : function(args) {
+					var res = JSON.parse(args);
+					if(res.flag == "OK"){
+
+						var price = res.price_type+res.price;
+						append_option(optionChoiceText,price,res.id,res.stock);
+						cal_option_price();
+					}
+				}
+			});
+		}
+	}
+
+	function add_already_option(optionId){
+		var loopFlag = true;
+		loop_option_choice(function(liObj,countObj){
+			if(liObj.dataset.optionId == optionId){
+				countObj.value++;
+				loopFlag = false;
+				return false;
+			};
+		});
+
+		return loopFlag;
+	}
+
+	//하단에 옵션li 추가
+	function append_option(title,price,optionId,stock,type){
+		var type = type||"detail";
+		var target = doc.getElementById("option_choice_clone");
+		var cloneTarget = target.cloneNode(true);
+		var priceType = price.substr(0,1);
+		var targetPrice = price.substr(1);
+		if(!targetPrice) targetPrice = "0";
+		if(!add_already_option(optionId)) return false;
+
+		cloneTarget.setAttribute("data-option-id",optionId);
+		cloneTarget.setAttribute("data-option-price",targetPrice);
+		cloneTarget.setAttribute("data-option-price-type",priceType);
+		cloneTarget.setAttribute("data-option-type",type);
+		cloneTarget.setAttribute("data-option-stock",stock);
+		cloneTarget.setAttribute("id","");
+		cloneTarget.style.display="table";
+		cloneTarget.innerHTML = cloneTarget.innerHTML.replace("제목",title);
+		cloneTarget.innerHTML = cloneTarget.innerHTML.replace("금액",priceType+number_format(targetPrice)+"원");
+		cloneTarget.innerHTML = cloneTarget.innerHTML.replace("재고",number_format(stock));
+		cloneTarget.addEventListener("change",function(){
+			cal_option_price()
+			setTimeout(function(){
+				cal_option_price()
+			},200)
+		})
+		doc.getElementById("option_choice").appendChild(cloneTarget);
+	}
+
+	function option_plus(obj){
+		obj.parentElement.children[1].value++;
+
+		cal_option_price()
+	}
+
+	function option_minus(obj){
+		if(obj.parentElement.children[1].value > 1)
+		obj.parentElement.children[1].value--;
+
+		cal_option_price()
+	}
+
+	function option_del(obj){
+		var del_target = obj.parentElement;
+		del_target.parentElement.removeChild(del_target);
+		cal_option_price();
+	}
+
+	function cal_option_price(){
+		optionTotalPrice = 0;
+		optionTotalCount = 0;
+		//first param is li tar
+		//second param is count Element
+		loop_option_choice(function(liObj,countObj){
+			var sumOptionPrice = 0;
+			var optionCount = 0;
+			var optionPriceObj = find_class_in_obj("option_total_price",liObj);
+			var optionPriceType = liObj.dataset.optionPriceType;
+			var optionPrice = liObj.dataset.optionPrice;
+			var targetPrice;
+
+			if(optionPriceType == "+"){
+				targetPrice = Number(price) + Number(optionPrice);
+			}else{
+				targetPrice = Number(price) - Number(optionPrice);
+			}
+
+			if(liObj.dataset.optionType == "add")
+				targetPrice = Number(optionPrice);
+
+			optionCount = Number(countObj.value);
+			sumOptionPrice = optionCount * targetPrice;
+			if(optionPrice ==""){
+				if(optionPriceObj)
+				optionPriceObj.innerText = "";
+			}else{
+				optionPriceObj.innerText = optionPriceType+number_format(optionPrice) + "원";
+			}
+
+			if(liObj.dataset.optionType != "add")
+			optionTotalCount += Number(optionCount);
+			optionTotalPrice += Number(sumOptionPrice);
+		})
+
+		doc.getElementById("option_total_count").innerText = "("+optionTotalCount+"개)";
+		doc.getElementById("option_total_price").innerText = number_format(optionTotalPrice)+"원";
+
+		set_option_in_input();
+	}
+
+	function set_option_in_input(){
+		var optionsStr = "";
+		var optionsList = new Array();
+		var addOptionsStr = "";
+		var addOptionsList = new Array();
+		loop_option_choice(function(optionObj,countObj){
+			var optionId = optionObj.dataset.optionId;
+			var optionType = optionObj.dataset.optionType;
+
+			if(optionType == "add"){
+				var optionStr = optionId+"|"+countObj.value;
+
+				addOptionsList.push(optionStr);
+			}else{
+				if(doc.form.option_flag.value == "Y"){
+					var optionStr = optionId+"|"+countObj.value;
+				}else{
+					var optionStr = countObj.value;
+				}
+
+				optionsList.push(optionStr);
+			}
+		})
+		optionsStr = optionsList.join("^").replace(/ /gi, "");
+		addOptionsStr = addOptionsList.join("^").replace(/ /gi, "");
+
+		doc.form.options.value = optionsStr;
+		doc.form.add_options.value = addOptionsStr;
+	}
+
+
+	function reset_option(){
+		set_next_option();
+	}
+
+
+	function order_submit(){
+
+		if(!check_stock()){
+			return false;
+		}
+
+
+		if(minCount != ""){ //최소주문수량 체크
+			if(optionTotalCount < minCount){
+				alert('상품을 최소 '+minCount+'개 이상 주문해주세요.');
+				return;
+			}
+		}
+
+		if(maxCount != ""){ //최대주문수량 체크
+			if(optionTotalCount > maxCount){
+				alert('이 상품은 최대 '+maxCount+'개 이상 주문할수 없습니다.');
+   				return;
+			}
+		}
+		$("#direct_option").val($("#input_option").val());
+		$("#direct_option_name").val("<?=$options_direct_row[title]?>");
+		doc.form.submit();
+	}
+	cal_option_price();
+
+$(function(){
+	$(".option_count").change(function(){
+		cal_option_price()
+		setTimeout(function(){
+			cal_option_price()
+		},200)
+	})
+})
+</script>
+
+<script>
+<?
+	$cart_total_cnt = 0;
+	if($member_id){
+		$cart_query = "SELECT * FROM koweb_cart WHERE member_id='{$member_id}' AND product_id='{$id}'";
+		$cart_result = mysqli_query($connect,$cart_query);
+		while($cart_row = mysqli_fetch_array($cart_result)){
+			$cart_total_cnt += $cart_row['product_cnt'];
+		}
+	}else{
+		foreach ($_SESSION['s_cart'][$id] as $p_id => $value) {
+			foreach ($value as $o_id => $value2) {
+				$cart_total_cnt += $value2['product_cnt'];
+			}
+		}
+	}
+?>
+var cart_count = <?=$cart_total_cnt?>;
+function set_cart(){
+
+	if(!check_stock()){
+		return false;
+	}
+
+	if(minCount != ""){ //최소주문수량 체크
+		if((optionTotalCount+cart_count) < minCount){
+			alert('상품을 최소 '+minCount+'개 이상 선택해야 장바구니에 담을 수 있습니다.[현재 장바구니:'+cart_count+'개]');
+			return;
+		}
+	}
+
+	if(String(maxCount) != ""){ //최대주문수량 체크
+		if(optionTotalCount > maxCount){
+			alert('이 상품은 최대 '+maxCount+'개 이상 장바구니에 담을 수 없습니다.');
+			return;
+		}
+	}
+
+	
+	$("#direct_option").val($("#input_option").val());
+	$("#direct_option_name").val("<?=$options_direct_row[title]?>");
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/product/cart/<?=$add_folder?>ajax_set_item.php",
+		data : $("form").serialize(),
+		success : function(args) {
+			var res = JSON.parse(args);
+			if(res.ment){
+				alert(res.ment);
+			}
+			if(res.flag == "STOP"){
+				return;
+			}
+			if(res.flag == "OK"){
+				cart_count += optionTotalCount;
+				if(confirm('장바구니로 이동하시겠습니까?')){
+					window.location.href='?mode=cart&return_url='+encodeURIComponent($(location).attr('pathname') +$(location).attr('search'));
+				}
+			} else {
+				//로그인페이지로
+				$(location).attr("href", "/<?=$add_folder?>member/member.html?"+ "return_url="+encodeURIComponent($(location).attr('pathname') +$(location).attr('search')));
+			}
+		}
+	});
+}
+</script>

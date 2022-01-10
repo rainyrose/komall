@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<title><?=$site[title]?></title>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="/js/jquery-ui.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/board.css"/>
+		<link rel="stylesheet" type="text/css" href="/js/jquery.scrollbar.css"/>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/content.css"/>
+
+		<script type="text/javascript" src="/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui.js"></script>
+		<script type="text/javascript" src="/js/jquery.scrollbar.js"></script>
+		<script type="text/javascript" src="/js/jquery.bxslider.js"></script>
+		<script type="text/javascript" src="/js/base.js"></script>
+		<script type="text/javascript" src="/js/module.js"></script>
+		<script type="text/javascript" src="/ko_mall/js/custom.js"></script>
+		<script type="text/javascript" src="/js/kocms_sort.js"></script>
+		<script type="text/javascript" src="/js/share.js"></script>
+	</head>
+	<body>
+	<div id="wrap">
+		<? include_once  $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+		<? $point_ = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(point) AS total FROM koweb_point WHERE member='$data'")); ?>
+		<?
+			if (!$start) $start = 0;
+			$scale = 5; // 리스트 수
+			$page_scale	= 8; // 페이징 수
+
+			$query = "SELECT * FROM koweb_point WHERE member = '$data' ORDER BY reg_date DESC LIMIT $start, $scale";
+			$tquery = "SELECT * FROM koweb_point WHERE member = '$data'";
+			$result = mysqli_query($connect, $query);
+			$total = mysqli_num_rows(mysqli_query($connect, $tquery));
+		?>
+		<div id="content">
+			<!-- 내용 -->
+			<div class="box_title">
+				<span>총 적립된 포인트</span>
+				<ul>
+					<li><i><?=number_format($point_[total])?>점</i></li>
+				</ul>
+			</div>
+
+			<table class="bbsList pointList mt20">
+				<caption>적립포인트 내역</caption>
+				<colgroup>
+					<col style="width:20%"/>
+					<col/>
+					<col style="width:20%"/>
+					<col style="width:20%"/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col">날짜</th>
+						<th scope="col">적립금내역</th>
+						<th scope="col">적립포인트</th>
+						<th scope="col">관리</th>
+					</tr>
+				</thead>
+				<tbody>
+				<? while($row = mysqli_fetch_array($result)){ ?>
+					<tr>
+						<td><?=$row[reg_date]?></td>
+						<td class="tac"><?=$row[point_type]?></td>
+						<!-- 점수가 차감시 span태그에 class="minus" 추가 -->
+						<td class="tac"><span class="<?=$row[point] > 0 ? "" : "txt_red"?>"><?=$row[point] >0 ? "+ " : "- "?><?=str_replace("-","",number_format($row[point]))?>점</span></td>
+						<td><a href="/ko_mall/setting/member/point_proc.php?mode=delete&data=<?=$data?>&no=<?=$row[no]?>" class="button sm gray">삭제</a></td>
+					</tr>
+				<? } ?>
+				</tbody>
+			</table>
+			<div class="btn_area">
+				<form id="point_form" action="/ko_mall/setting/member/point_proc.php" action="post">
+					<input type="hidden" name="mode" value="add_point" />
+					<input type="hidden" name="data" value="<?=$data?>" />
+					<input type="text" id="point_type" name="point_type" value="" placeholder="적립금내역" class="input300"/>
+					<select name="add_point_option" id="add_point_option" title="추가항목선택">
+						<option value="+">+</option>
+						<option value="-">-</option>
+					</select>
+					<input type="text" id="add_point" name="add_point" value="" placeholder="적립금" class="input150"/>
+					<a href="javascript:void(0)"; onclick="submit_point()" class="button sm">포인트 추가</a>
+				</form>
+			</div>
+			<script>
+			function submit_point(){
+				if(!$("#point_type").val()){
+					alert("적립금내역을 입력해주세요");
+					return false;
+				}
+				if(!$("#add_point").val()){
+					alert("적립금을 입력해주세요");
+					return false;
+				}
+				$("#point_form").submit();
+			}
+			</script>
+
+			<div class="pagination">
+			<?
+
+				/*----------------------------------------------------------------------------*/
+				// 페이지 표시
+				/*----------------------------------------------------------------------------*/
+
+				if ($total == 0) $total = 1;
+
+				$page_url = $PHP_SELF."?data=$data";
+
+				// 처음
+				echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+				$page = floor($start / ($scale * $page_scale));
+
+				if ($start + $scale >  $scale * $page_scale) {
+					$pre_start = $start - $scale * $page_scale ;
+					echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+				}
+
+				for ($vj = 0; $vj < $page_scale ; $vj++) {
+					$ln = ($page * $page_scale + $vj) * $scale;
+					$vk = $page * $page_scale + $vj + 1 ;
+					if ($ln < $total) {
+						if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+						else echo "<span>$vk</span>";
+					}
+				}
+
+				// 마지막
+				$end_page = floor($total - $scale) + 1;
+				if ($end_page <= 0)	$end_page = 0;
+
+				if ($total > (($page + 1) * $scale * $page_scale)) {
+					$n_start = ($page + 1) * $scale * $page_scale ;
+					echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+				}
+
+				$end_page = ceil($total / $scale);
+				if ($total) $end_start = ($end_page -1) * $scale;
+				else $end_start = $end_page;
+
+				echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+			?>
+			</div>
+		</div>
+	</div>
+	<script>
+		$(function(){
+			//팝업시 무조건추가
+			$('html, body, #wrap').addClass('popWrap');
+		});
+	</script>
+
+
+	</body>
+</html>

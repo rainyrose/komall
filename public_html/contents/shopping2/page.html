@@ -1,0 +1,38 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/header.html"; ?>
+
+			<!-- visual -->
+			<div class="area_subVisual navFix">
+				<em data-title-visual></em>
+				<i class="sub01"></i>
+			</div>
+			<!-- //visual -->
+
+			<section id="container">
+				<div id="content">
+				<!-- 본문 -->
+					<h2 data-title-content></h2>
+					<? include_once "./default.php"; ?>
+					<? include_once "./lnb.php"; ?>
+					<? include_once "./configuration.php"; ?>
+				<!-- //본문 -->
+				</div>
+			</section>
+
+	<script type="text/javascript">
+		var mid = "<?=$mid?>";
+		var mid_depth = (mid.length / 3);
+
+		for(var i = 1; i <= mid_depth; i++){
+			$("[data-set-on="+mid.substr(0, i*3)+"]").addClass("on");
+		}
+	
+		$("[data-title-visual]").text($(".gnb > li > .on").text());
+		$("[data-title-content]").text($("[data-set-on="+"<?=$mid?>"+"]").text());
+	
+	</script>
+
+<!-- footer -->
+<? include_once $_SERVER['DOCUMENT_ROOT'] . "/inc/footer.html"; ?>
+<!-- //footer -->

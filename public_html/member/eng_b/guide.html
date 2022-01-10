@@ -1,0 +1,51 @@
+
+<?
+//회원가입 안내
+$info1 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='regist_info' AND lang='{$site_language}'"));
+
+//주문 안내
+$info2 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='order_info' AND lang='{$site_language}'"));
+
+//결제 안내
+$info3 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='pay_info' AND lang='{$site_language}'"));
+
+//배송 안내
+$info4 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='deli_info' AND lang='{$site_language}'"));
+
+//교환 안내
+$info5 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='ex_info' AND lang='{$site_language}'"));
+
+//환불 안내
+$info6 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='refund_info' AND lang='{$site_language}'"));
+
+//적립금 및 포인트 안내
+$info7 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='point_info' AND lang='{$site_language}'"));
+?>
+
+
+<!-- 회원가입 안내 -->
+<?=htmlspecialchars_decode($info1[contents])?>
+
+
+<!-- 주문 안내 -->
+<?=htmlspecialchars_decode($info2[contents])?>
+
+
+<!-- 결제 안내 -->
+<?=htmlspecialchars_decode($info3[contents])?>
+
+
+<!-- 배송 안내 -->
+<?=htmlspecialchars_decode($info4[contents])?>
+
+
+<!-- 교환 안내 -->
+<?=htmlspecialchars_decode($info5[contents])?>
+
+
+<!-- 환불 안내 -->
+<?=htmlspecialchars_decode($info6[contents])?>
+
+
+<!-- 적립금 및 포인트 안내 -->
+<?=htmlspecialchars_decode($info7[contents])?>

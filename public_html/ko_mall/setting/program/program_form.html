@@ -1,0 +1,191 @@
+<? 
+if($mode == "modify"){ 
+	$query = "SELECT * FROM $setting_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$dept_auth_tmp = explode("|", $row[dept_auth]);
+	$mod_ = "readOnly";
+} 
+
+if(!$mode){
+	$mode = "write";
+	$mod_ = "";
+}
+?>
+
+<script type="text/javascript">
+	$(function() {
+		//부서별 권한설정 사용안함 일시 체크 해제
+		$("#no_dept").click(function(){
+			if($(this).is(":checked")){
+				$("[data-dept-list]").attr("checked", false);
+			}
+		});
+	});
+</script>
+
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+<input type="hidden" name="no" value="<?=$no?>" />
+<input type="hidden" name="level_auth_person" value="<?=$row[use_level_auth]?>" data-access-person="koweb_member_level" />
+<input type="hidden" name="department_auth_person" value="<?=$row[use_dept_auth]?>" data-access-person="koweb_department" />
+<input type="hidden" name="member_auth_person" value="<?=$row[use_user_auth]?>" data-access-person="koweb_member" />
+
+	<!-- 입력 -->
+	<div class="box pd">
+		<h2>응용프로그램</h2>
+		<table class="bbsView">
+			<caption>응용프로그램 선택</caption>
+			<colgroup>
+				<col style="width:20%;"/>
+				<col />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>프로그램 제목</th>
+					<td><input type="text" name="title" maxlength="" value="<?=$row[title]?>" title="프로그램 제목" class="input300 required"/></td>	
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>프로그램 아이디</th>
+					<td>
+						<input type="text" name="id" size="10" maxlength="20" value="<?=$row[id]?>" title="ID" id="id" class="input200 required" <?=$mod_?> data-id-check /><span data-result="id" style="margin-left:5px; font-weight:bold; font-size:12px;"></span>
+					</td>			
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>프로그램 테이블</th>
+					<td>
+						<input type="text" name="refer_table" maxlength="20" value="<?=$row[refer_table]?>" id="refer_table" title="프로그램 테이블"  class="input200 required"/>
+						<div class="designCheck" style="display:inline-block;"><input type="checkbox" name="same_data" id="same_data" /><label for="same_data">프로그램 아이디와 동일</label></div>
+					</td>
+				</tr>	
+				<tr>
+				<th scope="row"><span class="marking">필수항목</span>유저 뷰페이지 사용</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="user_view" value="Y" id="user_viewY" /><label for="user_viewY">사용</label>
+							<input type="radio" name="user_view" value="N" id="user_viewN"  checked="checked"/><label for="user_viewN">미사용</label>
+							<p style="font-size:14px; margin-top:5px;"> * 사용시 사용자 페이지에서는 기존의 view.html이 아닌 user_view.html을 include 합니다. (미사용시는 그대로 view.html)</p>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>유저 리스트페이지 사용</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="user_list" value="Y" id="user_listY" /><label for="user_listY">사용</label>
+							<input type="radio" name="user_list" value="N" id="user_listN"  checked="checked"/><label for="user_listN">미사용</label>
+						</div>
+						<p style="font-size:14px; margin-top:5px;"> * 사용시 사용자 페이지에서는 기존의 list.html이 아닌 user_list.html을 include 합니다. (미사용시는 그대로 list.html)</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>프로그램 사용권한</th>
+					<td>
+						<div class="designRadio">
+						<input type="radio" name="is_member" value="Y" id="is_memberY" /><label for="is_memberY">회원</label>
+						<input type="radio" name="is_member" value="N" id="is_memberN" checked/><label for="is_memberN">비회원</label>
+						</div>
+					</td>
+				</tr>
+				<tr data-auth-control="use_user_auth" style="display:none;">
+				</tr>
+				
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>사용여부</th>
+					<td>
+						<div class="designRadio">
+						<input type="radio" name="state" id="stateY" value="Y" checked/><label for="stateY">사용</label>
+						<input type="radio" name="state" id="stateN" value="N" /><label for="stateN">미사용</label>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="btn_area">
+			<input class="button lg" type="submit" value="등록" data-program-proc>
+			<a class="button lg gray" href="?type=setting&core=manager_setting&manager_type=program&amp;start=<?=$start?>&amp;search_key=<?=$search_key?>&amp;keyword=<?=$keyword?>">취소</a>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+$(function(){
+	$("input:radio[name='user_view']:radio[value='<?=$row[user_view]?>']").prop("checked",true); 
+	$("input:radio[name='user_list']:radio[value='<?=$row[user_list]?>']").prop("checked",true); 
+	$("input:radio[name='state']:radio[value='<?=$row[state]?>']").attr("checked",true); 
+	$("input:radio[name='is_member']:radio[value='<?=$row[is_member]?>']").attr("checked",true); 
+});
+
+function check_infomation(mode, data){
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/setting/program/program_check_ajax.php",
+		dataType : "json",
+		data : {
+			type : mode,
+			variable : data
+		},
+		success : function(args) {
+			if(args.result == "true"){
+				if("<?=$mode?>" != "modify"){
+					var id_length = data.length;
+					var id_pattern = new RegExp(/^[a-z0-9_]+$/);
+
+					if (!id_pattern.test(data)) {
+						$("[data-result="+mode+"]").html("아이디는 영문, 숫자 혼합만 사용 가능합니다.");
+						$("[data-"+mode+"-check]").data(mode+"-check",false);
+						return false;
+					} 
+					if(id_length < 4 || id_length > 20){
+						$("[data-result="+mode+"]").html("아이디는 한글, 특수문자를 제외한 4~20자까지의 영문과 숫자로 입력해주세요.");
+						$("[data-"+mode+"-check]").data(mode+"-check",false);
+						return false;
+					} 
+				}
+				$("[data-"+mode+"-check]").data(mode+"-check",true);
+				$("[data-result="+mode+"]").html("등록가능한 "+mode+"입니다.");
+
+			} else if(args.result == "not_data"){
+				$("[data-"+mode+"-check]").data(mode+"-check",false);
+				$("[data-result="+mode+"]").html(mode+"를 입력해주세요.");
+			} else {
+				$("[data-"+mode+"-check]").data(mode+"-check",false);
+				$("[data-result="+mode+"]").html("등록 불가능한 "+mode+"입니다.");
+			}
+		}
+	});
+}
+
+$(function(){
+	//id 중복확인
+	$("#id").on({
+		keyup: function(){
+			check_infomation("id", $(this).val());
+			if($("#same_data").is(":checked")){
+				$("#refer_table").val($(this).val());
+			}
+		}
+	});
+
+	$("#same_data").change(function(){
+		if($(this).is(":checked")){
+			$("#refer_table").val($("#id").val());
+		} else {
+			$("#refer_table").val("");
+		}
+	});
+
+	//submit시 id중복확인 진행하였는지 확인
+	$("[data-program-proc]").click(function(){
+		var chk2 = true;
+		if("<?=$mode?>" != "modify"){
+			if($("[data-id-check]").data("id-check") == false){
+				alert("프로그램 아이디를 올바르게 입력해주세요.");
+				$("#id").focus();
+				chk2 = false;
+				return false;
+			}
+			if(!chk2) return false;
+		}
+	});
+});
+</script>

@@ -1,0 +1,130 @@
+<?
+//페이징 변수
+if (!$start) $start = 0;
+$scale = 10; // 리스트 수
+$page_scale	= 10; // 페이징 수
+
+$WHERE = "member_id='{$member_id}'";
+//리스트
+$total_query = "SELECT * FROM koweb_wish WHERE $WHERE";
+$total_result = mysqli_query($connect, $total_query);
+$total = mysqli_num_rows($total_result);
+
+$query = "SELECT * FROM koweb_wish WHERE $WHERE LIMIT $start, $scale";
+$result = mysqli_query($connect, $query);
+?>
+<form name='del_form' method="POST">
+    <input type='hidden' name='mode' value='wish_del_proc'/>
+    <input type='hidden' name='no' value=''/>
+    <input type='hidden' name='del_type' value=''/>
+</form>
+<script>
+var doc = window.document;
+function del_form_submit(no,type){
+	if(type=="checkbox"){
+	    var checkedTarget = doc.querySelectorAll("[name=check_cart]:checked");
+
+	    var len = checkedTarget.length;
+	    var tempArray = new Array();
+	    for(var i = 0; i<len; i++){
+	        tempArray.push(checkedTarget[i].value);
+	    }
+	    no = tempArray.join("|");
+	}
+    doc.del_form.no.value = no;
+    doc.del_form.del_type.value = type;
+    doc.del_form.submit();
+
+}
+function cart_form_submit(product_id){
+    $.ajax({
+        type : "POST",
+        url : "/ko_mall/product/wish/<?=$add_folder?>ajax_set_cart.php",
+        data : {
+            product_id : product_id,
+        },
+        success : function(args) {
+            var res = JSON.parse(args);
+            alert(res.ment);
+            if(res.flag == true){
+                if(confirm('Would you like to go to the shopping cart?')){
+                    window.location.href='?mode=cart'
+                }
+            }
+        }
+    });
+}
+
+$( document ).ready( function() {
+    $('#check-all').click( function() {
+      $( 'input[name="check_cart"]' ).prop( 'checked', this.checked );
+      car_price();
+    } );
+} );
+</script>
+
+
+
+	<!-- 내용 -->
+	<div class="area_shopCart wish">
+		<table class="table">
+			<caption>Wish List</caption>
+			<colgroup>
+				<col style="width:7%"/>
+				<col/>
+				<col style="width:15%"/>
+				<col style="width:15%"/>
+				<col style="width:15%"/>
+				<col style="width:10%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col"><div class="designCheck noText"><input type="checkbox" id="check-all" /><label for="check-all">Select All</label></div></th>
+					<th scope="col">Product Information</th>
+					<th scope="col">price</th>
+					<!-- <th scope="col">accumulate</th> -->
+					<th scope="col">Selection</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?
+				while($row = mysqli_fetch_array($result)){
+					$product = get_product($row['product_id']);
+					$save_point = ($product['price'] * ($product['point_detail']/100));
+				?>
+				<tr>
+					<td data-cart-table="check"><div class="designCheck noText"><input type="checkbox" name="check_cart" value="<?=$row['no']?>" id="check_cart<?=$row['no']?>" /><label for="check_cart<?=$row['no']?>">Selection</label></div></td>
+					<td data-cart-table="product" class="tal">
+						<div data-cart-option="img">
+							<!-- Product Information 클릭시 상세이동 -->
+							<a href="/<?=$add_folder?>product/product.html?id=<?=$product['id']?>&mode=view" class="img" target="_blank">
+								<img src="/upload/product/<?=$product['title_img']?>" alt=""/>
+							</a>
+							<div>
+								<!-- product name -->
+								<em><?=$product['product_title']?></em>
+							</div>
+						</div>
+					</td>
+					<td data-cart-table="price"><?=number_format(convert_dollar($product['price']),2)?>USD</td>
+					<!-- <td data-cart-table="point"><?=number_format($save_point)?></td> -->
+					<td data-cart-table="set">
+						<a href="javascript:void(0)" onclick="cart_form_submit('<?=$row['product_id']?>')" class="button sm">Add Cart</a>
+						<a href="javascript:void(0)" onclick="del_form_submit('<?=$row['no']?>','target')" class="button sm">Delete product</a>
+					</td>
+				</tr>
+				<? } ?>
+			</tbody>
+		</table>
+
+		<div data-cart-option="info">
+			<a href="javascript:void(0)" onclick="del_form_submit('','checkbox')" class="button white">Delete selected item</a>
+			<p class="icon_shopInfo">The discounted amount can be found in the estimated payment amount in the order form.</p>
+		</div>
+	</div>
+
+	<!-- 페이징 -->
+	<? include "paging.html"; ?>
+	<!-- //페이징 -->
+
+	<!-- //내용 -->

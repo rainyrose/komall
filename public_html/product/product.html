@@ -1,0 +1,99 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/header.html"; ?>
+<!-- visual -->
+<!-- //visual -->
+
+<section id="container">
+	<div id="content">
+	<!-- 본문 -->
+	<div class="inr">
+		<h2 data-title-content  data-change-language></h2>
+		<? include_once $_SERVER['DOCUMENT_ROOT'] . "/product/product.php"; ?>
+		</div>
+	<!-- //본문 -->
+	</div>
+</section>
+<script>
+
+function transfer(obj, lang, jobj){
+		var jobj = jobj;
+		var t_ = "";
+		$.ajax({
+			type : "POST",
+			url : "/trans_language_ajax.php",
+			dataType : "json",
+			data : {
+				data : jobj,
+				lang : lang
+			},
+			success : function(args) {
+
+				$(args).each(function(index, item){
+					t_ = item.split("|");
+					console.log(t_[0]);
+
+
+					if(t_[1] == "Free Shipping cost of more than KRW 100,000"){
+						console.log(t_[0]);
+						console.log(t_[1]);
+					}
+
+					$("[data-change-language]:contains('"+t_[0]+"')").text(t_[1]);
+				
+				});
+
+
+
+
+
+
+			}, complete : function() {
+
+			}
+		});
+	}
+
+$(function(){
+	var wrap_cateogry = "<?=substr($category,0,3)?>";
+	$("[data-set-on='"+wrap_cateogry+"']").addClass("on");
+
+	var ttext = "";
+	var tstate = "";
+	var tobj;
+	var json_arr = new Array();
+	var json_;
+	/*
+	$("[data-change-language]").each(function(){
+
+		var json_obj = new Object();
+
+		tobj = $(this);
+
+		if(!$(this).val()){
+			if($(this).text()){
+				ttext = $(this).text();
+				tstate = "text";
+			} else {
+				return false;
+			}
+		} else {
+			ttext = $(this).val();
+			tstate = "val";
+		}
+		if(ttext){
+			json_obj.state = tstate;
+			json_obj.ttext = ttext;
+			json_arr.push(json_obj);
+		}
+	
+	});
+	*/
+	if(json_arr){
+		//json_ = JSON.stringify(json_arr);
+		//transfer(tobj, "en", json_);
+	}
+
+})
+</script>
+<? include_once $_SERVER['DOCUMENT_ROOT'] . "/inc/footer.html"; ?>

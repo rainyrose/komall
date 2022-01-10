@@ -1,0 +1,23 @@
+<? include_once $_SERVER['DOCUMENT_ROOT']."/head.php"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/top.html"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/header.html"; ?>
+<? echo "<script type=\"text/javascript\" src=\"/js/namecheck.js\"></script>"; ?>
+
+<?
+	$return_url = explode("?", $common_queryString);
+	$return_url = $return_url[0];
+	$param1 = explode("|",$param1);
+	$param2 = explode("|",$param2);
+	$param3 = explode("|",$param3);
+?>
+<? if(!$_SESSION[CI] && !$_SESSION[DI]){ ?>
+	<form method='post' action="<?=$common_querySTring?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="<?=$return_mode?>" />
+	<input type="hidden" name="return_mode" value="<?=$return_mode?>" />
+	<div class="secret_area">
+		<input type="button" value="휴대폰 본인인증" class="button" onclick="name_check();"/>
+	</div>
+	</form>
+<? } else { ?>
+	<meta http-equiv="refresh" content="0; URL=<?=$common_queryString?>&<?=$param1[0]?>=<?=$param1[1]?>&<?=$param2[0]?>=<?=$param2[1]?>&<?=$param3[0]?>=<?=$param3[1]?>" />
+<? } ?>

@@ -1,0 +1,202 @@
+<!-- 내용 -->
+<?
+if(!$_SESSION[member_id]) url("/member/member.html");
+if(!$_SESSION[order_type]) url("/member/member.html");
+
+$query = "SELECT * FROM koweb_member WHERE id='$_SESSION[member_id]'";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+?>
+<div class="area_shopMypage">
+        <div class="top">
+            <!-- 나의간략정보 -->
+            <div class="info">
+                <!-- 이름 [아이디] -->
+                <p><?=$row[name]?>[<?=$row[id]?>]</p>
+                <ul class="list_shopTable">
+                    <li>
+                        <em>전화</em>
+                        <span><?=$row[phone]?></span>
+                    </li>
+                    <li>
+                        <em>이메일</em>
+                        <span><?=$row[email]?></span>
+                    </li>
+                    <li>
+                        <em>주소</em>
+                        <span><?=$row[zip]?> <?=$row[address1]?> <?=$row[address2]?></span>
+                    </li>
+                </ul>
+                <a href="/<?=$add_folder?>member/member.html?mode=check&return_mode=modify" class="button sm white">정보수정</a>
+            </div>
+            <!-- //나의간략정보 -->
+
+            <!-- total -->
+
+            <?
+            $total_price = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(product_price) + SUM(deli_price) + SUM(deli_add_price) - SUM(use_point) AS price FROM koweb_order WHERE member = '$row[id]' AND state!='취소' AND state!='반품완료' AND state!='환불완료'"));
+
+            $total_point = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(point) AS point FROM koweb_point WHERE member = '$row[id]'"));
+
+            ?>
+            <div class="total">
+                <p>누적현황</p>
+                <ul class="list_shopTable tar">
+                    <li>
+                        <em>총 주문금액</em>
+                        <span>
+                            <?=number_format($total_price[price])?>원
+                            <a href="/<?=$add_folder?>member/member.html?mode=order" class="button sm white">More</a>
+                        </span>
+                    </li>
+                    <li>
+                        <em>적립된포인트</em>
+                        <span>
+                            <?=number_format($total_point[point])?>점
+                            <a href="/<?=$add_folder?>member/member.html?mode=point" class="button sm white">More</a>
+                        </span>
+                    </li>
+                    <!-- <li>
+                        <em>사용가능쿠폰</em>
+                        <span>
+                            3개
+                            <a href="#" class="button sm white">More</a>
+                        </span>
+                    </li> -->
+                </ul>
+            </div>
+            <!-- //total -->
+        </div>
+
+
+        <!-- 최근주문내역  -->
+        <!-- 모바일 사용 -->
+        <a href="#" data-shop-view="addcordion">최근주문내역</a>
+        <!-- //모바일 사용 -->
+        <div data-shop-view="addcordion_conts">
+            <p class="title">최근주문내역</p>
+            <!-- 목록 최근내역 5개 노출 -->
+            <table class="bbsList">
+                <caption>주문내역</caption>
+                <colgroup>
+                    <col/>
+                    <col style="width:25%"/>
+                    <col style="width:25%"/>
+                    <col style="width:20%"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col">주문번호</th>
+                        <th scope="col">주문일자</th>
+                        <th scope="col">결제금액</th>
+                        <th scope="col">현황</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 상태값 1주문,2입금,3준비,4배송,5완료,6취소,7반품 class="status01 ~ 순차적으로" -->
+                    <?
+                    $order_query = "SELECT * FROM koweb_order WHERE 1=1 AND order_info = 'P' AND member = '$row[id]' ORDER BY reg_date DESC, no DESC LIMIT 5";
+                    $order_result = mysqli_query($connect, $order_query);
+                    while($order_ = mysqli_fetch_array($order_result)){
+                    ?>
+
+                        <? $price_count = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(product_price) AS total FROM koweb_order WHERE order_id = '$order_[order_id]'"));?>
+                        <? $total_price = ($price_count[total] + $order_[deli_price] + $order_[deli_add_price]) - $order_[use_point];?>
+
+                        <tr>
+                            <td data-shop-order="number"><a href="/<?=$add_folder?>product/product.html?mode=order_view&orderid=<?=$order_[order_id]?>"><?=$order_[order_id]?></a></td>
+                            <td data-shop-order="date"><?=$order_[reg_date]?></td>
+                            <td data-shop-order="price"><a href="/<?=$add_folder?>product/product.html?mode=order_view&orderid=<?=$order_[order_id]?>"><?=number_format($total_price)?>원</a></td>
+                            <td data-shop-order="status"><span class="status05"><?=$order_[state]?></span></td>
+                        </tr>
+                    <? } ?>
+                </tbody>
+            </table>
+            <a href="/<?=$add_folder?>member/member.html?mode=order" class="button sm white more">More</a>
+        </div>
+        <!-- //최근주문내역  -->
+
+        <!-- 바로가기 -->
+        <div class="link">
+            <a href="/<?=$add_folder?>member/member.html?mode=check&return_mode=modify" class="btn_link01"><em>정보수정</em>나의 회원정보를 수정할 수 있습니다.</a>
+            <a href="/<?=$add_folder?>member/member.html?mode=review" class="btn_link02"><em>사용후기</em>나의 사용후기를 확인하고 수정가능합니다.</a>
+            <a href="/<?=$add_folder?>member/member.html?mode=qna" class="btn_link03"><em>상품문의</em>나의 상품관련 문의사항을 확인합니다.</a>
+            <a href="/<?=$add_folder?>member/member.html?mode=point" class="btn_link04"><em>포인트사용내역</em>나의 포인트 사용내역을 확인합니다.</a>
+        </div>
+        <!-- //바로가기 -->
+
+
+        <!-- 관심상품  -->
+        <!-- 모바일 사용 -->
+        <a href="#" data-shop-view="addcordion">나의 관심상품</a>
+        <!-- //모바일 사용 -->
+        <div data-shop-view="addcordion_conts">
+            <p class="title">나의 관심상품</p>
+            <?
+            $wish_query = "SELECT * FROM koweb_wish WHERE member_id = '$_SESSION[member_id]' order by no DESC limit 0,4";
+            $wish_result = mysqli_query($connect,$wish_query);
+            $wish_cnt = mysqli_num_rows($wish_result);
+            ?>
+            <?if($wish_cnt > 0){ ?>
+                <!-- 목록 최근 4개노출 -->
+                <ul data-shop-list="default">
+                    <!-- 반복 -->
+                    <?
+                        while($wish = mysqli_fetch_array($wish_result)){
+                        $product = get_product($wish['product_id']);
+                    ?>
+                    <li>
+                        <a href="/<?=$add_folder?>product/product.html?category=<?=$category?>&amp;id=<?=$product[id]?>&amp;mode=view&amp;sort_mode=<?=$sort_mode?>">
+                            <!-- 이미지  -->
+                            <span class="img">
+                                <!-- 대표이미지 -->
+                                <i><img src="/upload/product/<?=$product[title_img]?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+                                <!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+                                <? if($product[img_1]){?>
+                                <i><img src="/upload/product/<?=$product[img_1]?>" alt=""/></i>
+                                <? } ?>
+                            </span>
+                            <!-- 상품명 -->
+                            <em><?=$product[product_title]?></em>
+                            <!-- 간략설명 -->
+                            <i><?=$product[simple_info]?></i>
+                            <!-- 판매가격 / 시중가격 -->
+                            <!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+                            <span class="price">
+                                <? if($product['use_telform'] != "Y"){ ?>
+                                    <? if($product[origin_price]){ ?>
+                                    <i><?=number_format($product[origin_price])?></i>
+                                    <? } ?>
+                                    <? if($product[price]){ ?>
+                                    <i><?=number_format($product[price])?></i>
+                                    <? } ?>
+                                <? }else{ ?>
+                                    전화문의
+                                <? } ?>
+                            </span>
+
+                            <!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+                            <? if($product[best] == "Y" || $product['new'] == "Y"){ ?>
+                            <span data-shop-icon="icon">
+                                <!-- best -->
+                                <? if($product[best] == "Y"){ ?> <i data-shop-icon="best">BEST</i> <? } ?>
+                                <!-- new -->
+                                <? if($product['new'] == "Y"){ ?> <i data-shop-icon="new">NEW</i> <? } ?>
+                            </span>
+                            <? } ?>
+                        </a>
+                    </li>
+                    <? } ?>
+                    <!-- //반복 -->
+                </ul>
+                <a href="/<?=$add_folder?>product/product.html?mode=wish" class="button sm white more">More</a>
+            <? }else{ ?>
+                <div class="shop_nodata">등록 된 관심상품이 없습니다.</div>
+            <? } ?>
+        </div>
+        <!-- 관심상품  -->
+
+
+    </div>
+
+<!-- //내용 -->

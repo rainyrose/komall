@@ -1,0 +1,200 @@
+<!-- 프로그램설정 -->
+<?
+	if(!$is_admin){
+		if($online[use_view] != "Y"){
+			url($common_queryString."&amp;mode=write");
+		}
+	}
+
+?>
+	<form action="<?=$_SERVER['PHP_SELF']?>" method="GET">
+		<? GETmake_form_action($common_actionString);?>
+		<div class="search_bbs">
+			<!-- 검색 -->
+			<div class="search">
+				<select name="search_key" id="searchType">
+					<option value="">전체</option>
+				</select>
+				<input type="text" id="keyword" name="keyword" value="">
+				<input type="submit" class="button" value="검색">
+			</div>
+			<!-- //검색 -->
+			<div class="btn">
+			<!--	<a href="/ko_mall/online/excel.php?online_id=<?=$online_id?>&amp;online_table=<?=$online_table?>" class="button white"/>엑셀다운로드</a> -->
+			</div>
+		</div>
+	</form>
+
+
+
+
+<?
+		//페이징 변수
+		if (!$start) $start = 0;
+		$scale = 10;// 리스트 수
+		$page_scale	= 8; // 페이징 수
+
+		$list_query = "SELECT * FROM koweb_online_config WHERE id='$online_id'";
+		$list_result = mysqli_query($connect, $list_query);
+		$list_ = mysqli_fetch_array($list_result);
+		$search_ = "";
+		 for($i = 1; $i <= 10; $i++){
+			 //변수설정
+			$variable_ = $list_["variable_".$i];
+			$variable_ = explode("|", $variable_);
+			$variable = "variable_".$i;
+			$tmp_name = $variable_[0];
+			$tmp_type = $variable_[1];
+			$tmp_state = $variable_[3];
+			$tmp_id = $variable_[4];
+			$tmp_view = $variable_[5];
+			$tmp_search = $variable_[6];
+			$tmp_type_option = $variable_[7];
+
+			if($tmp_view =="Y"){
+				$view_array[] = $tmp_name;
+				$row_array[] = "variable_".$i;
+			}
+
+			if($tmp_search == "Y"){
+				$search_ .= "$variable LIKE '%$keyword%' OR ";
+			?>
+				<script type="text/javascript">
+					$("#searchType").append("<option value='"+"<?=$variable?>"+"'><?=$tmp_name?></option>");
+				</script>
+			<?
+			}
+		}
+?>
+
+<table class="bbsList">
+	<caption><?=$online[title]?></caption>
+	<colgroup>
+		<col style="width:7%"/>
+		<? for ($j = 0; $j < count($view_array); $j++){ ?>
+			<col />
+		<? } ?>
+		<? if($online[use_phone] == "Y" || $online[use_phone] == "Y|R"){ ?>
+			<col style="width:15%"/>
+		<? } ?>
+
+		<? if($online[use_email] == "Y"|| $online[use_email] == "Y|R"){ ?>
+			<col style="width:15%"/>
+		<? } ?>
+		<col style="width:12%"/>
+		<col style="width:15%"/>
+	</colgroup>
+	<thead>
+		<tr>
+			<th scope="col">No.</th>
+			<? foreach ($view_array as $value){ ?>
+				<th scope="col"><?=$value?></th>
+			<? } ?>
+			<? if($online[use_phone] == "Y" || $online[use_phone] == "Y|R"){ ?>
+			<th scope="col">연락처</th>
+			<? } ?>
+			<? if($online[use_email] == "Y" || $online[use_email] == "Y|R"){ ?>
+			<th scope="col">이메일</th>
+			<? } ?>
+			<th scope="col">등록일</th>
+			<th scope="col">설정변경</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?
+			if($keyword){
+				if($search_key != ""){
+					$WHERE = "WHERE $search_key LIKE '%$keyword%'";
+				} else {
+					$search_ = substr($search_, 0, -3);
+					$WHERE = "WHERE 1=1 AND ".$search_;
+				}
+			}
+			if($core_id != $online[id]){
+				if(($_SESSION['auth_level'] != 1) && (!$_SESSION['is_admin'])){
+					$WHERE .= " AND id='$_SESSION[member_id]'";
+				}
+			}
+
+			$query = "SELECT * FROM $online_table $WHERE ORDER BY no DESC LIMIT $start, $scale";
+			$total_query = "SELECT * FROM $online_table $WHERE";
+			$result = mysqli_query($connect, $query);
+			$total_result = mysqli_query($connect, $total_query);
+			$total = mysqli_num_rows($total_result);
+			$f_no = $total - $start;
+			 while($row = mysqli_fetch_array($result)){
+		?>
+		<tr>
+			<td><?=$f_no--?></td>
+			<? foreach($row_array as $value){ ?>
+				<td><a href="<?=$common_queryString?>&amp;mode=view&amp;no=<?=$row[no]?>"><?=$row[$value]?></a></td>
+			<? } ?>
+			<? if($online[use_phone] == "Y"|| $online[use_phone] == "Y|R"){ ?>
+				<td><a href="<?=$common_queryString?>&amp;mode=view&amp;no=<?=$row[no]?>"><?=$row[phone]?></a></td>
+			<? } ?>
+
+			<? if($online[use_email] == "Y" || $online[use_email] == "Y|R"){ ?>
+				<td><a href="<?=$common_queryString?>&amp;mode=view&amp;no=<?=$row[no]?>"><?=$row[email]?></a></td>
+			<? } ?>
+			<td><?=$row[reg_date]?></td>
+			<td>
+				<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button sm gray">수정</a>
+				<a href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$row[no]?>" class="button sm white">삭제</a>
+			</td>
+		</tr>
+	<? } ?>
+	</tbody>
+</table>
+<div class="pagination">
+	<?
+
+		/*----------------------------------------------------------------------------*/
+		// 페이지 표시
+		/*----------------------------------------------------------------------------*/
+
+		if ($total == 0) $total = 1;
+
+		$page_url = $common_queryString."&amp;search_key=$search_key&amp;keyword=$keyword";
+
+		// 처음
+		echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+		$page = floor($start / ($scale * $page_scale));
+
+		if ($start + $scale >  $scale * $page_scale) {
+			$pre_start = $start - $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+		}
+
+		for ($vj = 0; $vj < $page_scale ; $vj++) {
+			$ln = ($page * $page_scale + $vj) * $scale;
+			$vk = $page * $page_scale + $vj + 1 ;
+			if ($ln < $total) {
+				if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+				else echo "<span>$vk</span>";
+			}
+		}
+		// 마지막
+		$end_page = floor($total - $scale) + 1;
+		if ($end_page <= 0)	$end_page = 0;
+
+		if ($total > (($page + 1) * $scale * $page_scale)) {
+			$n_start = ($page + 1) * $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+		}
+
+		$end_page = ceil($total / $scale);
+		if ($total) $end_start = ($end_page -1) * $scale;
+		else $end_start = $end_page;
+
+		echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+	?>
+</div>
+
+<div class="btn_area">
+	<a href="<?=$request_uri?>&mode=write" class="button lg"/>등록</a>
+</div>
+
+<script type="text/javascript">
+	$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+</script>

@@ -1,0 +1,328 @@
+<? 
+if($mode == "register_modify"){ 
+	$query = "SELECT * FROM $setting_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$tmp_id = explode("_", $row[id]);
+	$row[id] = $tmp_id[1];
+	$category = explode("|", $row[category_detail]);
+	$dept_auth_tmp = explode("|", $row[dept_auth]);
+
+	if($row[skin] == "instagram"){ ?>
+		<script>
+			$(function(){
+				$("[data-skin-allow]").nextAll("tr").hide('normal');
+				$("[data-skin='instagram']").show('normal');
+			});
+		</script>
+	<? }
+} 
+ if ($_SERVER['HTTPS'] == "on") {
+	$pattern = "https://";
+} else $pattern = "http://";
+?>
+
+	<table class="bbsView">
+		<caption>게시판 설정<</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">게시판 ID</th>
+				<? if($mode == "register_modify"){ ?>
+					<td colspan="3"><span>board_<?=$row[id]?></span></td>
+				<? } else {?>
+					<td colspan="3">board_<input type="text" name="id" maxlength="20" value="<?=$row[id]?>" id="id" title="게시판 ID"  class="input100" data-board-properties="id" /> 
+					<a href="#" class="button" data-id-check>중복확인</a></td>
+				<? } ?>
+			</tr>
+			<tr>
+				<th scope="row">게시판 타입</th>
+				<td colspan="3">
+				<div class="designRadio">
+					<input type="radio" name="is_membership" value="Y" id="is_membership_y" data-board-properties="is_membership" data-required="radio"/><label for="is_membership_y">회원전용</label>
+					<input type="radio" name="is_membership" value="N" id="is_membership_n" data-board-properties="is_membership" data-required="radio" checked /><label for="is_membership_n">일반</label>
+				</div>
+					<p style="font-size:11px; margin-top:5px;">* 회원전용 게시판은 로그인 후 쓰기, 읽기, 답변, 삭제등이 가능하며 비밀번호 입력이 없습니다.</p>
+					<p style="font-size:11px;">* 일반 게시판은 비밀번호 입력 폼이 있으며 비회원도 작성 가능합니다</p>
+				</td>			
+			</tr>
+			<tr data-skin-allow>
+				<th scope="row">제목</th>
+				<td><input type="text" name="title" value="<?=$row[title]?>" title="제목" id="title"/></td>			
+				<th scope="row">스킨</th>
+				<td>
+					<?
+						$dir = opendir("./board/skin/");
+						$list = array();
+						while ($folder = readdir($dir)) {
+							if ( $folder != "." && $folder != ".." ) { 
+								$list[$folder] = $folder;					
+							} 
+						} 
+						ksort($list);
+					?>
+
+					<select name="skin" title="스킨" id="skin">
+					<? foreach($list AS $l){ ?>
+							<option value="<?=$l?>"><?=$l?></option>
+					<? } ?>
+					</select>
+				</td>
+			</tr>
+			<tr data-skin="instagram" style="display:none;">
+				<th>Instagram redirect_uri</th>
+				<td><input type="text" name="instagram_uri" class="inputFull" readOnly value="<?=$pattern?><?=$_SERVER[HTTP_HOST]?>/"/></td>
+				<th>Instagram app-id</th>
+				<td><input type="text" name="instagram_appid" class="inputFull" value="<?=$row[instagram_appid]?>"/></td>
+			</tr>
+			<tr data-skin="instagram" style="display:none;">
+				<th>Instagram Access Page</th>
+				<td colspan="3"><a href="#" class="button red" data-instagram-acc>페이지 인증(필수)</a>
+				<p>페이지 인증은 최초1회만 하시면됩니다.</p>
+				</td>
+			</tr>
+			<tr data-skin="instagram" style="display:none;">
+				<th>Instagram Access Token</th>
+				<td><input type="text" id="pap" name="instagram_shortToken" class="inputFull" readOnly placeholder="페이지 인증후 자동으로 입력됩니다." value="<?=$row[instagram_shortToken]?>"/></td>
+				<th>Instagram app-key</th>
+				<td><input type="text" id="ppwod" name="instagram_appkey" class="inputFull" value="<?=$row[instagram_appkey]?>"/></td>
+				<!--919f6e34109e9b285a929229f19e465d-->
+				<? $_SESSION[board_config] = "okkk"; ?>
+			</tr>
+
+			<script>
+				$(function(){
+					$("[data-instagram-acc]").click(function(){
+						<? $_SESSION[board_config] = "okkk"; ?>
+						var base_url = $("input[name='instagram_uri']").val();
+						var app_id = $("input[name='instagram_appid']").val();
+						var link = "https://api.instagram.com/oauth/authorize?client_id="+app_id+"&redirect_uri="+base_url+"&scope=user_profile,user_media&response_type=code";
+						window.open(link, "_blank", "333")
+					
+						//$(this).attr("href", link);
+					});
+
+					$("#skin").change(function(){
+						if($(this).val() == "instagram"){
+							$("[data-skin-allow]").nextAll("tr").hide('normal');
+							$("[data-skin='instagram']").show('normal');
+						} else {
+							$("[data-skin-allow]").nextAll("tr").show('normal');
+							$("[data-skin='instagram']").hide('normal');
+						}
+					});
+				});
+			</script>
+
+
+
+			<tr>
+				<th scope="row">카테고리</th>
+				<td colspan="3">
+				<div class="designRadio">
+					<input type="radio" name="use_category" id="use_categoryY" value="Y" class="use_category" data-board-properties="use_category"/> <label for="use_categoryY">사용</label>
+					<input type="radio" name="use_category" id="use_categoryN" value="N" class="use_category" data-board-properties="use_category"/> <label for="use_categoryN">미사용</label>
+					<input type="radio" name="use_category" id="use_categoryI" value="I" class="use_category" data-board-properties="use_category"/> <label for="use_categoryI">게시글에서 직접입력</label>
+				</div>
+				</td>
+			</tr>
+			<tr id="category_" data-board-properties="category_detail">
+				<th scope="row"><label for="category_tmp">카테고리 상세</label></th>
+				<td colspan="3" id="category_area" class="category">
+					<input type="text" name="category_tmp[]" value="<?=$category[0]?>" title="구분"/>
+					<a href="#" class="button gray" id="add_category">+ 추가</a>
+				<?
+					$count = 0;
+					foreach($category as $value){ 
+						if($count != 0){
+						$del_id = "#category_".$count;
+				?>
+					<div id="category_<?=$count?>">
+						<input type="text" name="category_tmp[]" value="<?=$value?>"/>
+						<a href="#" id="del_category_<?=$count?>" class="button white" onclick="$('<?=$del_id?>').remove();">- 삭제</a>
+					</div>
+				<? 
+					}
+					$count++;
+				} 
+				?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">코멘트</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="use_comment" id="use_commentY" value="Y" data-board-properties="use_comment"/> <label for="use_commentY">사용</label>
+					<input type="radio" name="use_comment" id="use_commentN" value="N" data-board-properties="use_comment"/> <label for="use_commentN" ">미사용</label>
+				</div>
+				</td>			
+				<th scope="row">답글</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="use_reply" id="use_replyY" value="Y" data-board-properties="use_reply"/> <label for="use_replyY">사용</label>
+					<input type="radio" name="use_reply" id="use_replyN" value="N" data-board-properties="use_reply"/> <label for="use_replyN">미사용</label>
+				</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">쓰기권한</th>
+				<td>			
+					<select name="auth_write" data-board-properties="auth_write">
+						<?
+						$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+						$res_result = mysqli_query($connect, $res_query);
+						while($res = mysqli_fetch_array($res_result)){
+							echo "<option value=\"$res[level]\">$res[level_title]</option>";
+						}
+						?>
+					</select>
+
+				</td>			
+				<th scope="row">읽기권한</th>
+				<td>
+					<select name="auth_read" data-board-properties="auth_read">
+						<?
+						$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+						$res_result = mysqli_query($connect, $res_query);
+						while($res = mysqli_fetch_array($res_result)){
+							echo "<option value=\"$res[level]\">$res[level_title]</option>";
+						}
+						?>
+					</select>					
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">답변권한</th>
+				<td>
+					<select name="auth_reply" data-board-properties="auth_reply">
+						<?
+						$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+						$res_result = mysqli_query($connect, $res_query);
+						while($res = mysqli_fetch_array($res_result)){
+							echo "<option value=\"$res[level]\">$res[level_title]</option>";
+						}
+						?>	
+					</select>
+				</td>			
+				<th scope="row">삭제권한</th>
+				<td>
+					<select name="auth_delete" data-board-properties="auth_delete">
+						<?
+						$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+						$res_result = mysqli_query($connect, $res_query);
+						while($res = mysqli_fetch_array($res_result)){
+							echo "<option value=\"$res[level]\">$res[level_title]</option>";
+						}
+						?>	
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">코멘트작성</th>
+				<td colspan="3">
+					<select name="auth_comment" data-board-properties="auth_comment">
+						<?
+						$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+						$res_result = mysqli_query($connect, $res_query);
+						while($res = mysqli_fetch_array($res_result)){
+							echo "<option value=\"$res[level]\">$res[level_title]</option>";
+						}
+						?>
+					</select>
+				</td>			
+			
+			</tr>
+			<tr>
+				<th scope="row">첨부파일 갯수</th>
+				<td>
+					<select name="file_count" title="첨부파일 갯수" data-board-properties="file_count">
+						<? for ($i = 0; $i < 11; $i++) { ?>
+							<option value="<?=$i?>"><?=$i?></option>
+						<? } ?>
+					</select> 개
+				</td>
+				<th scope="row">첨부파일 용량제한</th>
+				<td><input type="text" name="file_limit_size" size="4" maxlength="3" value="<?=$row[file_limit_size]?>" title="첨부파일 용량제한" data-board-properties="file_limit_size" placeholder="최대 10MB" class="numberic"/> M<span></span></td>			
+				
+			</tr>
+			<tr>
+				<th scope="row">리스트 갯수</th>
+				<td>
+					<input type="text" name="list_limit" id="limi_limit" maxlength="2" class="input50 numberic" value="<?=$row[list_limit]?>" title="리스트 갯수" /> 개
+				</td>
+				<th scope="row">상시 비밀글 사용</th>
+				<td>
+				<div class="designCheck">
+					<input type="checkbox" name="always_secret" id="always_secretY" value="Y" data-board-properties="always_secret" /> <label for="always_secretY">상시 비밀글 사용</label>
+				</div>	
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">휴대폰 본인인증 사용 여부</th>
+				<td colspan="3">	
+				<div class="designRadio">
+					<input type="radio" name="namecheck_auth" id="namecheck_authY" value="Y" data-board-properties="namecheck_auth" /> <label for="namecheck_authY">사용</label>
+					<input type="radio" name="namecheck_auth" id="namecheck_authN" value="N" checked="checked" data-board-properties="namecheck_auth" /> <label for="namecheck_authN">미사용</label>
+					<span style="color:red; font-size:14px; font-weight:bold;"> * 사이트관리 > 실명인증 사이트 코드가 입력되어있어야 합니다.</span> 
+				</div>
+				</td>			
+			</tr>
+			<tr>
+				<th scope="row">SMS 인증 사용 여부</th>
+				<td colspan="3">	
+				<div class="designRadio">
+					<input type="radio" name="sms_auth" id="sms_authY" value="Y" data-board-properties="sms_auth" /> <label for="sms_authY">사용</label>
+					<input type="radio" name="sms_auth" id="sms_authN" value="N" checked="checked" data-board-properties="sms_auth" /> <label for="sms_authN">미사용</label>
+					<span style="color:red; font-size:14px; font-weight:bold;"> * 사이트관리 > SMS secureKEY가 입력되어있어야 합니다.</span>
+				</div>
+				</td>			
+			</tr>
+			<tr>
+				<th scope="row">스팸방지 사용 여부</th>
+				<td colspan="3">
+				<div class="designRadio">
+					<input type="radio" name="spam_auth" id="spam_authY" value="Y" data-board-properties="spam_auth"/> <label for="spam_authY">사용</label>
+					<input type="radio" name="spam_auth" id="spam_authN" value="N" checked="checked" data-board-properties="spam_auth"/> <label for="spam_authN">미사용</label>
+				</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">사용여부</th>
+				<td colspan="3">
+				<div class="designRadio">
+					<input type="radio" name="state" id="stateY" value="Y" checked="checked" data-board-properties="state"/> <label for="stateY">사용</label>
+					<input type="radio" name="state" id="stateN" value="N" data-board-properties="state"/> <label for="stateN">미사용</label>
+				</div>
+				</td>
+			</tr>
+			<!--
+			<tr>
+				<th scope="row">부서별 권한 설정 <input type="checkbox" name="dept_auth[]" value="" id="no_dept"/><label for="no_dept"></label><p style="font-size:5px;">체크를 해제하면 전체공개 됩니다.</p><br /></th>
+				<td colspan="3">
+					<?
+					$dept_query = "SELECT * FROM koweb_dept WHERE state = 'Y'  ORDER BY ref_group ASC, depth ASC, sort ASC, ref_no ASC";
+					$dept_result = mysqli_query($connect, $dept_query);
+					while($dept_auth = mysqli_fetch_array($dept_result)){
+						if($dept_auth[depth] == "1"){ ?>
+							<p />----------- <?=$dept_auth[dept]?> -----------<br />
+					<?	} else { ?>
+						<input type="checkbox" name="dept_auth[]" value="<?=$dept_auth[no]?>" id="dept_auth_<?=$dept_auth[no]?>" data-dept-list/><label for="dept_auth_<?=$dept_auth[no]?>"><?=$dept_auth[dept]?></label>
+						<? } ?>
+					<? } ?>
+					<? foreach($dept_auth_tmp as $val){ ?>
+						<script type="text/javascript">
+							$(":checkbox[name='dept_auth[]'][value='<?=$val?>']").prop("checked", true);
+						</script>
+					<? } ?>
+				</td>
+			</tr>
+			-->
+			
+		</tbody>
+	</table>
+	

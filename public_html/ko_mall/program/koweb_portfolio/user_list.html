@@ -1,0 +1,50 @@
+<?
+	$query = "SELECT * FROM $program_table ORDER BY show_main DESC,sort_value DESC,no ASC";
+	$result = mysql_query($query);
+	$dir = "/upload/program/$program_id/";
+?>
+
+<div class="portfolio_area">
+	<h3>PORTFOLIO</h3>
+	<p>웹잇에서 전문적으로 제작된 웹사이트입니다.</p>
+
+	<ul>
+		<? while($row = mysql_fetch_array($result)){ ?>
+			<li>
+				<!--<? if($is_admin) {?>
+					<div style="margin-bottom:4px;">
+						<a href="<?=$PHP_SELF?>?mode=view&program_id=<?=$program_id?>&no=<?=$row[no]?>" class="button sm gray">보기</a>
+						<a href="<?=$PHP_SELF?>?mode=modify&program_id=<?=$program_id?>&no=<?=$row[no]?>" class="button sm gray">수정</a>
+						<a href="<?=$PHP_SELF?>?mode=delete&program_id=<?=$program_id?>&no=<?=$row[no]?>" onclick="return confirm('삭제한 데이터는 복구할수 없습니다. 삭제하시겠습니까?');" class="button sm white">삭제</a>
+					</div>
+				<? } else if ($type_view == "view"){  ?>
+					<div style="margin-bottom:4px;">
+						<a href="<?=$PHP_SELF?>?mode=view&program_id=<?=$program_id?>&no=<?=$row[no]?>&amp;type_view=view" class="button sm gray">보기</a>
+					</div>
+				<? } ?>-->
+
+				
+				<a href="<?=$row[link_url]?>" target="blank">
+					<!-- 썸네일 -->
+					<span class="img"><img src="<?=$dir?><?=$row[title_img]?>" alt=""/></span>
+					<span class="txt">
+						<!-- 프로젝트명 -->
+						<em><?=$row[title]?></em>
+						<!-- 작업구분 -->
+						<i><?=$row[work_category]?></i>
+					</span>
+				</a>				
+			</li>
+		<? } ?>
+	</ul>
+	<!-- 더보기 -->
+
+	<!--<a href="#" class="btn_more_view">MORE</a>-->
+</div>
+<!--
+<? if($_SESSION['is_admin'] == "1"){ ?>
+	<div class="btn_area tar">
+		<a href="<?=$PHP_SELF?>?mode=write&program_id=<?=$program_id?>" class="button">등록</a>
+	</div> 
+<? } ?>-->
+

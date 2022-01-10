@@ -1,0 +1,113 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/auth_manager.php";
+
+$mode_title = $site[title]." 등록";
+
+if($mode == "modify"){
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $site[title]." 수정";
+}
+?>
+
+<h2 class="mt0">팝업관리</h2>
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:40%"/>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" />
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title">제목</label></th>
+				<td><input type="text" name="title" id="title" class="inputFull required" value="<?=$row[title]?>" title="제목" /></td>
+				<th scope="row"><span class="marking">필수항목</span>기간</th>
+				<td><input type="text" name="start_date" value="<?=$row[start_date]?>" title="시작일"  class="input100 datepicker" placeholder="예) <?=date('Y')?>-<?=date('m')?>-<?=date('d')?>"/> ~ <input type="text" name="end_date" value="<?=$row[end_date]?>"title="종료일" class="input100 datepicker" placeholder="예) <?=date('Y')?>-<?=date('m')?>-<?=date('d')?>"/>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="link_url">링크 연결 주소</label></th>
+				<td>
+					<select name="link_type" id="link_type" title="링크타입선택항목" class="input100">
+						<option value="_blank">새창</option>
+						<option value="_self">현재창</option>
+					</select>
+					<input type="text" class="required" name="link_url" id="link_url" value="<?=$row[link_url]?>" title="사이트 주소" placeholder="http://를 꼭 포함시켜주세요." style="width:calc(100% - 104px);"/>
+				</td>
+				<th scope="row"><label for="state">팝업 종류</label></th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" name="popup_type" id="default" value="default" /><label for="default">기본 HTML 팝업</label>
+						<input type="radio" name="popup_type" id="layer" value="layer" /><label for="layer">레이어 팝업</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="state">팝업 크기</label></th>
+				<td>
+					<span style="margin-right:10px;">가로 <input type="text" name="width" value="<?=$row[width]?>" class="input100"/> px</span>
+					<span>세로 <input type="text" name="height" value="<?=$row[height]?>" class="input100"/> px</span>
+					<p style="margin-top:5px; font-size:12px;">레이어 팝업의 높이는 가로축에 따라 자동으로 최적화 되어 나타납니다.</p>
+				</td>
+				<th scope="row"><label for="state">팝업 위치</label></th>
+				<td>
+					<span style="margin-right:10px;">가로 <input type="text" name="position_width" value="<?=$row[position_width]?>" class="input100"/> px</span>
+					<span>세로 <input type="text" name="position_height" value="<?=$row[position_height]?>" class="input100"/> px</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="">Z-INDEX</label></th>
+				<td colspan="3">
+				<? if(!$row[zindex]) $row[zindex] = 999; ?>
+				<input type="text" name="zindex" value="<?=$row[zindex]?>" class="input100" /> <span style="color:red;"> * 레이어 팝업일 경우 999 이상 값을 입력하세요. ( 모바일버전의 경우 해당값이 높은 팝업부터 노출됩니다 동일한값은 등록순서에 따라 노출)</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">내용</th>
+				<td colspan="3">
+					<textarea name="contents" id="smart_content" rows="2" cols="2" style="display:none;" class="inputFull"><?=$row[contents]?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title_img">이미지</label></th>
+				<td colspan="3" class="file">
+					<div class="designFile">
+						<input type='text' readonly='readonly' value=''/>
+						<input type='file' name='title_img' id='title_img'/>
+						<label for='title_img' class='button white'>파일선택</label>
+					</div>
+					<? if($row[img]) { ?>
+						<span>기존 첨부파일 : <a href='/upload/program/<?=$program_id?>/<?=$row[img]?>' target='_blank'><?=$row[img]?></a>
+					<? } ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="state">사용여부</label></th>
+				<td colspan="3" class="file">
+					<div class="designRadio">
+						<input type="radio" name="state" id="stateY" value="Y" checked /> <label for="stateY">사용</label>
+						<input type="radio" name="state" id="stateN" value="N" /> <label for="stateN">미사용</label>
+					</div>
+				</td>
+			</tr>
+
+
+		</tbody>
+	</table>
+	<script type="text/javascript">
+		$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true);
+		$("input:radio[name='popup_type']:radio[value='<?=$row[type]?>']").prop("checked",true);
+		$("select[name='link_type'] option[value='<?=$row[link_type]?>']").prop("selected", true);
+	</script>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="저장" />
+		<a href="<?=$common_queryString?>" class="button gray lg">취소</a>
+	</div>
+</form>

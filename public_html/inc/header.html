@@ -1,0 +1,47 @@
+			<!-- header -->
+			<header id="header">
+				<div class="inr">
+					<h1 class="logo"><a href="/">일미</a></h1>
+
+					<!-- gnb -->
+					<nav>
+						<ul class="gnb">
+							<li><a href="/contents/01_about/sub01.html" class="about">회사소개</a></li>
+							<li><a href="/product/product.html" class="product">제품구매</a></li>
+							<li><a href="/contents/03_board/board.html?board_id=board_notice" class="board">커뮤니티</a>
+								<ul>
+									<li><a href="/contents/03_board/board.html?board_id=board_notice" class="board_notice">공지사항</a></li>
+									<li><a href="/contents/03_board/board.html?board_id=board_question" class="board_question">문의게시판</a></li>
+									<li><a href="/contents/03_board/board.html?board_id=board_review" class="board_review">리뷰게시판</a></li>
+								</ul>
+							</li>
+							<li><a href="/member/member.html?mode=intro" class="mypage">마이페이지</a></li>
+						</ul>
+
+						<a href="#" class="btn_menu"><span><i>전체메뉴열기</i></span></a>
+					</nav>
+					<!-- //gnb -->
+
+					<div class="area_util">
+						<ul>
+							<!-- 로그인전 -->
+							<? if($_SESSION['member_id']){ ?>
+								<li><a href="/member/member.html?mode=logout" data-util="logout"><span>로그아웃</span></a></li>
+								<li><a href="/member/member.html?mode=intro" data-util="mypage"><span>마이페이지</span></a></li>
+							<? }else{ ?>
+								<li><a href="/member/member.html" data-util="login"><span>로그인</span></a></li>
+								<li><a href="/member/member.html?mode=agree" data-util="join"><span>회원가입</span></a></li>
+							<? } ?>
+							<?
+							if(!$_SESSION['member_id']){
+								$cart_cnt = count($_SESSION['s_cart']);
+							}else{
+								$cart_cnt = mysqli_num_rows(query("SELECT * FROM koweb_cart WHERE member_id = '{$_SESSION['member_id']}'"));
+							}
+							?>
+							<li><a href="/product/product.html?mode=cart" data-util="basket"><i><?=$cart_cnt?></i><span>장바구니</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</header>
+			<!-- //header -->

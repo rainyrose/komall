@@ -1,0 +1,128 @@
+<?
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysql_query($query);
+	$row = mysql_fetch_array($result);
+	$category_text = str_replace("|", ", ", $row[category]);
+?>
+<h3 class="bbsTitle"><?=$row[title]?></h3>
+<table class="bbsView">
+	<caption>포트폴리오 상세보기</caption>
+	<colgroup>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:35%"/>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:35%"/>
+	</colgroup>
+	<tbody>
+		<tr>
+			<th scope="row" data-view="date">구분</th>
+			<td><?=$row[work_category]?></td>
+			<th scope="row" data-view="count">키워드</th>
+			<td><?=$category_text?></td>
+		</tr>
+		<tr>
+			<th scope="row" data-view="date">사이트 주소</th>
+			<td colspan="3"><?=$row[link_url]?></td>
+		</tr>
+		<tr>
+			<td colspan="4" class="conts">
+				<div class="conts">
+					<!-- 이미지 view단표시 -->
+					<div class="img">
+						<? 
+							$file_count = 0;
+							echo "<img src=\"/upload/program/$program_id/$row[title_img]\" alt=\"\"/><br /><br />";	
+							for ($i = 1; $i <= 5; $i++){ 
+								$file_title =  $row["file_".$i];
+								if($file_title){ 
+									echo "<img src=\"/upload/program/$program_id/$file_title\" alt=\"\"/><br /><br />";
+									$file_count++;
+								} 
+							} 
+						?>
+					</div>
+					<!-- //이미지 view단표시 -->
+					<?=$row[contents]?>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row" data-view="file">대표이미지</th>
+				<td colspan="3">
+					<!-- 파일목록 -->
+					<ul class="list_file">
+						<? 
+						if($row[title_img]){ 
+								echo "<li><a href=\"/program/download.php?program_id=$program_id&amp;file=$row[title_img]\">$row[title_img]</a></li>";
+						  } 
+						?>
+					</ul>
+				</td>
+			</tr>
+	
+		<!-- 첨부파일이 있는경우 -->
+		<? if($file_count > 0){ ?>
+			<tr>
+				<th scope="row" data-view="file">첨부파일</th>
+				<td colspan="3">
+					<!-- 파일목록 -->
+					<ul class="list_file">
+						<? 
+							for ($i = 1; $i <= 5; $i++){ 
+									$file_title =  $row["file_".$i];
+									if($file_title){ 
+										echo "<li><a href=\"/board/download.php?program_id=$program_id&amp;file=$file_title\">$file_title</a></li>";
+								  } 
+							} 
+						?>
+					</ul>
+				</td>
+			</tr>
+		<? } ?>
+		<!-- //첨부파일 -->
+	</tbody>
+</table>
+<!-- 이전/다음 -->
+<? if($type_view == "view") $add_queryStr = "&amp;type_view=view"; ?>
+<?
+	// 다음글, 이전글
+	$temp_next = mysql_fetch_array(mysql_query("SELECT no, title FROM $program_table WHERE  no>'$no' ORDER BY  no ASC LIMIT 1"));
+	if ($temp_next) $next = "?no=$temp_next[no]&amp;mode=view&amp;program_id=$program_id&amp;start=$start&amp;search_key=$search_key&amp;keyword=$keyword&amp;category=$category".$add_queryStr; 
+	else $next = "#";
+	// 이전글
+	$temp_prev = mysql_fetch_array(mysql_query("SELECT no, title FROM $program_table WHERE no<'$no' ORDER BY no DESC LIMIT 1"));
+	if ($temp_prev) $prev = "?no=$temp_prev[no]&amp;mode=view&amp;program_id=$program_id&amp;start=$start&amp;search_key=$search_key&amp;keyword=$keyword&amp;category=$category".$add_queryStr;
+	else $prev = "#";
+?>
+<table class="bbsView page">
+	<caption>이전 다음 글보기</caption>
+	<colgroup>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:85%"/>
+	</colgroup>
+	<tbody>
+		<tr>
+			<th scope="row">이전글</th>
+			<td><a href="<?=$prev?>"><?=$temp_prev[title]?></a></td>
+		</tr>
+		<tr>
+			<th scope="row">다음글</th>
+			<td><a href="<?=$next?>"><?=$temp_next[title]?></a></td>
+		</tr>
+	</tbody>
+</table>
+<!-- //이전/다음 -->
+
+<!-- 버튼 -->
+<div class="btn_area">
+	<? if($_SESSION[is_admin]){ ?>
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;start=<?=$start?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button">수정</a>
+	<? } ?>
+	<? if($_SESSION[is_admin]){ ?>
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;start=<?=$start?>&amp;mode=delete&amp;return_mode=list&amp;no=<?=$row[no]?>" class="button" onclick="return confirm('삭제한 데이터는 다시 복구 할 수 없습니다. 삭제하시겠습니까?');">삭제</a>
+	<? } else if($auth_delete){ ?>
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;start=<?=$start?>&amp;mode=check&amp;return_mode=delete&amp;no=<?=$row[no]?>" class="button">삭제</a>
+	<? } ?>
+	<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;start=<?=$start?><?=$add_queryStr?>" class="button">목록</a>
+</div>
+<!-- //버튼 -->

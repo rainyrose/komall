@@ -1,0 +1,491 @@
+<?
+	$mode_title = "회원 가입";
+
+	if($_SESSION['NAVER']){
+		$type = "NAVER";
+		$row[name] = $_SESSION['NAVER'][name];
+		$email = explode("@",$_SESSION['NAVER'][email]);
+		unset($_SESSION['KAKAO']);
+	}
+	if($_SESSION['KAKAO']){
+		$type = "KAKAO";
+		$row[name] = $_SESSION['KAKAO'][name];
+		$email = explode("@",$_SESSION['KAKAO'][email]);
+		unset($_SESSION['NAVER']);
+	}
+
+	if($facebook == "Y" && $_SESSION['facebook_token']){
+		$type = "FB";
+		$facebook_return = facebook_token_check($_SESSION['facebook_token'],"email,name");
+		$row[name] = $facebook_return[name];
+		$email = $facebook_return[email];
+		if($facebook_return[error]){
+			error("Please again");
+		}
+	}
+
+	if($mode == "modify"){
+
+		if(isblank($_SESSION[member_id])) {
+			alert("로그인을 해주세요");
+			url("/".$add_folder."member/member.html?mode=login");
+			exit;
+		}
+
+		if($_SESSION['type']){
+			$password = $_SESSION[member_id];
+			$return_mode = "modify";
+			$type = $_SESSION['type'];
+		}
+
+		if(!$password){
+			url("/".$add_folder."member/member.html?mode=check&amp;return_mode=modify");
+		}
+		$password = hash("sha256", $password);
+
+		$query = "SELECT * FROM koweb_member WHERE id='$_SESSION[member_id]' AND password='$password'";
+		$result = mysqli_query($connect, $query);
+		$check = mysqli_num_rows($result);
+		if($check < 1){
+			error("비밀번호를 확인해주세요");
+			exit;
+		}
+
+		$mode_title = "회원정보 수정";
+		if(isblank($return_mode)) error("비정상적인 접근입니다.");
+
+		$query = "SELECT * FROM koweb_member WHERE id='$_SESSION[member_id]'";
+		$result = mysqli_query($connect, $query);
+		$row = mysqli_fetch_array($result);
+		$email = explode("@",$row[email]);
+		$phone = explode("-", $row[phone]);
+		$tel = explode("-", $row[tel]);
+		$mod_ = "readOnly";
+
+		$sms_agree = $row[sms_agree];
+		$email_agree = $row[email_agree];
+	}
+
+	if(!$mode){
+		$mode = "write";
+	}
+
+	//항목설정 세팅
+	$data_result = mysqli_query($connect, "SELECT * FROM koweb_member_item");
+
+	while($data_ = mysqli_fetch_array($data_result)){
+		$item_config_[$data_[item]] = array("keyname" => $data_[item], "use" => $data_[item_use], "requierd" => $data_[item_requierd]);
+	}
+
+	//필수값 체크, $[key]_required 변수형식 (예: name_required = "Y")
+	foreach($item_config_ as $v){
+		//if($v[requierd] == "Y") echo $v[keyname];
+		if($v[requierd] == "Y")  ${$v[keyname]."_required"} = "required";
+	}
+
+?>
+<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+<? }else{ ?>
+	<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<? } ?>
+<script type="text/javascript">
+	function execDaumPostcode(){
+		new daum.Postcode(
+		{
+			oncomplete: function(data)
+			{
+				// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+				// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+				// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+				var fullAddr  = "";					// 최종 주소 변수
+				var extraAddr = "";					// 조합형 주소 변수
+
+				// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+				if (data.userSelectedType === "R")
+				{
+					// 사용자가 도로명 주소를 선택했을 경우
+					fullAddr = data.roadAddress;
+				}
+				else
+				{
+					// 사용자가 지번 주소를 선택했을 경우(J)
+					fullAddr = data.jibunAddress;
+				}
+
+				// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+				if (data.userSelectedType === "R")
+				{
+					// 법정동명이 있을 경우 추가한다.
+					if (data.bname !== "")
+					{
+						extraAddr += data.bname;
+					}
+
+					// 건물명이 있을 경우 추가한다.
+					if (data.buildingName !== "")
+					{
+						extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+					}
+
+					// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+					fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+				}
+
+				// 우편번호와 주소 정보를 해당 필드에 넣는다.
+				document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+				document.getElementById("address1").value = fullAddr;
+
+				// 커서를 상세주소 필드로 이동한다.
+				document.getElementById("address2").focus();
+			}
+		}).open();
+	}
+
+	function mail_check(){
+		if($("#tmp_mail").val() == "other"){
+			$("#email2").val("");
+			$("#email2").prop("disabled", "");
+		} else {
+			$("#email2").val("");
+			$("#email2").val($("#tmp_mail").val());
+			$("#email2").prop("disabled", "disabled");
+		}
+			$("#email3").val($("#email2").val());
+	}
+
+	$(function() {
+		$("select[name='tmp_email'] option[value='<?=$email[1]?>']").prop("selected", true);
+		$("select[name='tmp_mail'] option[value='<?=$email[1]?>']").prop("selected", true);
+		$("select[name='phone1'] option[value='<?=$phone[0]?>']").prop("selected", true);
+		$("select[name='level'] option[value='<?=$row[auth_level]?>']").prop("selected", true);
+		$("select[name='dept'] option[value='<?=$row[dept]?>']").prop("selected", true);
+		$("input:radio[name='gender']:radio[value='<?=$row[gender]?>']").prop("checked",true);
+		$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true);
+	});
+</script>
+
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$no?>" />
+	<input type="hidden" name="email3" value="<?=$email[1]?>" id="email3" />
+	<input type="hidden" name="return_no" value="<?=$return_no?>" id="return_no" />
+	<input type="hidden" name="step" value="3" id="step" />
+
+	<div class="join_area">
+		<p>회원가입에 필요한 정보를 입력해주세요.</p>
+
+		<table class="bbsView">
+			<caption><?=$mode_title?></caption>
+			<colgroup>
+				<col data-member-form="th" style="width:20%;"/>
+				<col data-member-form="td" style="width:80%;"/>
+			</colgroup>
+			<tbody>
+				<? if(!$type){ ?>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="id">회원아이디</label></th>
+					<td>
+						<input type="text" name="id" size="10" maxlength="20" value="<?=$row[id]?>" title="아이디" id="id" class="input200 required" <?=$mod_?> data-id-check />
+						<em data-result="id"></em>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="password">비밀번호</label></th>
+					<td data-member-form="pw1">
+						<input type="password" name="password" id="password" rsize="10" maxlength="20" value="" title="비밀번호" class="input200 <?=$mod_?>" data-password-check/>
+						<em data-result="password"></em>
+						<? if($mode == "modify"){ ?>
+							<em>비밀번호 변경시에만 작성하세요</em>
+						<? } ?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="password2">비밀번호 확인</label></th>
+					<td data-member-form="pw1">
+						<input type="password" name="password2" id="password2" rsize="10" maxlength="20" value="" title="비밀번호" class="input200 <?=$mod_?>" data-password2-check/>
+						<em data-result="password2"></em>
+					</td>
+				</tr>
+				<? } ?>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="name">이름</label></th>
+					<td data-member-form="name"><input type="text" name="name" size="10" maxlength="20" value="<?=$row[name]?>" title="이름" class="input200 required"/></td>
+				</tr>
+				<? if($item_config_["gender"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["gender"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?> 성별</th>
+					<td data-member-form="gender">
+						<div class="designRadio">
+							<input type="radio" name="gender" id="genderM" value="남성" title="성별" checked> <label for="genderM">남성</label>
+							<input type="radio" name="gender" id="genderF" value="여성" title="성별" > <label for="genderF">여성</label>
+						</div>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["phone"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["phone"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?> <label for="phone1">휴대전화</label></th>
+					<td data-member-form="phone">
+						<select name="phone1" id="phone1" class="input100" title="휴대전화 첫번째 자릿수">
+							<option value="010">010</option>
+							<option value="011">011</option>
+							<option value="016">016</option>
+							<option value="017">017</option>
+							<option value="018">018</option>
+							<option value="019">019</option>
+						</select> -
+						<input type="text" name="phone2" id="phone2" value="<?=$phone[1]?>" maxlength="4" class="input100 <?=$phone_required?>" title="휴대전화 두번째 자릿수"/> -
+						<input type="text" name="phone3" id="phone3" value="<?=$phone[2]?>" maxlength="4" class="input100 <?=$phone_required?>" title="휴대전화 세번째 자릿수"/>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["tel"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["tel"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?><label for="tel1">유선전화</label></th>
+					<td data-member-form="phone">
+						<input type="text" name="tel1" id="tel1" value="<?=$tel[0]?>" maxlength="4" class="input100 <?=$tel_required?>" title="유선전화 첫번째 자릿수"/> -
+						<input type="text" name="tel2" id="tel2" value="<?=$tel[1]?>" maxlength="4" class="input100 <?=$tel_required?>" title="유선전화 두번째 자릿수"/> -
+						<input type="text" name="tel3" id="tel3" value="<?=$tel[2]?>" maxlength="4" class="input100 <?=$tel_required?>" title="유선전화 세번째 자릿수"/>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["profile"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["profile"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?>프로필이미지</th>
+					<td>
+					<?
+						$file_title = $row["profile"];
+						$del_ = "파일선택";
+						$del_2 = "";
+						if($file_title){
+							 $del_2 = "<a href='/upload/member/$file_title' target='_blank' class='button white'>기존 첨부파일 : $file_title</a>";
+
+							 //해당부분 proc에 추가 요망
+							 //$del_3 = "<div class='designCheck mb10' style='display:inline-block;'><input type='checkbox' value='Y' id='file_del_$i' name='file_del_$i'/><label for='file_del_$i'>파일삭제</label></div>";
+						}
+						echo "<div class='designFile'><input type='text' readonly='readonly' value=''/><input type='file' name='profile' id='profile' class='$profile_required' title='프로필이미지'/><label for='profile' class='button white'> $del_</label> $del_2 $del_3</div>";
+					?>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["birth"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["birth"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?><label for="birth">생년월일</label></th>
+					<td data-member-form="date">
+						<input type="text" name="birth" id="birth" value="<?=$row[birth]?>" class="datepicker <?=$birth_required?>" readOnly data-form-type="datepicker" title="생년월일"/>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["email"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["email"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?><label for="email">이메일</label></th>
+					<td data-member-form="email">
+						<input type="text" name="email1" id="email1" value="<?=$email[0]?>" class="<?=$email_required?>" title="이메일" data-email-check="<?=$mode == "modify" ? "true" : "false"?>"/> @
+						<select name="tmp_mail" id="tmp_mail" onchange="javascript:mail_check();" class="input200">
+							<option value="">선택하세요</option>
+							<option value="naver.com">naver.com</option>
+							<option value="daum.net">daum.net</option>
+							<option value="hanmail.net">hanmail.net</option>
+							<option value="hotmail.com">hotmail.com</option>
+							<option value="gmail.com">gmail.com</option>
+							<option value="other">직접입력</option>
+						</select>
+						<input type="text" name="email2" value="<?=$email[1]?>" id="email2" disabled class="<?=$email_required?>" title="이메일 직접입력"/>
+						<em data-result="email"></em>
+					</td>
+				</tr>
+				<? } ?>
+				<? if($item_config_["address"]["use"] == "Y"){ ?>
+				<tr>
+					<th scope="row"><? echo $item_config_["address"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?>주소</th>
+					<td data-member-form="addr">
+						<span>
+							<input type="text" name="zip" id="zip" value="<?=$row[zip]?>" class="<?=$address_required?>" title="우편번호" readOnly/>
+							<a href="javascript:execDaumPostcode()" class="button white">우편번호검색</a>
+						</span>
+						<input type="text" name="address1" id="address1" class="inputFull <?=$address_required?>" title="상세주소1" value="<?=$row[address1]?>" readOnly/>
+						<input type="text" name="address2" id="address2" class="inputFull <?=$address_required?>" title="상세주소2" value="<?=$row[address2]?>" />
+					</td>
+				</tr>
+				<? } ?>
+				<? if($mode != "join"){ ?>
+				<?
+				$agree_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'sms_agree'"));
+				if($agree_[item_requierd] != "Y"){ ?>
+				<tr>
+					<th scope="row">쇼핑정보 SMS 수신동의</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="sms_agree" id="sms_agreeY" value="Y" title="SMS 수신동의" <?=$sms_agree == "Y" ? "checked" : ""?>> <label for="sms_agreeY">동의</label>
+							<input type="radio" name="sms_agree" id="sms_agreeN" value="" title="SMS 수신동의"  <?=$sms_agree != "Y" ? "checked" : ""?>> <label for="sms_agreeN">미동의</label>
+						</div>
+					</td>
+				</tr>
+				<? } ?>
+				<?
+				$agree2_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'email_agree'"));
+				if($agree2_[item_requierd] != "Y"){ ?>
+				<tr>
+					<th scope="row">쇼핑정보 이메일 수신동의</th>
+					<td>
+						<div class="designRadio">
+						<input type="radio" name="email_agree" id="email_agreeY" value="Y" title="이메일 수신동의" <?=$email_agree == "Y" ? "checked" : ""?>> <label for="email_agreeY">동의</label>
+						<input type="radio" name="email_agree" id="email_agreeN" value="" title="이메일 수신동의"  <?=$email_agree != "Y" ? "checked" : ""?>> <label for="email_agreeN">미동의</label>
+						</div>
+					</td>
+				</tr>
+				<? } ?>
+				<? }else{ ?>
+				<input type="hidden" name="sms_agree" value="<?=$sms_agree?>" />
+				<input type="hidden" name="email_agree" value="<?=$email_agree?>" />
+				<? } ?>
+				<? if($member_config_["use_captcha"] == "Y"){ ?>
+					<? $_SESSION[rand_auth] = rand(0000,9999); ?>
+					<tr>
+						<th scope="row"><? echo $item_config_["captcha"]["requierd"] === "Y" ? "<span class=\"marking\">필수항목</span>" : "" ?><label for="rand_auth_">자동가입방지</label></th>
+						<td class="spam"><span><?=$_SESSION[rand_auth]?></span><input type="text" name="rand_auth_" id="rand_auth_" placeholder="좌측 번호를 입력해주세요." class="input200 required" title="스팸방지번호" /></td>
+					</tr>
+				<? } ?>
+
+				<!--
+				<tr>
+					<th scope="row">사용여부</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="state" value="Y" id="stateY" checked/> <label for="stateY">사용</label>
+							<input type="radio" name="state" value="N" id="stateN" /> <label for="stateN">미사용</label>
+						</div>
+					</td>
+				</tr>
+				-->
+			</tbody>
+		</table>
+
+		<div class="btn_area">
+			<input type="submit" value="등록" data-member-proc class="button">
+			<? if($return_no != ""){ ?>
+				<a href="?type=setting&core_id=setting&core=manager_setting&manager_type=dept&mode=view&no=<?=$return_no?>" class="button gray">취소</a>
+			<? } else { ?>
+				<a href="javascript:;" onclick="javascript:history.go(-1);" class="button gray">취소</a>
+			<? } ?>
+			<? if($mode == "modify"){ ?>
+			<a onclick="if(!confirm('정말 회원탈퇴를 진행하시겠습니까?')){return false;}" href="/<?=$add_folder?>member/member.html?mode=check&return_mode=secession" class="button gray">회원탈퇴</a>
+			<? } ?>
+		</div>
+	</div>
+
+</form>
+
+<script type="text/javascript">
+	$(function(){
+		function make_email(){
+			var email = "";
+			if($("#tmp_mail").val() == "other"){
+				email = $("#email1").val()+"@"+$("#email2").val();
+			}else{
+				email = $("#email1").val()+"@"+$("#tmp_mail").val();
+			}
+
+			return email;
+		}
+		//id 중복확인
+		$("#id").on({
+			keyup: function(){
+				check_infomation("member", "id", $(this).val());
+			}
+		});
+
+		$("#password").on({
+			keyup: function(){
+				check_infomation("member", "password", $(this).val());
+			}
+		});
+
+		$("#password2").on({
+			keyup: function(){
+				if($("[data-password2-check]").val().length > 0 && $("[data-password-check]").val() != $("[data-password2-check]").val()){
+					$("[data-result='password2']").text("비밀번호가 일치하지 않습니다");
+				}else{
+					$("[data-result='password2']").text("");
+				}
+			}
+		});
+
+		$("#email1").on({
+			keyup: function(){
+				var email = make_email();
+				check_infomation("member", "email", email);
+			}
+		});
+
+		$("#email2").on({
+			keyup: function(){
+				var email = make_email();
+				check_infomation("member", "email", email);
+			}
+		});
+
+		$("#tmp_mail").on({
+			change: function(){
+				var email = make_email();
+				check_infomation("member", "email", email);
+			}
+		});
+
+		//submit시 id중복확인 진행하였는지 확인
+		$("[data-member-proc]").click(function(){
+
+			var chk2 = true;
+			var pwd_length = $("#password").val().length;
+
+			if("<?=$mode?>" != "modify"){
+				if($("[data-id-check]").data("id-check") == false){
+					alert("ID를 올바르게 입력해주세요.");
+					chk2 = false;
+					return false;
+				}
+				if(!chk2) return false;
+			}
+
+			if(("<?=$mode?>" == "modify" && pwd_length > 0) || "<?=$mode?>" != "modify"){
+				if($("[data-password-check]").data("password-check") == false){
+					alert("비밀번호를 올바르게 작성해주세요.");
+					chk2 = false;
+					return false;
+				}
+				if(!chk2) return false;
+
+				if($("[data-password-check]").val() != $("[data-password2-check]").val()){
+					alert("입력한 비밀번호가 서로 다릅니다.");
+					chk2 = false;
+					return false;
+				}
+				if(!chk2) return false;
+			}
+
+			var email = make_email();
+			if(email != "<?=$row['email']?>"){
+				if($("[data-email-check]").data("email-check") == false){
+					alert("E-Mail을 올바르게 입력해주세요.");
+					chk2 = false;
+					return false;
+				}
+				if(!chk2) return false;
+			}
+
+			if($("#dept_").val() == "-"){
+				alert("부서를 올바르게 지정해주세요.");
+				chk2 = false;
+				return false;
+			}
+			if(!chk2) return false;
+		});
+		<? if($mode == "join" && $type){ ?>
+			$(function(){
+				var email = make_email();
+				check_infomation("member", "email", email);
+			})
+		<? } ?>
+	});
+</script>

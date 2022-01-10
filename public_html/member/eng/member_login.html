@@ -1,0 +1,106 @@
+
+	<!-- 내용 -->
+	<div class="area_shopLogin">
+		<p class="title">Member Information Input</p>
+		<form method="post" action="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="mem_form">
+			<input type="hidden" name="mode" value="login_proc">
+			<input type="hidden" name="return_url" value="<?=$return_url?>">
+			<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+			<ul>
+				<li data-shop-login="id">
+					<label for="id">Member ID</label>
+					<input type="text" id="id" name="id" class="inputFull" title="ID" />
+				</li>
+				<li data-shop-login="pw">
+					<label for="password">password</label>
+					<input type="password" id="password" name="password" class="inputFull" title="password" />
+				</li>
+			</ul>
+			<input type="submit" class="btn_submit" value="Login" title="회wonlogin">
+		</form>
+		<!-- 버튼 -->
+		<div class="btn_area social">
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=agree">Sign Up</a>
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=find_id">Find ID</a>
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=find_pw">Forgot your password</a>
+		</div>
+		<!-- //버튼 -->
+
+		<!-- 비회won -->
+		<p class="title">Non-member`s Order Tracking</p>
+		<form method="post" action="/<?=$add_folder?>member/member.html?start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="gform">
+		<input type="hidden" name="mode" value="guest_login_proc" />
+		<input type="hidden" name="return_url" value="<?=rawurldecode($return_url)?>">
+		<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+			<ul>
+				<li data-shop-login="id">
+					<label for="guest_id">Order ID</label>
+					<input type="text" id="guest_id" name="guest_id" class="inputFull" title="Order ID" />
+				</li>
+				<li data-shop-login="pw">
+					<label for="guest_password">Order Tracking Password</label>
+					<input type="password" id="guest_password" name="guest_password" class="inputFull" title="Order Tracking Password" />
+				</li>
+			</ul>
+			<div class="col02">
+				<input type="button" class="btn_submit" value="Search" data-btn-event="search"/>
+				<button type="submit" class="btn_submit none">Non-member`s Purchase</button>
+			</div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+	$(function(){
+		$("[data-btn-event]").click(function(){
+			if(!$("#guest_id").val()){
+				$("#guest_id").focus();
+				alert("Enter orderer ID");
+				return false;
+			}
+
+			if(!$("#guest_password").val()){
+				$("#guest_password").focus();
+				alert("Please enter your order tracking password");
+				return false;
+			}
+
+			var form = $('<form></form>');
+			form.attr('action', '/<?=$add_folder?>member/member.html');
+			form.attr('method', 'post');
+			form.appendTo('body');
+
+			var mode = $("<input type='hidden' value='guest_search_proc' name='mode'>");
+			var guest_id = $("<input type='hidden' value='"+$("#guest_id").val()+"' name='guest_id'>");
+			var guest_password = $("<input type='hidden' value='"+$("#guest_password").val()+"' name='guest_password'>");
+			form.append(mode);
+			form.append(guest_id);
+			form.append(guest_password);
+			form.submit();
+		});
+
+		$("#mem_form").submit(function(){
+
+			if(!$("#id").val()){
+				$("#id").focus();
+				alert("Enter member ID");
+				return false;
+			}
+
+			if(!$("#password").val()){
+				$("#password").focus();
+				alert("Please enter your membership password");
+				return false;
+			}
+		});
+
+
+		$("#gform").submit(function(){
+
+
+		});
+
+
+	});
+	</script>
+
+	<!-- //내용 -->

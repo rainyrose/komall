@@ -1,0 +1,121 @@
+<script>
+$(function(){
+    $('link[href="/css/content.css"]').remove();
+})
+$( document ).ready( function() {
+    $( '#check_all' ).click( function() {
+      $( '[name="del_flag"]' ).prop( 'checked', this.checked );
+      car_price();
+    } );
+} );
+</script>
+<div id="wrap" class="popWrap"> <!-- 팝업일때 class선언 -->
+
+    <!-- 타이틀 -->
+    <h1>배송지 목록</h1>
+    <!-- 닫기 -->
+    <a href="javascript:void(0)" onclick="window_close();" class="btn_popClose">팝업닫기</a>
+
+    <!-- 내용 -->
+    <div id="content">
+        <table class="bbsList deliverList">
+            <caption>배송지 목록</caption>
+            <colgroup>
+                <col style="width:7%"/>
+                <col style="width:20%"/>
+                <col/>
+                <col style="width:10%"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col"><div class="designCheck noText"><input type="checkbox" name="check_all" id="check_all"/><label for="check_all">전체선택</label></div></th>
+                    <th scope="col">받는사람</th>
+                    <th scope="col">주소 / 연락처</th>
+                    <th scope="col">선택</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?
+                $address_query = "SELECT * FROM koweb_address WHERE member='{$member_id}'";
+                $address_result = mysqli_query($connect,$address_query);
+                $i = 0;
+                while($address = mysqli_fetch_array($address_result)){
+                ?>
+                <tr>
+                    <td><div class="designCheck noText"><input type="checkbox" value="<?=$address['no']?>" name="del_flag" id="del_<?=$i?>"/><label for="del_<?=$i?>">항목선택</label></div></td>
+                    <td><?=$address['name']?></td>
+                    <td>
+                        <?=$address['zip']?> <?=$address['address1']?> <?=$address['address2']?>
+                        <em><?=$address['phone']?></em>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0)" onclick="select_main_address('<?=$address['no']?>','<?=$address['name']?>','<?=$address['zip']?>','<?=$address['address1']?>','<?=$address['address2']?>','<?=$address['phone']?>')" class="button sm">기본배송지 선택</a>
+                        <a href="javascript:void(0)" onclick="select_address('<?=$address['name']?>','<?=$address['zip']?>','<?=$address['address1']?>','<?=$address['address2']?>','<?=$address['phone']?>')" class="button sm">선택</a>
+                    </td>
+                </tr>
+                <?
+                $i++;
+                }
+                ?>
+            </tbody>
+        </table>
+
+        <div class="btn_area">
+            <a href="javascript:void(0)" onclick="del_address()" class="button">삭제</a>
+            <a href="javascript:void(0)" onclick="window_close()" class="button white">닫기</a>
+        </div>
+    </div>
+    <!-- //내용 -->
+
+</div>
+
+<script>
+function del_address(){
+    var checkedTarget = document.querySelectorAll("[name=del_flag]:checked");
+    var len = checkedTarget.length;
+    var tempArray = new Array();
+    for(var i = 0; i<len; i++){
+        tempArray.push(checkedTarget[i].value);
+    }
+    var no = tempArray.join("|");
+
+    $.ajax({
+        type : "POST",
+        url : "/ko_mall/product/user/ajax_set_address.php",
+        data : {
+            flag:"del",
+            no:no
+        },
+        success : function(args) {
+            location.reload();
+        }
+    });
+}
+function select_address(name,zip,address1,address2,phone){
+    var phoneList = phone.split("-");
+    opener.document.getElementById("phone1").value = phoneList[0];
+    opener.document.getElementById("phone2").value = phoneList[1];
+    opener.document.getElementById("phone3").value = phoneList[2];
+    opener.document.getElementById("name").value = name;
+    opener.document.getElementById("zip").value = zip;
+    opener.document.getElementById("address1").value = address1;
+    opener.document.getElementById("address2").value = address2;
+    window_close();
+}
+function window_close(){
+    self.close();
+}
+function select_main_address(no,name,zip,address1,address2,phone){
+    $.ajax({
+        type : "POST",
+        url : "/ko_mall/product/user/ajax_set_address.php",
+        data : {
+            flag:"main",
+            no:no
+        },
+        success : function(args) {
+            select_address(name,zip,address1,address2,phone);
+        }
+    });
+}
+</script>

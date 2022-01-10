@@ -1,0 +1,282 @@
+<nav class="lnb small">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=sales">일일매출</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=sales&mode=type1" id="type1">기간별매출</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=sales&mode=type2" id="type2">월간매출</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=sales&mode=type3" id="type3">연간매출</a></li>
+	</ul>
+</nav>
+<script type="text/javascript">
+	$("#"+"<?=$mode?>").addClass("on");
+</script>
+<?
+	switch($mode){
+		case "type1" :
+			if(!$start_date) $start_date =  date("Y-m-01");
+			$query_sdate = $start_date . " 00:00:00";
+			if(!$end_date) $end_date = date("Y-m-d");
+			$query_edate = $end_date ." 23:59:59";
+			$qtype = 1;
+			$qstr = " ";
+
+		break;
+
+		case "type2" :
+			if(!$start_date) $start_date =  date("Y-01-01");
+			if(!$end_date) $end_date = date("Y-12-01");
+
+			$stmp = explode("-", $start_date);
+			$start_date = $stmp[0] . "-". $stmp[1] . "-". "01";
+			$query_sdate = $start_date . " 00:00:00";
+
+			$etmp = explode("-", $end_date);
+
+			$end_date = $etmp[0] . "-". $etmp[1] . "-".date('t', strtotime($end_date));
+			$query_edate = $end_date ." 23:59:59";
+			$qtype = 2;
+			$qstr = "-";
+		break;
+
+		case "type3" :
+			if(!$start_date) $start_date =  date("Y-01-01");
+			if(!$end_date) $end_date = date("Y-12-01");
+
+			$stmp = explode("-", $start_date);
+			$start_date = $stmp[0] . "-". $stmp[1] . "-". "01";
+			$query_sdate = $start_date . " 00:00:00";
+
+			$etmp = explode("-", $end_date);
+
+			$end_date = $etmp[0] . "-". $etmp[1] . "-".date('t', strtotime($end_date));
+			$query_edate = $end_date ." 23:59:59";
+			$qtype = 1;
+			$qstr = "-";
+		break;
+	}
+
+?>
+
+
+
+<div class="box pd">
+	<!-- 검색결과 나왔을때 괄호 노출 -->
+	<h2>기간별매출 (<?=$start_date?> ~ <?=$end_date?>)</h2>
+	<div class="search_bbs">
+		<form action="<?=$common_queryString?>&mode=<?=$mode?>" id="qsc1" method="POST">
+			<input type="text" name="start_date" value="<?=$start_date?>" class="input100" data-form-type="datepicker" id="" title="시작날짜">~
+			<input type="text" name="end_date" value="<?=$end_date?>" class="input100" data-form-type="datepicker" id="" title="마지막날짜">
+
+			<input type="submit" value="검색" class="button sm gray">
+		</form>
+	</div>
+	<table class="table thColor tar">
+		<caption>건수별 안내</caption>
+		<colgroup>
+			<col style="width:8%"/>
+			<col style="width:12%"/>
+			<col style="width:8%"/>
+			<col style="width:12%"/>
+			<col style="width:8%"/>
+			<col style="width:12%"/>
+			<col style="width:8%"/>
+			<col style="width:12%"/>
+			<col style="width:8%"/>
+			<col style="width:12%"/>
+		</colgroup>
+		<tbody>
+	<?
+	$total_show_query = "SELECT count(distinct(order_id)) AS total_,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a1,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '입금대기' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a2_1,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '입금확인중' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a2_11,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '결제완료' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a2,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '상품준비중' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a3,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '배송준비' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a4,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '배송중' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a41,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '취소요청' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a5,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '취소완료' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a51,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '교환요청' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a6,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '교환진행중' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a61,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '반품요청' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a7,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '반품진행중' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a71,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE state = '반품완료' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a72,
+				(SELECT count(distinct(order_id)) FROM koweb_order WHERE (state = '주문완료' OR state = '배송완료') AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a8,
+				(SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a12,
+				(SELECT SUM(pay_price) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a13,
+				(SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price) - SUM(use_point)) - SUM(pay_price) + SUM(return_price) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate' AND !(state='취소완료' OR state='반품완료')) AS a14,
+				##(SELECT SUM(product_price)+SUM(deli_price) + SUM(deli_add_price) - SUM(use_point) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate' AND state='취소') AS a15,
+				(SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate' AND (state='취소완료')) AS a15,
+				(SELECT SUM(return_price) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a16,
+				(SELECT SUM(pay_price) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate' AND state='취소완료') AS a16_1,
+				(SELECT SUM(product_price) + SUM(deli_price) + SUM(deli_add_price) - SUM(use_point) - SUM(return_price) FROM koweb_order WHERE state!='취소' AND reg_date >= '$query_sdate' AND reg_date <= '$query_edate') AS a17
+
+				FROM koweb_order";
+	$total_show = mysqli_fetch_array(mysqli_query($connect, $total_show_query));
+	?>
+	<tr>
+		<th scope="row" class="bg_thBlue">총주문건수</th>
+		<td><?=number_format($total_show[a1])?></td>
+		<th scope="row">진행 중인 건수</th>
+		<td><?=number_format($total_show[a2_1]+$total_show[a2_11]+$total_show[a2]+$total_show[a3]+$total_show[a4]+$total_show[a41])?></td>
+		<th scope="row">취소건수</th>
+		<td><?=number_format($total_show[a5]+$total_show[a51])?></td>
+		<th scope="row">교환,반품건수</th>
+		<td><?=number_format($total_show[a6]+$total_show[a61]+$total_show[a7]+$total_show[a71]+$total_show[a72])?></td>
+		<th scope="row">완료건수</th>
+		<td><?=number_format($total_show[a8])?></td>
+	</tr>
+	<tr>
+		<th scope="row" class="bg_thBlue">총주문금액</th>
+		<td><?=number_format($total_show[a12])?>원</td>
+		<th scope="row">결제금액</th>
+		<td><?=number_format($total_show[a13])?>원</td>
+		<th scope="row">취소금액</th>
+		<td><?=number_format($total_show[a15])?>원</td>
+		<th scope="row">환불금액</th>
+		<td><?=number_format($total_show[a16])?>원</td>
+		<th scope="row">미수금액</th>
+		<td><?=number_format($total_show[a14])?>원</td>
+	</tr>
+	<tr>
+							<th scope="row" class="bg_thBlue">최종 금액</th>
+							<td colspan="9"><?=number_format($total_show[a13]-$total_show[a16])?>원</td>
+						</tr>
+	</table>
+
+	<?
+	$query = "SELECT distinct(SubString_Index(reg_date,'$qstr',$qtype)) AS reg_dat FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate' ORDER BY reg_dat ASC";
+	$re_total = mysqli_num_rows(mysqli_query($connect, "SELECT distinct(order_id) FROM koweb_order WHERE reg_date >= '$query_sdate' AND reg_date <= '$query_edate'"));
+	$total = mysqli_num_rows(mysqli_query($connect, $query));
+	$result = mysqli_query($connect, $query);
+	?>
+
+	<!-- 검색결과 -->
+	<table class="table" style="margin-top:20px;">
+		<caption>매출현황</caption>
+		<thead>
+			<tr>
+				<? if($mode == "type1" || $mode == "type2" || $mode == "type3"){ ?>
+				<th scope="col">일자</th>
+				<? } else { ?>
+				<th scope="col">주문번호</th>
+				<? } ?>
+				<th scope="col">주문자</th>
+				<th scope="col">주문합계</th>
+				<th scope="col">무통장</th>
+				<th scope="col">가상계좌</th>
+				<th scope="col">계좌이체</th>
+				<th scope="col">휴대폰</th>
+				<th scope="col">카드입금</th>
+				<th scope="col">적립금</th>
+				<th scope="col">결제금액</th>
+				<th scope="col">미수금</th>
+				<th scope="col">주문취소</th>
+				<th scope="col">환불금액</th>
+			</tr>
+		</thead>
+		<tbody>
+		<?
+			$total_pay = array("무통장입금"=>0, "가상계좌"=>0, "계좌이체"=>0, "휴대폰"=>0, "신용카드"=>0);
+			$rpay_ = 0;
+			$npay_ = 0;
+			$cpay_ = 0;
+			$ppay_ = 0;
+			$total_price = 0;
+
+		?>
+		<? if($total > 0){?>
+		<? while($row = mysqli_fetch_array($result)){ ?>
+			<?
+
+				//개수구하기
+				$reg_count = mysqli_fetch_array(mysqli_query($connect, "SELECT count(distinct(order_id)) AS cnt FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%'"));
+
+				$price_count = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%'"));
+
+				$no_return_count = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price) - SUM(use_point) ) - SUM(pay_price) + SUM(return_price) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND !(state='취소완료' OR state='반품완료')"));
+
+				$pay_count = mysqli_fetch_array(mysqli_query($connect, "SELECT  SUM(pay_price) AS pay_price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%'"));
+
+				$point_count = mysqli_fetch_array(mysqli_query($connect, "SELECT  SUM(use_point) AS point FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND state != '취소완료'"));
+
+//				$cancle_count = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) - SUM(use_point) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND state='취소완료' AND pay_price<=0"));
+
+$cancle_count = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) - SUM(use_point) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND state='취소완료'"));
+
+				$return_count = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(return_price) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%'"));
+
+				$return_count2 = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(pay_price) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND state='취소완료'"));
+
+
+				$arr_ = array("무통장입금", "가상계좌", "계좌이체", "휴대폰", "신용카드");
+
+				foreach($arr_ AS $v){
+					// $ttmp = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) - SUM(use_point) AS price FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND pay_type='$v'"));
+					$ttmp_result = mysqli_query($connect, "SELECT order_id FROM koweb_order WHERE reg_date LIKE '$row[reg_dat]%' AND pay_type='$v'");
+
+					$order_id_col = array();
+					while($ttmp_row = mysqli_fetch_array($ttmp_result)){
+						array_push($order_id_col,$ttmp_row['order_id']);
+					}
+					$in_order_id = join("','",$order_id_col);
+
+					$ttmp = mysqli_fetch_array(mysqli_query($connect, "SELECT (SUM(product_price)+SUM(deli_price) + SUM(deli_add_price)) - SUM(use_point) AS price,SUM(pay_price) as pay_price FROM koweb_order WHERE order_id in('$in_order_id')"));
+
+
+					$info[$v] = $ttmp[price];
+					$info[$v] = $ttmp[pay_price];
+					$total_pay[$v] += $info[$v];
+				}
+				$rpay_ += $return_count[price];
+				$npay_ += ($no_return_count[price]);
+				$cpay_ += $cancle_count[price];
+				$ppay_ += $pay_count[pay_price];
+				$point_ += $point_count[point];
+				$total_price += $price_count[price];
+
+			?>
+			<tr>
+				<!-- 클릭시 일매출현황으로 -->
+				<td><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=sales&search_key=&keyword=&start=&select_date=<?=$row[reg_dat]?>&tb=<?=$mode?>"><?=$row[reg_dat]?></a></td>
+				<td><?=$reg_count[cnt]?></td>
+				<td class="bg_yellow"><?=number_format($price_count[price])?>원</td>
+				<td><?=number_format($info['무통장입금'])?>원</td>
+				<td><?=number_format($info['가상계좌'])?>원</td>
+				<td><?=number_format($info['계좌이체'])?>원</td>
+				<td><?=number_format($info['휴대폰'])?>원</td>
+				<td><?=number_format($info['신용카드'])?>원</td>
+				<td><?=number_format($point_count[point])?></td>
+				<td><?=number_format($pay_count[pay_price])?>원</td>
+				<td><?=number_format($no_return_count[price])?>원</td>
+				<td><?=number_format($cancle_count[price])?>원</td>
+				<td class="bg_blue"><?=number_format($return_count[price])?>원</td>
+			</tr>
+		<? } ?>
+
+			<!-- 합계 -->
+			<tr class="total">
+				<td>합계</td>
+				<td><?=$re_total?></td>
+				<td class="bg_yellow"><?=number_format($total_price)?>원</td>
+				<td><?=number_format($total_pay['무통장입금'])?>원</td>
+				<td><?=number_format($total_pay['가상계좌'])?>원</td>
+				<td><?=number_format($total_pay['계좌이체'])?>원</td>
+				<td><?=number_format($total_pay['휴대폰'])?>원</td>
+				<td><?=number_format($total_pay['신용카드'])?>원</td>
+				<td><?=number_format($point_)?></td>
+				<td><?=number_format($ppay_)?>원</td>
+				<td><?=number_format($npay_)?>원</td>
+				<td><?=number_format($cpay_)?>원</td>
+				<td class="bg_blue"><?=number_format($rpay_)?>원</td>
+			</tr>
+			<!-- 결과없을때 -->
+		<? } else { ?>
+			<tr>
+				<td colspan="13">검색된 결과가 없습니다.</td>
+			</tr>
+		<? } ?>
+		</tbody>
+	</table>
+	<!-- //검색결과 -->
+</div>

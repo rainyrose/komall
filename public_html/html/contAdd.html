@@ -1,0 +1,225 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+						
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" 미등록컨텐츠 경우 등록된 컨텐츠 갯수표시 -->
+							<ul>
+								<li><a href="contList.html">등록된 컨텐츠</a></li>
+								<li><a href="contNoneList.html">미등록 컨텐츠<i class="num">12</i></a></li>
+								<li><a href="contAdd.html" class="on">신규등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+						
+						<!-- 내용 -->
+						
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/images/content/loading.gif" class="img" alt="loading">
+						</div>
+						<!-- //로딩 -->
+						
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>컨텐츠 기본설정</h2>
+							<table class="table">
+								<caption>컨텐츠 기본설정</caption>
+								<colgroup>
+									<col style="width:15%;"/>
+									<col style="width:25%;"/>
+									<col style="width:15%;"/>
+									<col/>
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row"><label for="">제목</label></th>
+										<td>
+											<input type="text" name="" id="">
+										</td>
+										<th scope="row">메뉴선택</th>
+										<td>
+											<input type="text" name="" id="" style="width:350px;"/>
+											<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button blue" style="margin-left:20px">메뉴검색</a>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">구분</th>
+										<td colspan="3">
+											<div class="designRadio">
+												<input type="radio" name="" id=""><label for="">직접입력</label>
+												<input type="radio" name="" id=""><label for="">파일연결</label>
+												<input type="radio" name="" id=""><label for="">프로그램</label>
+												<input type="radio" name="" id=""><label for="">게시판</label>
+											</div>
+											
+											<!-- 구분 직접입력 선택시 -->
+											<div class="classify">
+												<!-- tab -->
+												<!-- 해당tab선택시 a태그 class="on" -->
+												<ul class="area_tab">
+													<li><a href="#" class="on">WEB</a></li>
+													<li><a href="#">Mobile</a></li>
+												</ul>
+												
+												<div>
+													에디터삽입
+												</div>
+											</div>
+											<!-- //구분 직접입력 선택시 -->
+											
+											<!-- 구분 파일연결 선택시 -->
+											<div class="classify" style="display:none;">
+												<input type="text" name="" id="" placeholder="URL 입력" class="input400"/>
+												<div class="designCheck" style="display:inline-block; margin-left:10px;">
+													<input type="checkbox" name="" id=""><label for="">새창여부</label>
+												</div>
+											</div>
+											<!-- //구분 파일연결 선택시 -->
+											
+											<!-- 구분 프로그램 선택시 -->
+											<div class="classify" style="display:none;">
+												<input type="text" name="" id="" placeholder="프로그램선택" class="input400" readonly/>
+												<a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue" style="margin-left:20px">선택</a>
+											</div>
+											<!-- //구분 프로그램 선택시 -->
+											
+											<!-- 구분 게시판 선택시 -->
+											<div class="classify" style="display:none;">
+												<input type="text" name="" id="" placeholder="게시판선택" class="input400" readonly/>
+												<a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue" style="margin-left:20px">선택</a>
+											</div>
+											<!-- //구분 게시판 선택시 -->
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="">비고</label></th>
+										<td colspan="3"><input type="text" name="" id=""></td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<a href="#" class="button lg gray">등록</a>
+							</div>
+							<!-- //버튼 -->
+						</div>
+						
+						<!-- 레이어 프로그램 선택 -->
+						<div id="popLayer01" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>프로그램 선택</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+									
+										<table class="table hover">
+											<caption>프로그램 선택</caption>
+											<colgroup>
+												<col/>
+												<col style="width:30%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">프로그램명</th>									
+													<th scope="col">선택</th>									
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td data-add-menu="name">견적문의하기</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr>
+													<td data-add-menu="name">견적문의하기</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr>
+													<td data-add-menu="name">견적문의하기</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr>
+													<td data-add-menu="name">견적문의하기</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+							
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 프로그램 선택 -->
+						
+						<!-- 레이어 메뉴검색 -->
+						<div id="popLayer02" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>메뉴검색</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+									
+										<table class="table hover">
+											<caption>메뉴검색</caption>
+											<colgroup>
+												<col/>
+												<col style="width:25%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">메뉴명</th>									
+													<th scope="col">선택</th>									
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td data-add-menu="name">회사소개</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<!-- 하위의 하위 -->
+												<tr data-add-menu="depth01">
+													<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>인사말</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr data-add-menu="depth01">
+													<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>비전</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<!-- 하위의 하위 -->
+												<tr data-add-menu="depth02">
+													<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>우리가 걸어온길</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr data-add-menu="depth02">
+													<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>우리는 이렇게 합니다.</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<tr data-add-menu="depth01">
+													<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>찾아오시는 길</td>
+													<td><a href="#" class="button sm gray">선택</a></td>
+												</tr>
+												<!-- 메뉴가없는경우 -->
+												<tr>
+													<td colspan="2">등록 된 메뉴가 없습니다.</td>
+												</tr>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+							
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 메뉴검색 -->
+						
+						<!-- //내용 -->
+									
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

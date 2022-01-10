@@ -1,0 +1,6 @@
+<?
+	$info1 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE id='agreement' AND lang='{$site_language}'"));
+?>
+
+<!-- 이용약관 -->
+<?=htmlspecialchars_decode($info1[contents])?>

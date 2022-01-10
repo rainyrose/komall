@@ -1,0 +1,595 @@
+						<?
+							if(!$category) $category = "default";
+							//제일처음 메뉴 구하기
+							$query = mysqli_query($connect, "SELECT * FROM koweb_menu_config WHERE state = 'Y' AND delete_state != 'Y' AND depth = '1' AND category = '$category' $ADD_USE_DEVICE ORDER BY sort ASC, ref_group ASC, depth ASC, ref_no ASC LIMIT 1");
+							$first_row = mysqli_fetch_array($query);
+						?>
+
+
+						<script type="text/javascript">
+						$(function(){
+								menu_list("tree","<?=$category?>", "<?=$first_row[menu_id]?>", "content");
+						});
+						</script>
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" 미등록컨텐츠 경우 등록된 컨텐츠 갯수표시 -->
+							<? $cont_list = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM $setting_table WHERE delete_state != 'Y'")); ?>
+							<ul>
+								<li><a href="<?=$common_queryString?>" class="on">등록된 컨텐츠</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=not_regist">컨텐츠 개별관리<i class="num"><?=$cont_list?></i></a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=write">신규 컨텐츠등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<!-- 내용 -->
+						<div class="select_menu">
+							<label for="category">언어선택</label>
+							<select name="category" id="category" onchange="javascript:location.href='?type=setting&core=manager_setting&manager_type=content&category='+this.value">
+							<?
+							$category_checker = mysqli_query($connect, "SELECT * FROM koweb_menu_category WHERE state='Y' ORDER BY no ASC");
+							while($category_ = mysqli_fetch_array($category_checker)){
+							?>
+								<option value="<?=$category_[menu_category]?>"><?=$category_[menu_title]?></option>
+							<? } ?>
+							</select>
+						</div>
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/images/content/loading.gif" class="img" alt="loading">
+						</div>
+
+						<!-- 컨텐츠가 아무것도 등록이 안되었을때 초기 -->
+						<div class="box no_data" data-no-condiv style="width:63%; float:right; display:none;">
+							<p>연결된 컨텐츠가 없습니다.<br/>컨텐츠를 먼저 연결하신 후 사용가능합니다.</p>
+							<a href="#" class="button lg" data-no-condivhref>메뉴관리 바로가기</a>
+						</div>
+
+						<!-- //로딩 -->
+						<?
+							$content_check = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM $setting_table"));
+							$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_menu_config WHERE depth = '1' AND delete_state != 'Y' ORDER BY sort ASC LIMIT 1"));
+
+							if($default[use_type] == "link"){
+								if($default[link_menu_id]){
+									$link_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_menu_config WHERE menu_id='$default[link_menu_id]' LIMIT 1"));
+									$content_title_ = $link_[menu_title];
+								}
+							} else {
+								if($default[content_id]){
+									$link_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE content_id='$default[content_id]' LIMIT 1"));
+									if($link_[ref_board]){
+										$ref_board = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_board_config WHERE id='$link_[ref_board]' LIMIT 1"));
+									}
+									if($link_[ref_program]){
+										$ref_program = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_program_config WHERE id='$link_[ref_program]' LIMIT 1"));
+									}
+									if($link_[ref_online]){
+										$ref_online = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_online_config WHERE id='$link_[ref_online]' LIMIT 1"));
+									}
+									$content_title_ = $link_[content_title];
+								}
+							}
+
+
+						?>
+
+						<!-- 컨텐츠가 아무것도 등록이 안되었을때 초기 -->
+						<? if($content_check <= 0){ ?>
+							<div class="box no_data">
+								<p>등록된 컨텐츠가 없습니다.<br/>컨텐츠를 먼저 등록하신 후 사용가능합니다.</p>
+								<a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=content&mode=write" class="button lg">신규등록</a>
+							</div>
+						<? } else { ?>
+						<!-- 컨텐츠가 한개라도 등록된 경우 -->
+							<div class="box_col02">
+								<!-- 트리 -->
+								<div class="box" style="width:35%">
+
+									<div class="area_tree">
+										<a href="#" class="btn open">Open all</a>
+										<a href="#" class="btn close">Close all</a>
+										<div class="scrollbar-inner" data-list-view>
+											<!-- 해당메뉴가 선택된 경우 뒤의 a에 class="on" 추가 사용범위가 web/mobile 선택값에 따른 표시 -->
+										</div>
+									</div>
+								</div>
+								<!-- //트리 -->
+
+								<!-- 입력 -->
+								<div class="box pd" style="width:63%" data-detail-conview>
+									<h2>컨텐츠 기본설정</h2>
+									<table class="table" data-type-is="link" style="display:none;">
+									<caption>컨텐츠 기본설정</caption>
+									<colgroup>
+										<col style="width:20%;"/>
+										<col/>
+									</colgroup>
+									<tbody>
+									<tr>
+										<th scope="row"><label for="content_title">연결 메뉴명</label></th>
+										<td>
+											<input type="text" name="link_menu_title" id="link_menu_title" class="input200" value="<?=$content_title_?>" readOnly />
+											<a href="javascript:void(0);" class="button blue" style="margin-left:15px;" data-location-menu="<?=$link_[menu_id]?>" >수정하러 가기</a>
+										</td>
+									</tr>
+									</tbody>
+									</table>
+									<table class="table" data-type-is="content">
+										<caption>컨텐츠 기본설정</caption>
+										<colgroup>
+											<col style="width:20%;"/>
+											<col/>
+										</colgroup>
+										<tbody>
+										<tr>
+											<th scope="row"><label for="content_title">제목</label></th>
+											<td>
+												<input type="text" name="content_title" id="content_title" value="<?=$content_title_?>"/>
+											</td>
+										</tr>
+											<!--<tr>
+												<th scope="row">메뉴선택</th>
+												<td>
+													<input type="text" name="" id="" value="회사소개 > 인사말" class="input400"/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button blue" style="margin-left:20px">메뉴검색</a>
+												</td>
+											</tr>-->
+										<tr>
+											<th scope="row">구분</th>
+											<td colspan="3">
+												<div class="designRadio">
+													<input type="radio" name="content_type" value="contents" id="contents" data-type-select="contents"><label for="contents">직접입력</label>
+													<input type="radio" name="content_type" value="link" id="link" data-type-select="link"><label for="link">파일연결</label>
+													<input type="radio" name="content_type" value="program" id="program" data-type-select="program"><label for="program">프로그램</label>
+													<input type="radio" name="content_type" value="board" id="board" data-type-select="board"><label for="board">게시판</label>
+													<input type="radio" name="content_type" value="online" id="online" data-type-select="online"><label for="online">온라인 신청프로그램</label>
+													<input type="radio" name="content_type" value="product" id="product" data-type-select="product"><label for="product">상품분류</label>
+
+													<input type="hidden" name="ref_board" value="<?=$link_[ref_board]?>" id="ref_board"/>
+													<input type="hidden" name="ref_program" value="<?=$link_[ref_program]?>" id="ref_program"/>
+													<input type="hidden" name="ref_online" value="<?=$link_[ref_online]?>" id="ref_online"/>
+													<input type="hidden" name="ref_product" value="<?=$link_[ref_product]?>" id="ref_product"/>
+
+												</div>
+
+												<script type="text/javascript">
+												$(function(){
+													$("[data-device-select]").click(function(){
+														$("[data-device-select]").removeClass("on");
+														$(this).addClass("on");
+														$("[data-data-type]").css("display","none");
+														$("[data-data-type="+$(this).data("device-select")+"]").css("display","");
+													});
+
+													$("[data-type-select]").click(function(){
+														if($(this).is(":checked")){
+															$("[data-type-view]").css("display","none");
+															$("[data-type-view="+$(this).data("type-select")+"]").css("display","");
+														}
+													});
+
+													$("[data-history-select]").click(function(){
+														$("[data-history-select]").removeClass("on");
+														$(this).addClass("on");
+														$("[data-history-content]").css("display","none");
+														$("[data-history-content="+$(this).data("history-select")+"]").css("display","");
+													});
+												});
+												</script>
+
+												<!-- 구분 직접입력 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="contents">
+													<!-- tab -->
+													<!-- 해당tab선택시 a태그 class="on" -->
+													<ul class="area_tab">
+														<li><a href="#" class="on" data-device-select="web">WEB</a></li>
+														<!--<li><a href="#" data-device-select="mob">Mobile</a></li>-->
+													</ul>
+													<div data-data-type="web">
+														<textarea name="web_content" id="smart_content" style="width:100%;"><?=$link_[web_content]?></textarea>
+													</div>
+													<div data-data-type="mob" style="display:none;">
+														<textarea name="mob_content" id="smart_content_mob" style="width:100%;"><?=$link_[mob_content]?></textarea>
+													</div>
+												</div>
+												<!-- //구분 직접입력 선택시 -->
+
+												<!-- 구분 파일연결 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="link">
+													<input type="text" name="ref_link" id="ref_link" placeholder="URL 입력" class="input400" value="<?=$link_[ref_link]?>"/>
+													<div class="designCheck" style="display:inline-block; margin-left:10px;">
+														<input type="checkbox" name="ref_target" id="ref_target" value="_blank"><label for="ref_target">새창여부</label>
+													</div>
+												</div>
+												<!-- //구분 파일연결 선택시 -->
+
+												<!-- 구분 프로그램 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="program">
+													<input type="text" name="program_title" id="program_title" placeholder="프로그램선택" class="input400" readonly value="<?=$ref_program[title]?>"/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue" style="margin-left:20px">선택</a>
+												</div>
+												<!-- //구분 프로그램 선택시 -->
+
+												<!-- 구분 게시판 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="board">
+													<input type="text" name="board_title" id="board_title" placeholder="게시판선택" class="input400" readonly value="<?=$ref_board[title]?>"/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button blue" style="margin-left:20px">선택</a>
+												</div>
+												<!-- //구분 게시판 선택시 -->
+
+												<!-- 구분 온라인신청 프로그램 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="online">
+													<input type="text" name="online_title" id="online_title" placeholder="온라인신청 프로그램선택" class="input400" readonly value="<?=$ref_online[title]?>"/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer04);" class="button blue" style="margin-left:20px">선택</a>
+												</div>
+												<!-- //구분 온라인신청 프로그램 선택시 -->
+
+												<!-- 구분 상품분류 선택시 -->
+												<div class="classify" style="display:none;" data-type-view="product">
+													<input type="text" name="product_title" id="product_title" placeholder="상품 분류 선택" class="input400" readonly/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer05);" class="button blue" style="margin-left:20px">선택</a>
+												</div>
+												<!-- //구분 상품분류 선택시 -->
+
+
+											</td>
+										</tr>
+										<!--<tr>
+											<th scope="row">상태</th>
+											<td colspan="3">
+												<div class="designRadio">
+													<input type="radio" name="state" value="Y" id="stateY" checked><label for="stateY">사용</label>
+													<input type="radio" name="state" value="N" id="stateN"><label for="stateN">미사용</label>
+												</div>
+											</td>
+										</tr>-->
+										<tr>
+											<th scope="row"><label for="memo">비고</label></th>
+											<td><input type="text" name="memo" id="memo" value="<?=$link_[memo]?>"></td>
+										</tr>
+									</tbody>
+								</table>
+								<div data-histroy-view data-type-is="content"></div>
+								<!-- 버튼 -->
+								<div class="btn_area" data-type-is="content">
+									<a href="#" class="button lg" data-content-proc data-target-menu data-proc-mode="modify">저장</a>
+									<!--<a href="#" class="button lg gray">삭제</a>-->
+								</div>
+								<!-- //버튼 -->
+							</div>
+						</div>
+						<? } ?>
+						<!-- 레이어 프로그램 선택 -->
+						<div id="popLayer05" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>상품분류 선택</h2>
+								<div class="search">
+									<input type="text" name="search_product_" id="search_product_" value="" data-search-product placeholder="검색어를 입력해주세요"/>
+									<script type="text/javascript">
+										$(function(){
+											$("[data-search-product]").keyup(function(){
+												$("#popLayer05 [data-add-menu=name]").parent("tr").hide();
+												$("#popLayer05 [data-add-menu=name]:contains('"+$(this).val()+"')").parent("tr").show();
+											});
+										});
+									</script>
+								</div>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+
+										<table class="table hover">
+											<caption>상품분류 선택</caption>
+											<colgroup>
+												<col/>
+												<col style="width:30%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">상품분류</th>
+													<th scope="col">선택</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td data-add-menu="name">전체</td>
+													<td><a href="#" class="button sm gray btn_close" data-product-select="" data-product-title="전체">선택</a></td>
+												</tr>
+												<?
+													$product_query = "SELECT * FROM koweb_product_category_config WHERE 1=1 AND state='Y'";
+													$product_result = mysqli_query($connect, $product_query);
+													while($product = mysqli_fetch_array($product_result)){
+												?>
+												<tr>
+													<td data-add-menu="name"><?=htmlspecialchars_decode($product[title])?></td>
+													<td><a href="#" class="button sm gray btn_close" data-product-select="<?=$product[id]?>" data-product-title="<?=$product[title]?>">선택</a></td>
+												</tr>
+											<? } ?>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 프로그램 선택 -->
+
+						<!-- 레이어 프로그램 선택 -->
+						<div id="popLayer01" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>프로그램 선택</h2>
+								<div class="search">
+									<input type="text" name="search_program_" id="search_program_" value="" data-search-program placeholder="검색어를 입력해주세요"/>
+									<script type="text/javascript">
+										$(function(){
+											$("[data-search-program]").keyup(function(){
+												$("#popLayer01 [data-add-menu=name]").parent("tr").hide();
+												$("#popLayer01 [data-add-menu=name]:contains('"+$(this).val()+"')").parent("tr").show();
+											});
+										});
+									</script>
+								</div>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+
+										<table class="table hover">
+											<caption>프로그램 선택</caption>
+											<colgroup>
+												<col/>
+												<col style="width:30%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">프로그램명</th>
+													<th scope="col">선택</th>
+												</tr>
+											</thead>
+											<tbody>
+												<?
+													$program_query = "SELECT * FROM koweb_program_config WHERE 1=1 AND state='Y'";
+													$program_result = mysqli_query($connect, $program_query);
+													while($program = mysqli_fetch_array($program_result)){
+												?>
+												<tr>
+													<td data-add-menu="name"><?=$program[title]?></td>
+													<td><a href="#" class="button sm gray btn_close" data-program-select="<?=$program[id]?>" data-program-title="<?=$program[title]?>">선택</a></td>
+												</tr>
+											<? } ?>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 프로그램 선택 -->
+
+						<!-- 레이어 게시판 선택 -->
+						<div id="popLayer02" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>게시판 선택</h2>
+								<div class="search">
+									<input type="text" name="search_board_" id="search_board_" value="" data-search-board placeholder="검색어를 입력해주세요"/>
+									<script type="text/javascript">
+										$(function(){
+											$("[data-search-board]").keyup(function(){
+												$("#popLayer02 [data-add-menu=name]").parent("tr").hide();
+												$("#popLayer02 [data-add-menu=name]:contains('"+$(this).val()+"')").parent("tr").show();
+											});
+										});
+									</script>
+								</div>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+
+										<table class="table hover">
+											<caption>게시판 선택</caption>
+											<colgroup>
+												<col/>
+												<col style="width:30%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">게시판명</th>
+													<th scope="col">선택</th>
+												</tr>
+											</thead>
+											<tbody>
+											<?
+												$board_query = "SELECT * FROM koweb_board_config WHERE 1=1 AND state='Y'";
+												$board_result = mysqli_query($connect, $board_query);
+												while($board = mysqli_fetch_array($board_result)){
+											?>
+												<tr>
+													<td data-add-menu="name"><?=$board[title]?></td>
+													<td><a href="#" class="button sm gray btn_close" data-board-select="<?=$board[id]?>" data-board-title="<?=$board[title]?>">선택</a></td>
+												</tr>
+											<? } ?>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 레이어 게시판 선택 -->
+
+
+						<!-- 레이어 온라인신청 프로그램 선택 -->
+						<div id="popLayer04" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>온라인신청 프로그램 선택</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+
+										<table class="table hover">
+											<caption>온라인신청 프로그램 선택</caption>
+											<colgroup>
+												<col/>
+												<col style="width:30%"/>
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">온라인신청 프로그램명</th>
+													<th scope="col">선택</th>
+												</tr>
+											</thead>
+											<tbody>
+											<?
+												$online_query = "SELECT * FROM koweb_online_config WHERE 1=1";
+												$online_result = mysqli_query($connect, $online_query);
+												while($online = mysqli_fetch_array($online_result)){
+											?>
+												<tr>
+													<td data-add-menu="name"><?=$online[title]?></td>
+													<td><a href="#" class="button sm gray btn_close" data-online-select="<?=$online[id]?>" data-online-title="<?=$online[title]?>">선택</a></td>
+												</tr>
+											<? } ?>
+											</tbody>
+										</table>
+										<div class="btn_area">
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 레이어 온라인신청 프로그램 선택 -->
+
+
+						<!-- 레이어 히스토리 보기 -->
+						<div id="popLayer03" style="display:none;">
+							<div class="popBox">
+								<!-- title -->
+								<h2>히스토리</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+										<table class="table">
+											<caption>히스토리 컨텐츠 설정</caption>
+											<colgroup>
+												<col style="width:20%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row"><label for="history_title">제목</label></th>
+													<td>
+														<input type="text" name="history_title" id="history_title" readonly>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">구분</th>
+													<td>
+														<!-- 구분값 -->
+														<strong id="history_type"></strong>
+
+														<!-- 구분 직접입력 선택시 -->
+														<div class="classify" style="display:none;" data-history-type="contents">
+
+															<ul class="area_tab">
+																<li><a href="#" class="on" data-history-select="web">WEB</a></li>
+																<!--<li><a href="#" data-history-select="mob">Mobile</a></li>-->
+															</ul>
+															<div data-history-content="web">
+																<textarea name="history_content" id="history_content" style="width:100%;" readOnly></textarea>
+															</div>
+															<div data-history-content="mob" style="display:none;">
+																<textarea name="history_content_mob" id="history_content_mob" style="width:100%;" readOnly></textarea>
+															</div>
+
+															<script type="text/javascript">
+																$(function(){
+																	CKEDITOR.replace( 'history_content' );
+																	CKEDITOR.replace( 'history_content_mob' );
+																});
+															</script>
+														</div>
+														<!-- //구분 직접입력 선택시 -->
+
+														<!-- 구분 파일연결 선택시 -->
+														<div class="classify"  style="display:none;" data-history-type="link">
+															<input type="text" name="history_url" id="history_url" placeholder="URL 입력" class="input400" readonly/>
+															<div class="designCheck" style="display:inline-block; margin-left:10px;">
+																<input type="checkbox" name="history_target" id="history_target" value="_blank" onclick="return false"><label for="history_target">새창여부</label>
+															</div>
+														</div>
+														<!-- //구분 파일연결 선택시 -->
+
+														<!-- 구분 프로그램 선택시 -->
+														<div class="classify" style="display:none;" data-history-type="program">
+															<input type="text" name="history_program" id="history_program" placeholder="프로그램선택" readonly/>
+															<input type="hidden" name="history_program_id" id="history_program_id" value=""/>
+														</div>
+														<!-- //구분 프로그램 선택시 -->
+
+														<!-- 구분 게시판 선택시 -->
+														<div class="classify" style="display:none;" data-history-type="board">
+															<input type="text" name="history_board" id="history_board" placeholder="게시판선택" readonly/>
+															<input type="hidden" name="history_board_id" id="history_board_id" value=""/>
+														</div>
+														<!-- //구분 게시판 선택시 -->
+
+														<!-- 구분 온라인신청 프로그램 선택시 -->
+														<div class="classify" style="display:none;" data-history-type="online">
+															<input type="text" name="history_online" id="history_online" placeholder="온라인신청 프로그램선택" readonly/>
+															<input type="hidden" name="history_online_id" id="history_online_id" value=""/>
+														</div>
+														<!-- //구분 온라인신청 프로그램 선택시 -->
+													</td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="history_memo">비고</label></th>
+													<td><input type="text" name="history_memo" id="history_memo" readonly></td>
+												</tr>
+											</tbody>
+										</table>
+
+										<div class="btn_area">
+											<a href="#"  data-history-repair data-target-id class="button lg">복원</a>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 히스토리보기 -->
+						<!-- //레이어 히스토리보기 -->
+
+						<script type="text/javascript">
+							if("<?=$default[use_type]?>" == "link"){
+								$("[data-type-is=link]").css("display","");
+								$("[data-type-is=content]").css("display","none");
+							} else {
+								$("[data-type-is=link]").css("display","none");
+								$("[data-type-is=content]").css("display","");
+								$("input:radio[name='content_type']:radio[value='<?=$link_[content_type]?>']").prop("checked",true);
+								$("input:radio[name='state']:radio[value='<?=$link_[state]?>']").prop("checked",true);
+								$("[data-type-view="+"<?=$link_[content_type]?>"+"]").css("display","");
+								$("[data-content-proc]").data("content-proc", "<?=$link_[content_id]?>");
+								var conten_id = $("[data-content-proc]").data("content-proc");
+								$(":checkbox[name='ref_target'][value='"+"<?=$link_[ref_target]?>"+"']").prop("checked", true);
+
+								board_ajax(conten_id, 0);
+
+							}
+
+						</script>

@@ -1,0 +1,155 @@
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="<?=$common_queryString?>">상품분류관리</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=category" class="on">언어별 상품분류</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=write">상품분류등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+						
+						<!-- 내용 -->
+						
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/ko_mall/images/content/loading.gif" class="img" alt="loading">
+						</div>
+						<!-- //로딩 -->
+						
+						<div class="box pd">
+							<h2>언어별 카테고리 분류</h2>
+							<table class="table hover">
+								<caption>언어별 카테고리분류</caption>
+								<colgroup>
+									<col style="width:15%"/>
+									<col/>
+									<col style="width:15%"/>
+									<col style="width:25%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">분류 아이디</th>									
+										<th scope="col">분류명</th>									
+										<th scope="col">사용여부</th>									
+										<th scope="col">관리</th>									
+									</tr>
+								</thead>
+								<tbody data-list-view>
+									<?
+										$query = "SELECT * FROM koweb_product_category ORDER BY no DESC";
+										$result = mysqli_query($connect, $query);
+										$total = mysqli_num_rows($result);
+										if($total > 0){ 
+										while($row = mysqli_fetch_array($result)){
+										switch($row[state]){
+											case "Y" : 
+												$txt = "사용";
+												unset($font_css);
+												break;
+											case "N" : 
+												$txt = "미사용";
+												$font_css = "color:red; text-decoration-line:line-through;";
+												break;
+										}
+										?>
+										<tr>
+											<td><span style='<?=$font_css?>'><?=$row[category]?></span></td>
+											<td><span style='<?=$font_css?>'><?=$row[title]?></span></td>
+											<td><?=$txt?></td>
+											<td>
+												<? if($row[menu_category] != "default"){ ?>
+												<a href="#" class="button sm gray" data-pcate-modi="<?=$row[no]?>" data-cate-title="<?=$row[category]?>" data-cate-stat="<?=$row[state]?>" data-me-title="<?=$row[title]?>">수정</a> <a href="<?=$common_queryString?>&amp;mode=cate_delete_proc&amp;no=<?=$row[no]?>" class="button sm white">삭제</a>
+												<? } ?>
+											</td>
+										</tr>
+										<? } ?>
+									<? } else { ?>
+										<tr>
+											<td colspan="2">등록 된 분류가 없습니다.</td>
+										</tr>
+									<? } ?>
+								</tbody>
+							</table>
+							
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<a href="javascript:;" class="button lg" data-pcate-probutton>언어별 카테고리 분류 등록</a>
+							</div>
+							<!-- //버튼 -->
+						</div>
+						
+						<!-- 레이어 최상위등록 -->
+						<form action="<?=$common_queryString?>" method="POST" name="first_menu_regist" id="fmr_form">
+						<input type="hidden" name="no" value="" />
+						<input type="hidden" name="mode" value="cate_write_proc" />
+						<div id="popLayer02" style="display:none;">
+							<div class="popBox mini">
+								<!-- title -->
+								<h2>언어별 카테고리 분류</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+										<table class="table">
+											<caption>언어별 카테고리 분류 등록</caption>
+											<colgroup>
+												<col style="width:25%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row"><label for="">분류명</label></th>
+													<td><input type="text" name="title" id="title" data-fmenu title="분류명"></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="">분류 아이디</label></th>
+													<td><input type="text" name="category" id="category" data-fmenu title="분류 아이디" placeholoder="최초 등록후 변경하실 수 없습니다."></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="">상태</label></th>
+													<td>
+													<div class="designRadio">
+														<input type="radio" name="state" value="Y" id="stateY" checked/><label for="stateY">사용</label>
+														<input type="radio" name="state" value="N" id="stateN" /><label for="stateN">미사용</label>
+													</div>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="btn_area">
+											<input type="submit" class="button lg" value="저장" data-cate-proc/>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</form>
+						<!-- //레이어 최상위등록 -->
+
+						<script type="text/javascript">
+
+						$(function(){
+							//submit시 id중복확인 진행하였는지 확인
+							$("[data-cate-proc]").click(function(){
+
+								var chk2 = true;
+
+								if(!$("#title").val()){
+									alert("분류명을 입력해주세요.");
+									chk2 = false;
+									return false;
+								}
+								if(!chk2) return false;
+
+								if($("input[name=mode]").val() != "cate_modify_proc"){
+									if(!$("#category").val()){
+										alert("분류아이디를 입력해주세요.");
+										chk2 = false;
+										return false;
+									}
+									if(!chk2) return false;
+								}						
+							});
+						});
+						</script>

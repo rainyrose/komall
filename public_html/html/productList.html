@@ -1,0 +1,153 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+			<div class="box pd" style="min-height:inherit;">
+				<!-- 상품현황 -->
+				<div class="box_title">
+					<span>상품현황</span>
+					<ul>
+						<li><em>전체</em><i>20</i></li>
+						<li><em>판매함</em><i>8</i></li>
+						<li><em>판매안함</em><i>3</i></li>
+						<li><em>진열함</em><i>15</i></li>
+						<li><em>진열안함</em><i>5</i></li>
+					</ul>
+				</div>
+				<!-- //상품현황 -->
+				
+				<h2 style="margin-top:10px;">상품검색</h2>
+				<table class="table">
+					<caption>컨텐츠 기본설정</caption>
+					<colgroup>
+						<col style="width:15%;">
+						<col style="width:43%;">
+						<col style="width:15%;">
+						<col>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><label for="">검색분류</label></th>
+							<td>
+								<select name="" id="">
+									<option value="">상품명</option>
+									<option value="">상품코드</option>
+								</select>
+								<input type="text" name="" id="" class="input300"/>
+							</td>
+							<th scope="row">진열상태</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id=""/><label for="">전체</label>
+									<input type="radio" name="" id=""/><label for="">진열함</label>
+									<input type="radio" name="" id=""/><label for="">진열안함</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">상품분류</th>
+							<td>
+								<select name="" id="">
+									<option value="">대분류선택</option>
+								</select>
+								
+								<select name="" id="">
+									<option value="">중분류선택</option>
+								</select>
+								
+								<select name="" id="">
+									<option value="">소분류선택</option>
+								</select>
+								
+								<select name="" id="">
+									<option value="">상세분류선택</option>
+								</select>
+								
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="" id=""/><label for="">하위분류 포함검색</label>
+									<input type="checkbox" name="" id=""/><label for="">분류 미등록 상품검색</label>
+								</div>
+							</td>
+							<th scope="row">판매상태</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id=""/><label for="">전체</label>
+									<input type="radio" name="" id=""/><label for="">판매함</label>
+									<input type="radio" name="" id=""/><label for="">판매안함</label>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="tac" style="padding-top:10px;">
+					<input type="submit" class="button lg" value="검색">
+					<input type="button" class="button lg white" value="초기화">
+				</div>
+			</div>
+			
+			
+			<div class="box pd">
+				<div class="box_title_btn">
+					<h2>상품목록</h2>
+					<div class="btn">
+						<a href="#" class="button sm white">진열함</a>
+						<a href="#" class="button sm white">진열안함</a>
+						<a href="#" class="button sm white">판매함</a>
+						<a href="#" class="button sm white">판매안함</a>
+						<a href="#" class="button sm white">엑셀다운로드</a>
+						<a href="#" class="button sm white">삭제</a>
+					</div>
+				</div>
+
+				<table class="bbsList product">
+					<caption>상품목록</caption>
+					<colgroup>
+						<col style="width:7%;">
+						<col style="width:7%;">
+						<col style="width:15%">
+						<col>
+						<col style="width:15%">
+						<col style="width:15%">
+						<col style="width:15%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col"><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">전체선택</label></div></th>									
+							<th scope="col">No.</th>									
+							<th scope="col">상품코드</th>
+							<th scope="col">상품명</th>
+							<th scope="col">공급가격</th>
+							<th scope="col">판매가격</th>
+							<th scope="col">관리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">선택</label></div></td>
+							<td>1</td>
+							<td><a href="#">P000000Q</a></td>
+							<td class="tal">
+								<!-- 대표썸네일노출 -->
+								<a href="#" class="view"><span class="img" style="background-image:url(/images/sample.jpg);"></span>콤프레샤 A5500-40 알루미늄 5.5마력</a>
+							</td>
+							<td>120,000</td>
+							<td>110,000</td>
+							<td>
+								<a href="#" class="button sm gray">수정</a>
+								<a href="#" class="button sm white">복사</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<!-- 버튼 -->
+				<div class="btn_area">
+					<a href="#" class="button lg"><span>신규등록</span></a>
+				</div>
+				<!-- //버튼 -->
+			</div>
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

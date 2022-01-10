@@ -1,0 +1,128 @@
+<? include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/config_setup.php"; ?>
+<? include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/auth_manager.php"; ?>
+<!-- lnb -->
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>" class="on">회원목록</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=config">회원가입관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=level">회원등급관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=dept">부서관리</a></li>
+	</ul>
+</nav>
+<!-- //lnb -->
+
+<?
+//회원설정 불러오기
+$data_result2 = mysqli_query($connect, "SELECT * FROM koweb_member_config");
+$member_config_ = mysqli_fetch_array($data_result2);
+
+$query = "SELECT * FROM koweb_member WHERE no='$no'";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+$tmpdept = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_dept WHERE no='$_SESSION[member_dept]'"));
+$dept = $tmpdept[dept];
+
+//항목설정 세팅
+$data_result = mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item_use = 'Y' ORDER BY no ASC");
+
+while($data_ = mysqli_fetch_array($data_result)){
+	$item_config_[$data_[item]] = array("keyname" => $data_[item], "keytitle" => $data_[item_title]);
+}
+
+//필수값 체크, $[key]_required 변수형식 (예: name_required = "Y")
+foreach($item_config_ as $v){
+	//if($v[requierd] == "Y") echo $v[keyname];
+	//${$v[keyname]."_required"} = "required";
+
+	//불필요한정보삭제
+	if($v[keyname] == "namecheck") continue;
+	if($v[keyname] == "captcha") continue;
+	if($v[keyname] == "private") continue;
+	if($v[keyname] == "sinfo") continue;
+	if($v[keyname] == "info_offer") continue;
+	if($v[keyname] == "agree") continue;
+
+	$key_title = $v[keytitle];
+	$key_name = $v[keyname];
+
+	if($key_name == "address"){
+		${$v[keyname]} = "<tr><th scope=\"row\">$v[keytitle]</th><td colspan=\"3\">$row[zip] $row[address1] $row[address2]</td></tr>";
+	} else {
+		${$v[keyname]} = "<tr><th scope=\"row\">$v[keytitle]</th><td colspan=\"3\">$row[$key_name]</td></tr>";
+	}
+
+	$print_item[$v[keyname]] = ${$v[keyname]};
+}
+
+//print_r($print_item);
+
+$level_query = "SELECT * FROM koweb_member_level WHERE level = '$row[auth_level]'";
+$level_result = mysqli_query($connect, $level_query);
+$level_ = mysqli_fetch_array($level_result);
+?>
+<div class="box pd">
+	<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="apply_proc" />
+	<input type="hidden" name="no" value="<?=$no?>" />
+	<input type="hidden" name="email3" value="<?=$email[1]?>" id="email3" />
+	<input type="hidden" name="return_no" value="<?=$return_no?>" id="return_no" />
+		<h2 class="mt0">회원관리 - <?=$row[id]?></h2>
+		<table class="bbsView">
+			<colgroup>
+				<col style="width:15%;"/>
+				<col/>
+				<col style="width:15%;"/>
+				<col style="width:35%;"/>
+			</colgroup>
+			<tbody>
+				<tr>
+					<th scope="row">아이디</th>
+					<td><?=$row[id]?></td>
+					<th scope="row">회원등급</th>
+					<td><?=$level_[level_title]?></td>
+				</tr>
+				<tr>
+					<th scope="row">부서</th>
+					<td><?=$dept?></td>
+					<th scope="row">포인트</th>
+					<td>
+						<? $point_ = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(point) AS total FROM koweb_point WHERE member='$row[id]'")); ?>
+						<?=number_format($point_[total])?> P
+						 <a href="#" class="button sm blue" onclick="pop_point('<?=$row[id]?>');">포인트 내역 조회</a>
+						 <script type="text/javascript">
+							function pop_point(data){
+
+								window.open('/ko_mall/setting/member/member_point.html?data='+data, '',  'width=880, height=500,');
+
+							}
+						 </script>
+					</td>
+				</tr>
+				<?
+					foreach($print_item as $v){
+						echo $v;
+					}
+				?>
+				<tr>
+					<th scope="row">비고</th>
+					<td colspan="3"><?=$row[contents]?></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="btn_area">
+		<? if($member_config_[use_member_apply] == "Y"){ ?>
+			<input class="button red" type="submit" value="승인">
+		<? } ?>
+		<? if($return_no == "") { ?>
+			<a class="button lg" href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>">수정</a>
+			<a class="button lg gray" href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$row[no]?>" onclick="return confirm('삭제하면 모든 데이터는 복구할수 없습니다. 삭제하시겠습니까?');">삭제</a>
+			<!--<a class="button" href="<?=$common_queryString?>&amp;start=<?=$start?>">돌아가기</a>-->
+			<a class="button lg gray" href="#" onclick="javascript:history.go(-1);">돌아가기</a>
+		<? } else { ?>
+			<a class="button lg gray" href="?type=setting&core_id=setting&core=manager_setting&manager_type=dept&mode=view&no=<?=$return_no?>">돌아가기</a>
+		<? } ?>
+		</div>
+	</form>
+</div>

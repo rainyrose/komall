@@ -1,0 +1,362 @@
+						<?
+						$display = $_GET[display];
+						if(!$category) $category = "default";
+						?>
+				
+						<script type="text/javascript">
+							$(function(){
+								menu_list("tree", "<?=$category?>", "<?=$display?>");
+							});
+						</script>
+						
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="<?=$common_queryString?>" class="on">메뉴설정</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=category">메뉴분류</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=write">메뉴관리</a></li>
+								<? if($_SESSION[member_id] == "koweb"){ ?>
+								<li><a href="<?=$common_queryString?>&amp;mode=administrator">관리자 메뉴관리</a></li>
+								<? } ?>
+							</ul>
+						</nav>
+						
+						<div class="select_menu">
+							<label for="category">언어선택</label>
+							<select name="category" id="category" onchange="javascript:location.href='?type=setting&core=manager_setting&manager_type=menu&category='+this.value">
+							<?
+							$category_checker = mysqli_query($connect, "SELECT * FROM koweb_menu_category WHERE state='Y' ORDER BY no ASC");
+							while($category_ = mysqli_fetch_array($category_checker)){
+							?>
+								<option value="<?=$category_[menu_category]?>"><?=$category_[menu_title]?></option>
+							<? } ?>
+							</select>
+						</div>
+						<script type="text/javascript">
+							$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+						</script>
+
+						<!-- //lnb -->
+						
+						<!-- 내용 -->
+						
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/ko_mall/images/content/loading.gif" class="img" alt="loading">
+						</div>
+						<!-- //로딩 -->
+						<?
+							$menu_check = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM $setting_table WHERE delete_state != 'Y' AND category = '$category'"));
+							if(!$display){
+								$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE depth = '1' AND delete_state != 'Y' AND category = '$category' ORDER BY sort ASC LIMIT 1"));
+							} else {
+								$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE menu_id = '$display' ORDER BY sort ASC LIMIT 1"));
+							}
+
+							if($default[link_menu_id]){
+								$link_menu = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE menu_id='$default[link_menu_id]' LIMIT 1"));
+							}
+
+							if($default[content_id]){
+								$link_content = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_content_config WHERE content_id='$default[content_id]' LIMIT 1"));
+							}
+
+							if($default[category] == "default"){ 
+								$view_href = "/contents/$default[dir]/page.html?mid=$default[menu_id]";
+							} else { 
+								$view_href = "/$default[category]/contents/$default[dir]/page.html?mid=$default[menu_id]";
+							}
+						?>
+						<!-- 메뉴가 아무것도 등록이 안되었을때 초기 -->
+						<? if($menu_check <= 0){ ?>
+							<div class="box no_data">
+								<p>등록된 메뉴가 없습니다.<br/>메뉴를 먼저 등록하신 후 사용가능합니다.</p>
+								<a href="<?=$common_queryString?>&mode=write&category=<?=$category?>" class="button lg">메뉴등록</a>
+							</div>
+						<? } else { ?>
+						
+							<!-- 메뉴가 한개라도 등록된 경우 -->
+							<div class="box_col02">
+								<!-- 트리 -->
+								<div class="box" style="width:35%">
+									
+									<div class="area_tree">
+										<a href="#" class="btn open">Open all</a>
+										<a href="#" class="btn close">Close all</a>
+									
+										<div class="scrollbar-inner" data-list-view>
+											<!-- 해당메뉴가 선택된 경우 뒤의 a에 class="on" 추가 사용범위가 web/mobile 선택값에 따른 표시 -->
+										</div>
+									</div>
+								</div>
+								<!-- //트리 -->
+								<!-- 입력 -->
+								<div class="box pd" style="width:63%">
+									<h2>메뉴기본설정</h2>
+									<table class="table">
+										<caption>메뉴기본설정</caption>
+										<colgroup>
+											<col style="width:20%;"/>
+											<col/>
+										</colgroup>
+										<tbody>
+											<tr>
+												<th scope="row"><label for="">메뉴명</label></th>
+												<td>
+													<input type="text" name="menu_title" id="menu_title" class="input200" value="<?=$default[menu_title]?>">
+													<a href="<?=$common_queryString?>&amp;mode=write" class="button blue" style="margin-left:15px;">순서변경</a>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">사용범위</th>
+												<td>
+													<div class="designCheck">
+														<input type="checkbox" name="use_device_pc" id="use_device_pc" value="Y"><label for="use_device_pc">WEB</label>
+														<input type="checkbox" name="use_device_mob" id="use_device_mob" value="Y"><label for="use_device_mob">Mobile</label>
+														<? if($default[category] == "default"){ ?>
+															<a href="/contents/<?=$default[dir]?>/page.html?mid=<?=$default[menu_id]?>" class="button blue" target="_blank" data-view-cont>컨텐츠보기</a>
+														<? } else {?>
+														<a href="/<?=$default[category]?>/contents/<?=$default[dir]?>/page.html?mid=<?=$default[menu_id]?>" class="button blue" target="_blank" data-view-cont>컨텐츠보기</a>
+														<? } ?>
+													</div>
+												</td>
+											</tr>
+											<script type="text/javascript">
+												$(":checkbox[name='use_device_pc'][value='<?=$default[use_device_pc]?>']").prop("checked", true);
+												$(":checkbox[name='use_device_mob'][value='<?=$default[use_device_mob]?>']").prop("checked", true);
+											</script>
+											<tr>
+												<th scope="row">메뉴타입</th>
+												<td>
+													<div class="designRadio">
+														<input type="radio" name="use_type" id="use_type_link" value="link"><label for="use_type_link">메뉴연결</label>
+														<input type="radio" name="use_type" id="use_type_content" value="content"><label for="use_type_content">컨텐츠</label>
+													</div>
+												</td>
+											</tr>
+											<script type="text/javascript">
+												$("input:radio[name='use_type']:radio[value='<?=$default[use_type]?>']").prop("checked",true); 
+											</script>
+											<tr>
+												<th scope="row">메뉴 연결</th>
+												<td>
+													<input type="text" name="link_title" id="link_title" class="input400" readOnly value="<?=$link_menu[menu_title]?>"/>
+													<input type="hidden" name="link_menu_id" id="link_menu_id" value="<?=$default[link_menu_id]?>"/>
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button blue" style="margin-left:20px">메뉴 검색</a>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">컨텐츠 선택</th>
+												<td>
+													<input type="text" name="content_title" id="content_title" class="input400" readOnly value="<?=$link_content[content_title]?>"/>
+													<input type="hidden" name="content_id" id="content_id" value="<?=$default[content_id]?>" />
+													<a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue" style="margin-left:20px">컨텐츠 검색</a>
+												</td>
+											</tr>
+											<tr>	
+												<th scope="row">연결주소</th>
+												<td data-cont-url><?=$view_href?></td>
+											</tr>
+											<tr>
+												<th scope="row">노출</th>
+												<td>
+													<div class="designRadio">
+														<input type="radio" name="state" id="stateY" value="Y"><label for="stateY">사용함</label>
+														<input type="radio" name="state" id="stateN" value="N"><label for="stateN">사용안함</label>
+													</div>
+												</td>
+											</tr>
+											<script type="text/javascript">
+												$("input:radio[name='state']:radio[value='<?=$default[state]?>']").prop("checked",true); 
+											</script>
+											<tr>
+												<th scope="row"><label for="memo">비고</label></th>
+												<td><input type="text" name="memo" id="memo" value="<?=$default[memo]?>"></td>
+											</tr>
+										</tbody>
+									</table>
+									
+									<h2 class="mt20">메타태그 설정</h2>
+									<table class="table">
+										<caption>메타태그 설정</caption>
+										<colgroup>
+											<col style="width:20%;"/>
+											<col/>
+										</colgroup>
+										<tbody>
+											<tr>
+												<th scope="row"><label for="description">description</label></th>
+												<td><input type="text" name="description" id="description" value="<?=$default[description]?>"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="og_description">og:description</label></th>
+												<td><input type="text" name="og_description" id="og_description" value="<?=$default[og_description]?>"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="og_site_name">og:site_name</label></th>
+												<td><input type="text" name="og_sitename" id="og_sitename" value="<?=$default[og_sitename]?>"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="og_title">og:title</label></th>
+												<td><input type="text" name="og_title" id="og_title" value="<?=$default[og_title]?>"></td>
+											</tr>
+										</tbody>
+									</table>
+									
+									<!-- 버튼 -->
+									<div class="btn_area">
+										<a href="#" class="button lg" data-menu-proc="<?=$default[menu_id]?>" data-proc-mode="modify">저장</a>
+										<a href="#" class="button lg gray" data-menu-proc="<?=$default[menu_id]?>" data-proc-mode="delete">삭제</a>
+									</div>
+									<!-- //버튼 -->
+								</div>
+							</div>
+								<!-- 레이어 메뉴검색 -->
+							<div id="popLayer01" style="display:none;">
+								<div class="popBox">
+									<!-- title -->
+									<h2>컨텐츠 검색</h2>
+									<div class="search">
+										<input type="text" name="search_content_" id="search_content_" value="" data-search-content placeholder="검색어를 입력해주세요"/>
+										<script type="text/javascript">
+											$(function(){
+												$("[data-search-content]").keyup(function(){
+													$("#popLayer01 [data-add-menu=name]").parent("tr").hide();
+													$("#popLayer01 [data-add-menu=name]:contains('"+$(this).val()+"')").parent("tr").show();
+												});
+											});
+										</script>
+									</div>
+									<!-- scroll -->
+									<div class="scrollbar-inner">
+										<div class="popinBox">										
+											<table class="table hover">
+												<caption>컨텐츠 검색</caption>
+												<colgroup>
+													<col/>
+													<col style="width:25%"/>
+												</colgroup>
+												<thead>
+													<tr>
+														<th scope="col">컨텐츠명</th>									
+														<th scope="col">선택</th>									
+													</tr>
+												</thead>
+												<tbody>
+													<?
+														$content_query = "SELECT * FROM koweb_content_config WHERE delete_state != 'Y'";
+														$content_result = mysqli_query($connect, $content_query);
+														$con_total = mysqli_num_rows($content_result);
+														if($con_total > 0){
+														while($content = mysqli_fetch_array($content_result)){
+														
+															if($content[content_type] != "contents" && $content[content_type] != "link"){
+																if($content["ref_".$data[content_type]]){
+																	if($content[content_type] == "board") $tx = "게시판";
+																	else if($content[content_type] == "program") $tx = "프로그램";
+																	else if($content[content_type] == "online") $tx = "온라인 신청프로그램";
+																	else unset($tx);
+																	$ADD_ = "<span style='margin-left:13px; font-size:12px; font-weight:bold; color:red;'> ! 등록된 ".$tx."이 없습니다</span>";
+																} else {
+																	unset($ADD_);
+																}
+															}
+													?>
+														<tr>
+															<td data-add-menu="name"><?=$content[content_title]?> <?=$ADD_?></td>
+															<td><a href="#" class="button sm gray btn_close" data-content-select="<?=$content[content_id]?>" data-content-title="<?=$content[content_title]?>">선택</a></td>
+														</tr>
+													<? } 
+													} else {?>
+													<tr>
+														<td colspan="2">등록 된 컨텐츠가 없습니다.</td>
+													</tr>
+													<? } ?>
+												</tbody>
+											</table>
+											<div class="btn_area">
+												<a href="#" class="button lg white btn_close">닫기</a>
+											</div>
+								
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- //레이어 메뉴검색 -->
+									<!-- 레이어 메뉴검색 -->
+							<div id="popLayer02" style="display:none;">
+								<div class="popBox">
+									<!-- title -->
+									<h2>메뉴 검색</h2>
+									<div class="search">
+										<input type="text" name="search_menu_" id="search_menu_" value="" data-search-menu  placeholder="검색어를 입력해주세요"/>
+										<script type="text/javascript">
+											$(function(){
+												$("[data-search-menu]").keyup(function(){
+													$("#popLayer02 [data-add-menu=name]").parent("tr").hide();
+													$("#popLayer02 [data-add-menu=name]:contains('"+$(this).val()+"')").parent("tr").show();
+												});
+											});
+										</script>
+									</div>
+									<!-- scroll -->
+									<div class="scrollbar-inner">
+										<div class="popinBox">											
+											<table class="table hover">
+												<caption>메뉴 검색</caption>
+												<colgroup>
+													<col/>
+													<col style="width:25%"/>
+												</colgroup>
+												<thead>
+													<tr>
+														<th scope="col">메뉴명</th>									
+														<th scope="col">선택</th>									
+													</tr>
+												</thead>
+												<tbody>
+												<?
+													$query = "SELECT * FROM $setting_table WHERE state = 'Y' AND delete_state != 'Y' AND depth = '1' AND category = '$category' ORDER BY sort ASC, ref_group ASC, depth ASC, ref_no ASC";
+													$result = mysqli_query($connect, $query);
+													$total = mysqli_num_rows($result);
+													if($total > 0){ 
+														while($data = mysqli_fetch_array($result)){
+															if($data[depth] > 1 ) {
+																$depth_data =  "data-add-menu=\"depth0".($data[depth]-1)."\"";
+																$depth_img = "<i class=\"depth\"><img src=\"/images/content/icon_depth.png\"/></i>";
+															} else {
+																unset($depth_data);
+																unset($depth_img);
+															}
+														?>
+															<tr <?=$depth_data?>>
+																<td data-add-menu="name"><?=$depth_img?><?=$data[menu_title]?></td>
+																<td><a href="#" class="button sm gray btn_close" data-menu-select="<?=$data[menu_id]?>" data-menu-title="<?=$data[menu_title]?>">선택</a></td>
+															</tr>
+														<? 
+															$sub = mysqli_fetch_array(mysqli_query($connect, "SELECT COUNT(*) FROM $setting_table WHERE ref_no='$data[no]' AND category = '$category'  AND delete_state != 'Y'"));
+															if($sub[0]){
+																$depth = $data[depth] + 1;
+																print_menu($connect, $category, "small_list",  $setting_table, $data[ref_group], $data[no], $depth);
+															}
+														}
+													} else { ?>
+													<tr>
+														<td colspan="2">등록 된 메뉴가 없습니다.</td>
+													</tr>
+												<? } ?>
+												<!-- 하위의 하위 -->
+												<!-- 메뉴가없는경우 -->
+												</tbody>
+											</table>
+											<div class="btn_area">
+												<a href="#" class="button lg white btn_close">닫기</a>
+											</div>
+								
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- //레이어 메뉴검색 -->
+						<? } ?>

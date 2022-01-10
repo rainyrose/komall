@@ -1,0 +1,153 @@
+
+<h2>개인정보 수집이용·동의</h2>
+<div class="box_privacy">
+	<textarea name="comments" id="" style="width:100%; height:200px;"  readonly>독도재단은 매거진 <독도로> 발송 진행을 위해서만 개인정보를 수집·이용합니다.
+매거진 구독자의 모든 개인정보는 위에서 밝힌 목적 이외에는 절대 사용될 수 없으며 개인정보의 사용목적과 용도가 변질될 경우에 귀하에게 동의를 구할 것입니다.
+
+수집하는 개인정보의 항목 : 구독자의 성명, 주소
+수집·이용하는 자 : 독도재단
+개인정보의 보유 및 이용기간 : 구독자의 구독 중지 시, 즉시 폐기됩니다.
+구독자는 본건 동의를 거부할 권리를 가지고 있으며, 만약 개인정보의 수집·이용에 동의하지 않으실 경우 매거진 구독이 중지됨을 알려드립니다.</textarea>
+	<div style="text-align:center; margin:15px;" class="designRadio">
+		<input type="radio" name="agree1" id="agree1" value="Y" class="required_radio" title="개인정보 수집이용·동의" data-radio-type="agree"/><label for="agree1"><b>동의합니다</b></label>
+		<input type="radio" name="agree1" id="noagree1" value="N" class="required_radio" title="개인정보 수집이용·동의" data-radio-type="agree"/><label for="noagree1">동의하지 않습니다.</label>
+	</div>
+</div>
+
+<!--
+<h2>개인정보 제3자 제공 동의</h2>
+<div class="box_privacy">
+	<textarea name="comments" id="" style="width:100%; height:200px;"  readonly>독도재단은 매거진 <독도로> 발송 진행을 위해서만 개인정보를 제공합니다.
+매거진 구독자의 모든 개인정보는 위에서 밝힌 목적 이외에는 절대 사용될 수 없으며 개인정보의 사용목적과 용도가 변질될 경우에 귀하에게 동의를 구할 것입니다.
+
+제공하는 자 : 독도재단
+제공받는 자 : SIDM
+수집하는 개인정보의 항목 : 구독자의 성명, 주소
+개인정보의 보유 및 이용기간 : 구독자의 구독 중지 시, 즉시 폐기됩니다.
+사보구독자는 본건 동의를 거부할 권리를 가지고 있으며, 만약 개인정보의 수집·이용에 동의하지 않으실 경우 사보 <KOGAS> 구독이 중지됨을 알려드립니다.</textarea>
+	<div style="text-align:center; margin:15px;" class="designRadio">
+		<input type="radio" name="agree2" id="agree2" value="Y"  class="required_radio" title="개인정보 제3자 제공 동의" data-radio-type="agree"/><label for="agree2"><b>동의합니다</b></label>
+		<input type="radio" name="agree2" id="noagree2" value="N"  class="required_radio" title="개인정보 제3자 제공 동의" data-radio-type="agree"/><label for="noagree2">동의하지 않습니다.</label>
+	</div>
+</div>
+-->
+<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+<? }else{ ?>
+	<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<? } ?>
+<script type="text/javascript">
+	function execDaumPostcode()
+	{
+		new daum.Postcode(
+		{
+			oncomplete: function(data)
+			{
+				// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+				// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+				// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+				var fullAddr  = "";					// 최종 주소 변수
+				var extraAddr = "";					// 조합형 주소 변수
+
+				// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+				if (data.userSelectedType === "R")
+				{
+					// 사용자가 도로명 주소를 선택했을 경우
+					fullAddr = data.roadAddress;
+				}
+				else
+				{
+					// 사용자가 지번 주소를 선택했을 경우(J)
+					fullAddr = data.jibunAddress;
+				}
+
+				// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+				if (data.userSelectedType === "R")
+				{
+					// 법정동명이 있을 경우 추가한다.
+					if (data.bname !== "")
+					{
+						extraAddr += data.bname;
+					}
+
+					// 건물명이 있을 경우 추가한다.
+					if (data.buildingName !== "")
+					{
+						extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+					}
+
+					// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+					fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+				}
+
+				// 우편번호와 주소 정보를 해당 필드에 넣는다.
+				document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+				document.getElementById("address1").value = fullAddr;
+
+				// 커서를 상세주소 필드로 이동한다.
+				document.getElementById("address2").focus();
+			}
+		}).open();
+	}
+	</script>
+<?
+$mode_title = $site[title]." 등록";
+
+if($mode == "modify"){
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $site[title]." 수정";
+}
+?>
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col style="width:25%"/>
+			<col />
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="name">이름</label></th>
+				<td><input type="text" name="name" id="name" class="input200 required" value="<?=$row[name]?>" title="이름" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="contract_no">신청유형</label></th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" name="magazine_type" id="magazine_type1" class="required_radio" value="신청" title="신청유형" /><label for="magazine_type1">매거진 신청</label>
+					<!--	<input type="radio" name="magazine_type" id="magazine_type2" class="required_radio" value="변경" title="신청유형" /><label for="magazine_type2">매거진 변경</label> -->
+						<input type="radio" name="magazine_type" id="magazine_type3" class="required_radio" value="해지" title="신청유형" /><label for="magazine_type3">매거진 해지</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row" rowspan="2"><span class="marking">필수항목</span><label for="contract_no">주소</label></th>
+				<td>
+					<input type="text" name="zip" id="zip" class="input150 required" readOnly value="<?=$row[zip]?>" title="우편번호" />
+					<a href="javascript:execDaumPostcode()" class="button">우편번호 찾기</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<input type="text" name="address1" id="address1" class="required" style="width:400px; display:block;" readOnly value="<?=$row[address1]?>" title="주소" />
+				<input type="text" name="address2" id="address2" class="required" style="width:550px;" value="<?=$row[address2]?>" title="주소" />
+
+				</td>
+			</tr>
+
+		</tbody>
+	</table>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="저장" />
+		<a href="<?=$common_queryString?>&amp;start=<?=$start?>&amp;search_cat=<?=$search_cat?>" class="button gray lg">취소</a>
+	</div>
+</form>
+<script type="text/javascript">
+	$("input:radio[name='magazine_type']:radio[value='<?=$row[magazine_type]?>']").attr("checked",true);
+</script>

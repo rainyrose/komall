@@ -1,0 +1,290 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+						
+					
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="setBoard.html">게시판 관리</a></li>
+								<li><a href="addBoard.html" class="on">게시판 등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<!-- 내용 -->					
+					
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>게시판 등록</h2>
+							
+							<!-- step -->
+							<!-- 해당 스탭이면 class="active" 추가 이전단계도 active유지 -->
+							<ul class="list_step">
+								<li class="active"><span>1</span></li>
+								<li class="active"><span>2</span></li>
+								<li><span>3</span></li>
+							</ul>
+							<!-- //step -->
+							
+							<!-- step01 -->
+							<div class="box_step">
+								<p>게시판 제목을 입력하세요.</p>
+								<input type="text" name="" id="" placeholder="예) 이슈게시판"/>
+							</div>
+							<!-- //step01 -->
+
+							<!-- step02 -->
+							<div class="box_step preview">
+								<p>게시판 유형을 선택하세요.</p>
+								<div class="designRadio">
+									<input type="radio" name="" id=""/><label for="">기본</label>
+									<input type="radio" name="" id=""/><label for="">갤러리</label>
+									<input type="radio" name="" id=""/><label for="">블로그</label>
+									<input type="radio" name="" id=""/><label for="">Q&A</label>
+									<input type="radio" name="" id=""/><label for="">PDF</label>
+								</div>
+								
+								<div class="view">
+									미리보기 이미지 삽입
+								</div>
+							</div>
+							<!-- //step02 -->
+
+							<!-- step03 -->
+							<div class="box_step bbs">
+								<p>게시판의 세부적인 설정을 선택 및 입력하세요.</p>
+								
+								<table class="bbsView">
+									<caption>게시판 설정</caption>
+									<colgroup>
+										<col style="width:15%"/>
+										<col/>
+										<col style="width:15%"/>
+										<col style="width:35%"/>
+									</colgroup>
+									<tbody>
+										<tr>
+											<th scope="row">게시판 ID</th>
+											<td colspan="3">board_<input type="text" name="id" maxlength="20" value="" title="게시판 ID"  class="input100"/> <a href="#" class="button" onclick="id_ajax();">중복확인</a></td>													
+										</tr>
+										<tr>
+											<th scope="row">게시판 타입</th>
+											<td colspan="3">
+												<div class="designRadio">
+													<input type="radio" name="is_membership" value="Y" id="is_membership_y" /><label for="is_membership_y">회원전용</label>
+													<input type="radio" name="is_membership" value="N" id="is_membership_n" /><label for="is_membership_n">일반</label>
+												</div>
+												<p style="font-size:11px; margin-top:5px;">* 회원전용 게시판은 로그인 후 쓰기, 읽기, 답변, 삭제등이 가능하며 비밀번호 입력이 없습니다.</p>
+												<p style="font-size:11px;">* 일반 게시판은 비밀번호 입력 폼이 있으며 비회원도 작성 가능합니다</p>
+											</td>			
+										</tr>
+										<tr>
+											<th scope="row">제목</th>
+											<td><input type="text" name="title" maxlength="" value="" title="제목" /></td>			
+											<th scope="row">스킨</th>
+											<td>
+												<select name="skin" title="스킨" id="skin">
+													<option value="notice">notice</option>
+													<option value="qna">qna</option>
+													<option value="pdf">pdf</option>
+													<option value="gallery">gallery</option>
+													<option value="contact">contact</option>
+													<option value="nomal_contact">nomal_contact</option>
+													<option value="blog">blog</option>
+													<option value="default">default</option>
+													<option value="area">area</option>
+													<option value="youtube">youtube</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">카테고리</th>
+											<td colspan="3">
+												<div class="designRadio">
+													<input type="radio" name="use_category" id="use_categoryY" value="Y" class="use_category" /> <label for="use_categoryY">사용</label>
+													<input type="radio" name="use_category" id="use_categoryN" value="N" class="use_category" /> <label for="use_categoryN">미사용</label>
+													<input type="radio" name="use_category" id="use_categoryI" value="I" class="use_category" /> <label for="use_categoryI">게시글에서 직접입력</label>
+												</div>
+											</td>
+										</tr>
+										<tr id="category_">
+											<th scope="row"><label for="category_tmp">카테고리 상세</label></th>
+											<td colspan="3" id="category_area" class="category">
+												<input type="text" name="category_tmp[]" value="" title="구분"/>
+												<a href="#" class="button gray" id="add_category">+ 추가</a>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">코멘트</th>
+											<td>
+												<div class="designRadio">
+													<input type="radio" name="use_comment" id="use_commentY" value="Y" /> <label for="use_commentY">사용</label>
+													<input type="radio" name="use_comment" id="use_commentN" value="N" /> <label for="use_commentN">미사용</label>
+												</div>
+											</td>			
+											<th scope="row">답글사용</th>
+											<td>
+												<div class="designRadio">
+													<input type="radio" name="use_reply" id="use_replyY" value="Y"/> <label for="use_replyY">사용</label>
+													<input type="radio" name="use_reply" id="use_replyN" value="N"/> <label for="use_replyN">미사용</label>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">쓰기권한</th>
+											<td>			
+												<select name="auth_write">
+													<option value="10">비회원</option>				
+													<option value="5">준회원</option>				
+													<option value="3">정회원</option>				
+													<option value="1">관리자</option>				
+												</select>
+											</td>			
+											<th scope="row">읽기권한</th>
+											<td>
+												<select name="auth_read">
+													<option value="10">비회원</option>				
+													<option value="5">준회원</option>				
+													<option value="3">정회원</option>				
+													<option value="1">관리자</option>				
+												</select>					
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">답변권한</th>
+											<td>
+												<select name="auth_reply">
+													<option value="10">비회원</option>				
+													<option value="5">준회원</option>				
+													<option value="3">정회원</option>				
+													<option value="1">관리자</option>				
+												</select>
+											</td>			
+											<th scope="row">삭제권한</th>
+											<td>
+												<select name="auth_delete">
+													<option value="10">비회원</option>				
+													<option value="5">준회원</option>				
+													<option value="3">정회원</option>				
+													<option value="1">관리자</option>				
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">코멘트작성</th>
+											<td>
+												<select name="auth_comment">
+													<option value="10">비회원</option>				
+													<option value="5">준회원</option>				
+													<option value="3">정회원</option>				
+													<option value="1">관리자</option>				
+												</select>
+											</td>			
+											<th scope="row">첨부파일 갯수</th>
+											<td>
+												<select name="file_count" title="첨부파일 갯수">
+													<option value="0">0</option>
+													<option value="1">1</option>
+													<option value="2">2</option>
+													<option value="3">3</option>
+													<option value="4">4</option>
+													<option value="5">5</option>
+													<option value="6">6</option>
+													<option value="7">7</option>
+													<option value="8">8</option>
+													<option value="9">9</option>
+													<option value="10">10</option>
+												</select> 개
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">첨부파일 용량제한</th>
+											<td><input type="text" name="file_limit_size" size="3" maxlength="3" value="" title="첨부파일 용량제한" /> M</td>			
+											<th scope="row">상시 비밀글 사용</th>
+											<td>
+												<div class="designCheck">
+													<input type="checkbox" name="always_secret" id="always_secretY" value="Y" /> <label for="always_secretY">상시 비밀글 사용</label>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">SMS 인증 사용 여부</th>
+											<td>	
+												<div class="designRadio" style="display:inline-block;">
+													<input type="radio" name="sms_auth" id="sms_authY" value="Y" /> <label for="sms_authY">Y</label>
+													<input type="radio" name="sms_auth" id="sms_authN" value="N" checked="checked" /> <label for="sms_authN">N</label>
+												</div>
+												SMS secureKEY가 입력되어있어야 합니다. 
+												</td>			
+											<th scope="row">스팸방지 사용 여부</th>
+											<td>	
+												<div class="designRadio">
+													<input type="radio" name="spam_auth" id="spam_authY" value="Y" /> <label for="spam_authY">Y</label>
+													<input type="radio" name="spam_auth" id="spam_authN" value="N" checked="checked" /> <label for="spam_authN">N</label>
+												</div>
+											</td>
+										</tr>
+										<!--
+										<tr>
+											<th scope="row">주소 사용</th>
+											<td><input type="checkbox" name="use_address" value="Y" /></td>
+										</tr>
+										-->
+
+										<tr>
+											<th scope="row">부서별 권한 설정 
+												<div class="designCheck noText" style="display:inline-block;">
+													<input type="checkbox" name="dept_auth[]" value="" id="no_dept"/><label for="no_dept">전체공개설정</label>
+												</div>
+												<p style="font-size:5px;">체크를 해제하면 전체공개 됩니다.</p>
+											</th>
+											<td colspan="3">
+																					</td>
+										</tr>
+										<!--
+										<tr>
+											<th scope="row">직급별 관리자 페이지 노출 설정</th>
+											<td colspan="3">
+												<input type="checkbox" name="level_auth[]" value="1" id="no_dept"/><label for="no_dept">관리자</label>
+												<input type="checkbox" name="level_auth[]" value="3" id="no_dept"/><label for="no_dept">팀장</label>
+												<input type="checkbox" name="level_auth[]" value="5" id="no_dept"/><label for="no_dept">팀원</label>
+																</td>
+										</tr>
+										<tr>
+											<th scope="row">지역업장별 관리자 페이지 노출 설정</th>
+											<td colspan="3">
+												<input type="checkbox" name="level_auth[]" value="" id="no_dept"/><label for="no_dept">전체</label>
+												<input type="checkbox" name="level_auth[]" value="" id="no_dept"/><label for="no_dept">전체</label>
+												<input type="checkbox" name="level_auth[]" value="" id="no_dept"/><label for="no_dept">전체</label>
+												<input type="checkbox" name="level_auth[]" value="" id="no_dept"/><label for="no_dept">전체</label>
+																</td>
+										</tr>
+										-->
+										<tr>
+											<th scope="row">사용여부</th>
+											<td colspan="3">
+												<div class="designRadio">
+													<input type="radio" name="state" id="stateY" value="Y" checked="checked" /> <label for="stateY">Y</label>
+													<input type="radio" name="state" id="stateN" value="N" /> <label for="stateN">N</label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
+							<!-- //step03 -->
+
+							<div class="btn_area">
+								<input type="submit" class="button lg" value="다음">
+								<a class="button lg gray" href="#">취소</a>
+							</div>
+
+						</div>
+						
+						
+						
+						<!-- //내용 -->
+									
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

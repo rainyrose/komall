@@ -1,0 +1,569 @@
+<?
+	$reg_date = date("Y-m-d H:i:s");
+	$this_count = 0;
+
+	$setting_table = "koweb_product";
+	$dir = $_SERVER['DOCUMENT_ROOT'] . "/upload/product/";
+
+	if(!$min_count){
+		$min_count = 1;
+	}
+
+	$product_title = $_POST['product_title'];
+
+	if($mode == "write_proc"){
+
+		//분류
+		//$category_navi = substr($pcate_navication, 0, -1);
+		$category_navi = $pcate_navication;
+		$category = end(explode("|", substr($category_navi, 0, -1)));
+
+		//정렬
+		if(!$sort){
+			$sort_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE category='$category' ORDER BY sort DESC LIMIT 1"));
+			$sort = $sort_[sort]+1;
+		}
+
+		//아이디
+		if($direct_id == "Y" && $id != ""){
+			//직접입력시
+			$id_ = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM $setting_table WHERE id = '$id'"));
+			if($id_ > 0){
+				error("중복된 아이디 입니다.");
+				exit;
+			} else {
+				$id = $id;
+			}
+
+		} else {
+			$id_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table ORDER BY id DESC LIMIT 1"));
+			$id = rand_id($setting_table);
+		}
+
+		//배송정보
+
+		if($deli_type != "default"){
+			if($deli_type == "def"){
+				$deli_price_type = $_POST['deli_price_type'];
+				$deli_price = $_POST['deli_price'];
+
+				foreach($deli_price_type as $value){
+					if($value){
+						$deli_price_type_tmp .= $value ."|";
+					}
+				}
+				foreach($deli_price as $value){
+					if($value){
+						$deli_price_tmp .= $value ."|";
+					}
+				}
+
+				$deli_price_type = substr($deli_price_type_tmp, 0, -1);
+				$deli_price = substr($deli_price_tmp, 0, -1);
+			} else {
+				$deli_price = $_POST[deli_price][0];
+			}
+		}
+
+
+	//파일업로드
+	for($i = 1; $i <= 9; $i++){
+		if($_FILES["img_".$i][size] > 0){
+			if ($_FILES["img_".$i][size] > 2 * 1024 * 1024) {
+				error("첨부파일 ".$i."의 용량 제한은 2MB 입니다.");
+				exit;
+			} else {
+				${'img_'.$i} = upload_file($dir, $_FILES["img_".$i][tmp_name], $_FILES["img_".$i][name]);
+				$add_query .= ", img_".$i." =  '". ${'img_'.$i} . "'";
+			}
+		}
+	}
+
+	if($_FILES[title_img][size] > 0){
+		if ($_FILES[title_img][size] > 2 * 1024 * 1024) {
+			error("첨부파일의 용량 제한은 2MB 입니다.");
+			exit;
+		} else {
+			$title_img = upload_file($dir, $_FILES[title_img][tmp_name], $_FILES[title_img][name]);
+		}
+	}
+
+		//값 저장
+		mysqli_query($connect, "INSERT INTO $setting_table SET category = '$category'
+													, category_navi = '$category_navi'
+													, seller = '$seller'
+													, shower = '$shower'
+													, hit = '$hit'
+													, pick = '$pick'
+													, new = '$new'
+													, best = '$best'
+													, discount = '$discount'
+													, sort = '$sort'
+													, product_title = '$product_title'
+													, id = '$id'
+													, user_id = '$user_id'
+													, simple_info = '$simple_info'
+													, use_telform = '$use_telform'
+													, manufacturer = '$manufacturer'
+													, origin = '$origin'
+													, brand = '$brand'
+													, model = '$model'
+													, web_content = '$web_content'
+													, mob_content = '$mob_content'
+													, product_memo = '$product_memo'
+													, set_type = '$set_type'
+													, price = '$price'
+													, origin_price = '$origin_price'
+													, tax_type = '$tax_type'
+													, limit_type = '$limit_type'
+													, limit_1st = '$limit_1st'
+													, point_type = '$point_type'
+													, point_detail = '$point_detail'
+													, use_soldout = '$use_soldout'
+													, use_smsalram = '$use_smsalram'
+													, min_count = '$min_count'
+													, max_count = '$max_count'
+													, stock_count = '$stock_count'
+													, use_stock_alram = '$use_stock_alram'
+													, stock_alram = '$stock_alram'
+													, option_set1 = '$option_set1'
+													, option_set2 = '$option_set2'
+													, option_set3 = '$option_set3'
+													, title_img = '$title_img'
+													$add_query
+													, refer_product = '$refer_product'
+													, deli_type = '$deli_type'
+													, deli_price_type = '$deli_price_type'
+													, deli_price = '$deli_price'
+													, reg_date = '$reg_date'");
+
+		$rowid = mysqli_insert_id($connect);
+
+		//옵션SET
+		$count = 1;
+		$title = $_POST[title];
+
+		$parents_title = $_POST[parents_title];
+		$parents_use_color = $_POST[parents_use_color_value];
+		$option_title = $_POST[option_title];
+
+		foreach($parents_title AS $key => $v){
+
+			$options_query_ = "INSERT INTO koweb_option_set SET  option_type = 'P', ref_product='$rowid', title='$parents_title[$key]', use_color='$parents_use_color[$key]', sort='$count', reg_date='$reg_date'";
+
+			$options_set = mysqli_query($connect, $options_query_);
+			$options_set_id = mysqli_insert_id($connect);
+			$option_category = "option".$count."_";
+
+			foreach($_POST["$option_category"."option_title"] AS $key2 => $v2){
+				$option_title = $_POST["$option_category"."option_title"][$key2];
+				$color_value = $_POST["$option_category"."color_value"][$key2];
+				$option_state = $_POST["$option_category"."option_state_value"][$key2];
+
+				echo $option_state;
+				echo "<br />";
+
+
+				$options_value_ .= $color_value."|".$option_title."|".$option_state."^";
+				$options_set_query_ = "INSERT INTO koweb_option_set SET option_type ='C', ref_product='$rowid', ref_parents = '$options_set_id', title='$title[$key]', use_color='$use_color[$key]', option_title='$option_title', color_value='$color_value', option_state = '$option_state', sort='$count', reg_date='$reg_date'";
+				$options_set = mysqli_query($connect, $options_set_query_);
+			}
+		$count++;
+		}
+
+		//디테일옵션 SET
+		$option_title = $_POST[option_title];
+		$option_id = $_POST[option_id];
+		$option_type = $_POST[option_type];
+		$option_price = $_POST[option_price];
+		$stock = $_POST[stock];
+		$option_color1 = $_POST[option_color1];
+		$option_color2 = $_POST[option_color2];
+		$option_color3 = $_POST[option_color3];
+		$safe_stock = $_POST[safe_stock];
+		$option_use_sold = $_POST[use_soldout_value];
+		$detail_state = $_POST[detail_state];
+
+	foreach($option_id AS $key => $v){
+			$id_make = str_replace("/", "|", $option_title[$key]);
+			$id_make = preg_replace("/\s+/", "", $id_make);
+			$current_id = rand_id("koweb_option_detail");
+
+			if(!$option_id[$key]){
+				$option_id[$key] = $current_id;
+			} else {
+				$current_id = $option_id[$key];
+			}
+
+
+			$addi_query = "INSERT INTO koweb_option_detail SET ref_set = '$options_set_id', ref_product = '$rowid', option_color1 = '$option_color1[$key]', option_color2 = '$option_color2[$key]', option_color3 = '$option_color3[$key]', otype='detail', title='$option_title[$key]', type_id='$id_make', current_id='$current_id', id = '$option_id[$key]',
+			price_type = '$option_type[$key]', price = '$option_price[$key]', stock = '$stock[$key]', safe_stock = '$safe_stock[$key]', soldout='$option_use_sold[$key]', sort='$sort', state = '$detail_state[$key]', reg_date = '$reg_date'";
+
+			mysqli_query($connect, $addi_query);
+		}
+		//추가옵션SET
+		$additional_item_title = $_POST[additional_item_title];
+		$additional_item_id = $_POST[additional_item_id];
+		$additional_item_type = $_POST[additional_item_type];
+		$additional_item_price = $_POST[additional_item_price];
+		$additional_item_stock = $_POST[additional_item_stock];
+		$additional_item_safe_stock = $_POST[additional_item_safe_stock];
+		$additional_item_soldout = $_POST[additional_item_soldout_value];
+		$additional_item_state = $_POST[additional_item_state];
+
+
+		foreach($additional_item_title AS $key => $v){
+
+			$current_id = rand_id("koweb_option_detail");
+
+			if(!$additional_item_id[$key]){
+				$additional_item_id[$key] = $current_id;
+			} else {
+				$current_id = $option_id[$key];
+			}
+
+			if(!$additional_item_stock[$key]){
+				$additional_item_stock[$key] = 0;
+			}
+
+			if(!$additional_item_stock[$key]){
+				$additional_item_stock[$key] = 0;
+				$additional_item_soldout[$key] = "Y";
+			}
+
+			if(!$additional_item_safe_stock[$key]){
+				$additional_item_safe_stock[$key] = 0;
+			}
+
+
+			$addi_query = "INSERT INTO koweb_option_detail SET ref_set = '', ref_product = '$rowid', otype='add', title='$additional_item_title[$key]', type_id='', current_id='$current_id', id = '$additional_item_id[$key]',
+			price_type = '$additional_item_type[$key]', price = '$additional_item_price[$key]', stock = '$additional_item_stock[$key]', safe_stock = '$additional_item_safe_stock[$key]', soldout='$additional_item_soldout[$key]', sort='$sort', state = '$additional_item_state[$key]', reg_date = '$reg_date'";
+
+			mysqli_query($connect, $addi_query);
+		}
+
+		//상품요약정보
+		$simple_info_query = "INSERT INTO koweb_simple_info SET type='$set_type', ref_product = '$rowid',";
+		for($i = 1; $i <= 20; $i++){
+			$simple_info_query .= " field_".$i." = '".${"field_".$i}."',";
+		}
+
+		$simple_info_query = substr($simple_info_query, 0, -1);
+		$simple_result = mysqli_query($connect, $simple_info_query);
+
+		alert("등록되었습니다.");
+		url($common_queryString);
+
+	} else if($mode == "modify_proc"){
+
+		$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE no = '$no'"));
+
+		//분류
+		//$category_navi = substr($pcate_navication, 0, -1);
+		if($pcate_navication){
+			$category_navi = $pcate_navication;
+			$category = end(explode("|", substr($category_navi, 0, -1)));
+			//$add_query_cat = ", category_navi = '$category_navi'";
+			//$add_query_cat_navi = ", category = '$category'";
+		}
+
+		//정렬
+		if(!$sort){
+			$sort_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM $setting_table WHERE category='$category' ORDER BY sort DESC LIMIT 1"));
+			$sort = $sort_[sort]+1;
+		}
+
+		//아이디
+		if($direct_id == "Y" && $id != $default[id]){
+			//직접입력시
+			$id_ = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM $setting_table WHERE id = '$id'"));
+			if($id_ > 0){
+				error("중복된 아이디 입니다.");
+				exit;
+			} else {
+				$id = $id;
+				$add_query_id = ", id = '$id'";
+			}
+		}
+
+		//배송정보
+		if($deli_type != "default"){
+			if($deli_type == "def"){
+				$deli_price_type = $_POST['deli_price_type'];
+				$deli_price = $_POST['deli_price'];
+
+				foreach($deli_price_type as $value){
+					if($value){
+						$deli_price_type_tmp .= $value ."|";
+					}
+				}
+				foreach($deli_price as $value){
+					if($value){
+						$deli_price_tmp .= $value ."|";
+					}
+				}
+
+				$deli_price_type = substr($deli_price_type_tmp, 0, -1);
+				$deli_price = substr($deli_price_tmp, 0, -1);
+			} else {
+				$deli_price = $_POST[deli_price][0];
+			}
+		}
+
+	//파일업로드
+	for($i = 1; $i <= 9; $i++){
+		if($_FILES["img_".$i][size] > 0){
+			if ($_FILES["img_".$i][size] > 2 * 1024 * 1024) {
+				error("첨부파일 ".$i."의 용량 제한은 2MB 입니다.");
+				exit;
+			} else {
+				${'img_'.$i} = upload_file($dir, $_FILES["img_".$i][tmp_name], $_FILES["img_".$i][name]);
+				$add_query .= ", img_".$i." =  '". ${'img_'.$i} . "'";
+			}
+		}
+	}
+
+	if($_FILES[title_img][size] > 0){
+		if ($_FILES[title_img][size] > 2 * 1024 * 1024) {
+			error("첨부파일의 용량 제한은 2MB 입니다.");
+			exit;
+		} else {
+			$title_img = upload_file($dir, $_FILES[title_img][tmp_name], $_FILES[title_img][name]);
+			$add_title_query = ", title_img='$title_img'";
+		}
+	}
+
+		//값 저장
+		mysqli_query($connect, "UPDATE $setting_table SET category = '$category'
+													, category_navi = '$category_navi'
+													, seller = '$seller'
+													, shower = '$shower'
+													, hit = '$hit'
+													, pick = '$pick'
+													, new = '$new'
+													, best = '$best'
+													, discount = '$discount'
+													, sort = '$sort'
+													, product_title = '$product_title'
+													$add_query_id
+													, user_id = '$user_id'
+													, simple_info = '$simple_info'
+													, use_telform = '$use_telform'
+													, manufacturer = '$manufacturer'
+													, origin = '$origin'
+													, brand = '$brand'
+													, model = '$model'
+													, web_content = '$web_content'
+													, mob_content = '$mob_content'
+													, product_memo = '$product_memo'
+													, set_type = '$set_type'
+													, price = '$price'
+													, origin_price = '$origin_price'
+													, tax_type = '$tax_type'
+													, limit_type = '$limit_type'
+													, limit_1st = '$limit_1st'
+													, point_type = '$point_type'
+													, point_detail = '$point_detail'
+													, use_soldout = '$use_soldout'
+													, use_smsalram = '$use_smsalram'
+													, min_count = '$min_count'
+													, max_count = '$max_count'
+													, stock_count = '$stock_count'
+													, use_stock_alram = '$use_stock_alram'
+													, stock_alram = '$stock_alram'
+													, option_set1 = '$option_set1'
+													, option_set2 = '$option_set2'
+													, option_set3 = '$option_set3'
+													$add_title_query
+													$add_query
+													, refer_product = '$refer_product'
+													, deli_type = '$deli_type'
+													, deli_price_type = '$deli_price_type'
+													, deli_price = '$deli_price'
+													, reg_date = '$reg_date'
+												WHERE no = '$no'");
+
+		$rowid = $no;
+		//옵션 초기화
+
+		$delete_set = mysqli_query($connect, "DELETE FROM koweb_option_set WHERE ref_product = '$no'");
+		$delete_detail = mysqli_query($connect, "DELETE FROM koweb_option_detail WHERE ref_product = '$no'");
+
+		//옵션SET
+		$count = 1;
+		$title = $_POST[title];
+
+		$parents_title = $_POST[parents_title];
+		$parents_use_color = $_POST[parents_use_color_value];
+		$option_title = $_POST[option_title];
+
+		foreach($parents_title AS $key => $v){
+
+			$options_query_ = "INSERT INTO koweb_option_set SET  option_type = 'P', ref_product='$rowid', title='$parents_title[$key]', use_color='$parents_use_color[$key]', sort='$count', reg_date='$reg_date'";
+
+			$options_set = mysqli_query($connect, $options_query_);
+			$options_set_id = mysqli_insert_id($connect);
+			$option_category = "option".$count."_";
+
+			foreach($_POST["$option_category"."option_title"] AS $key2 => $v2){
+				$option_title = $_POST["$option_category"."option_title"][$key2];
+				$color_value = $_POST["$option_category"."color_value"][$key2];
+				$option_state = $_POST["$option_category"."option_state_value"][$key2];
+
+				$options_value_ .= $color_value."|".$option_title."|".$option_state."^";
+				$options_set_query_ = "INSERT INTO koweb_option_set SET option_type ='C', ref_product='$rowid', ref_parents = '$options_set_id', title='$title[$key]', use_color='$use_color[$key]', option_title='$option_title', color_value='$color_value', option_state = '$option_state', sort='$count', reg_date='$reg_date'";
+				$options_set = mysqli_query($connect, $options_set_query_);
+
+				//	echo $options_set_query_;
+			//echo "<br />";
+
+
+			}
+		$count++;
+		}
+
+		//디테일옵션 SET
+		$option_title = $_POST[option_title];
+		$option_id = $_POST[option_id];
+		$option_type = $_POST[option_type];
+		$option_price = $_POST[option_price];
+		$stock = $_POST[stock];
+		$option_color1 = $_POST[option_color1];
+		$option_color2 = $_POST[option_color2];
+		$option_color3 = $_POST[option_color3];
+		$safe_stock = $_POST[safe_stock];
+		$option_use_sold = $_POST[use_soldout_value];
+		$detail_state = $_POST[detail_state];
+
+		foreach($option_id AS $key => $v){
+			$id_make = str_replace("/", "|", $option_title[$key]);
+			$id_make = preg_replace("/\s+/", "", $id_make);
+			$current_id = rand_id("koweb_option_detail");
+
+			if(!$option_id[$key]){
+				$option_id[$key] = $current_id;
+			} else {
+				$current_id = $option_id[$key];
+			}
+
+			$addi_query = "INSERT INTO koweb_option_detail SET ref_set = '$options_set_id', ref_product = '$rowid', option_color1 = '$option_color1[$key]', option_color2 = '$option_color2[$key]', option_color3 = '$option_color3[$key]', otype='detail', title='$option_title[$key]', type_id='$id_make', current_id='$current_id', id = '$option_id[$key]',
+			price_type = '$option_type[$key]', price = '$option_price[$key]', stock = '$stock[$key]', safe_stock = '$safe_stock[$key]', soldout='$option_use_sold[$key]', sort='$sort', state = '$detail_state[$key]', reg_date = '$reg_date'";
+
+
+
+
+			mysqli_query($connect, $addi_query);
+		}
+		//추가옵션SET
+		$additional_item_title = $_POST[additional_item_title];
+		$additional_item_id = $_POST[additional_item_id];
+		$additional_item_type = $_POST[additional_item_type];
+		$additional_item_price = $_POST[additional_item_price];
+		$additional_item_stock = $_POST[additional_item_stock];
+		$additional_item_safe_stock = $_POST[additional_item_safe_stock];
+		$additional_item_soldout = $_POST[additional_item_soldout_value];
+		$additional_item_state = $_POST[additional_item_state];
+
+		foreach($additional_item_title AS $key => $v){
+
+			$current_id = rand_id("koweb_option_detail");
+
+			if(!$additional_item_id[$key]){
+				$additional_item_id[$key] = $current_id;
+			} else {
+				$current_id = $additional_item_id[$key];
+			}
+
+			if(!$additional_item_stock[$key]){
+				$additional_item_stock[$key] = 0;
+			}
+
+			if(!$additional_item_stock[$key]){
+				$additional_item_stock[$key] = 0;
+				$additional_item_soldout[$key] = "Y";
+			}
+
+			if(!$additional_item_safe_stock[$key]){
+				$additional_item_safe_stock[$key] = 0;
+			}
+
+			$addi_query = "INSERT INTO koweb_option_detail SET ref_set = '', ref_product = '$rowid', otype='add', title='$additional_item_title[$key]', type_id='', current_id='$current_id', id = '$additional_item_id[$key]',
+			price_type = '$additional_item_type[$key]', price = '$additional_item_price[$key]', stock = '$additional_item_stock[$key]', safe_stock = '$additional_item_safe_stock[$key]', soldout='$additional_item_soldout[$key]', sort='$sort', state = '$additional_item_state[$key]', reg_date = '$reg_date'";
+
+			mysqli_query($connect, $addi_query);
+		}
+
+		//상품요약정보
+		$simple_info_query = "INSERT INTO koweb_simple_info SET type='$set_type', ref_product = '$rowid',";
+		for($i = 1; $i <= 20; $i++){
+			$simple_info_query .= " field_".$i." = '".${"field_".$i}."',";
+		}
+
+		$simple_info_query = substr($simple_info_query, 0, -1);
+		$simple_result = mysqli_query($connect, $simple_info_query);
+
+		alert("수정되었습니다.");
+		url($common_queryString);
+	} else if($mode == "delete"){
+
+
+		$info_check = $_GET[info_check];
+
+		foreach($info_check AS $no){
+			//echo "DELETE FROM koweb_simple_info WHERE ref_product = '$no'";
+			//상품요약정보 삭제
+			$simple_info_del = mysqli_query($connect, "DELETE FROM koweb_simple_info WHERE ref_product = '$no'");
+
+			//옵션삭제 SET
+			$set_info_del = mysqli_query($connect, "DELETE FROM koweb_option_set WHERE ref_product = '$no'");
+
+			//옵션 디테일 삭제
+			$detail_info_del = mysqli_query($connect, "DELETE FROM koweb_option_detail WHERE ref_product = '$no'");
+
+			//상품 삭제
+			$product_info_del = mysqli_query($connect, "DELETE FROM koweb_product WHERE no = '$no'");
+		}
+
+		alert("삭제가 완료되었습니다.");
+		url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+	} else if($mode == "sellerY"){
+		$info_check = $_GET[info_check];
+
+		foreach($info_check AS $no){
+			$product_info_del = mysqli_query($connect, "UPDATE koweb_product SET seller = 'Y' WHERE no = '$no'");
+		}
+		alert("판매상태가 완료되었습니다.");
+		url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+
+	} else if($mode == "sellerN"){
+		$info_check = $_GET[info_check];
+
+		foreach($info_check AS $no){
+			$product_info_del = mysqli_query($connect, "UPDATE koweb_product SET seller = 'N' WHERE no = '$no'");
+		}
+		alert("판매상태가 변경되었습니다.");
+		url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+
+	} else if($mode == "showerY"){
+		$info_check = $_GET[info_check];
+
+		foreach($info_check AS $no){
+			$product_info_del = mysqli_query($connect, "UPDATE koweb_product SET shower = 'Y' WHERE no = '$no'");
+		}
+		alert("진열상태가 변경되었습니다.");
+		url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+
+	} else if($mode == "showerN"){
+		$info_check = $_GET[info_check];
+
+		foreach($info_check AS $no){
+			$product_info_del = mysqli_query($connect, "UPDATE koweb_product SET shower = 'N' WHERE no = '$no'");
+		}
+		alert("진열상태가 변경되었습니다.");
+		url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+
+	} else if($mode == "excel"){
+	//	alert("삭제가 완료되었습니다.");
+		//url($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller");
+
+	}

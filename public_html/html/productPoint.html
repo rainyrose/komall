@@ -1,0 +1,68 @@
+<? include("../inc/top.html") ?>
+<div id="content">
+
+
+	<!-- 내용 -->
+	<div class="area_shopNumber">
+		<em>총 적립된 포인트</em> <i>1,100점</i>
+	</div>
+		
+	<table class="bbsList pointList">
+		<caption>적립포인트 내역</caption>
+		<colgroup>
+			<col style="width:20%"/>
+			<col/>
+			<col style="width:20%"/>
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col">날짜</th>
+				<th scope="col">적립금내역</th>
+				<th scope="col">적립포인트</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>2019-05-21</td>
+				<td>물품구입에 대한 적립금 입니다.</td>
+				<!-- 점수가 차감시 span태그에 class="minus" 추가 -->
+				<td><span>600점</span></td>
+			</tr>
+			<tr>
+				<td>2019-05-21</td>
+				<td>물품구입에 대한 적립금 입니다.</td>
+				<td><span>500점</span></td>
+			</tr>
+			<tr>
+				<td>2019-04-12</td>
+				<td>물품구입시 사용</td>
+				<td><span class="minus">-1000점</span></td>
+			</tr>
+			<tr>
+				<td>2019-03-15</td>
+				<td>회원가입 포인트 제공</td>
+				<td><span>1000점</span></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<!-- 페이징 -->
+	<div class="pagination">
+		<a href="#" class="btn_first">맨처음</a>
+		<a href="#" class="btn_prev">이전</a>
+		<!-- 선택된페이지 -->
+		<span>1</span>
+		<!-- //선택된페이지 -->
+		<a href="#">2</a>
+		<a href="#">3</a>
+		<a href="#" class="btn_next">다음</a>
+		<a href="#" class="btn_last">맨마지막</a>
+	</div>
+	<!-- //페이징 -->
+	<!-- //내용 -->
+
+
+
+
+</div>
+<? include("../inc/footer.html") ?>

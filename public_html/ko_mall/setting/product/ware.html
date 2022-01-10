@@ -1,0 +1,66 @@
+	<tr>
+		<td colspan="2" class="tac">
+			<select name="set_type" id="set_type">
+				<option value="">선택하세요</option>
+				<option value="ware" selected>의류</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_material">제품소재</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="material">
+			<span class="frm_info">섬유의 조성 또는 혼용률을 백분율로 표시, 기능성인 경우 성적서 또는 허가서</span>           
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_material" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_color">색상</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="color">
+		<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_color" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_size">치수</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="size">
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_size" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_maker">제조자</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="maker">
+			<span class="frm_info">수입품의 경우 수입자를 함께 표기 (병행수입의 경우 병행수입 여부로 대체 가능)</span>
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_maker" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_caution">세탁방법 및 취급시 주의사항</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="caution">
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_caution" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_manufacturing_ym">제조연월</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="manufacturing_ym">
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_manufacturing_ym" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_warranty">품질보증기준</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="warranty">
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_warranty" required class="frm_input required" />
+		</td>
+	</tr>
+	<tr>
+		<th scope="row"><label for="ii_article_as">A/S 책임자와 전화번호</label></th>
+		<td>
+			<input type="hidden" name="ii_article[]" value="as">
+			<input type="text" name="ii_value[]" value="상품페이지 참고" id="ii_article_as" required class="frm_input required" />
+		</td>
+	</tr>

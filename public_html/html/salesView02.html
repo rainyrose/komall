@@ -1,0 +1,112 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+			<nav class="lnb small">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="/html/salesView.html">일일매출</a></li>
+					<li><a href="/html/salesView02.html" class="on">기간별매출</a></li>
+					<li><a href="/html/salesView02.html">월간매출</a></li>
+					<li><a href="/html/salesView02.html">연간매출</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd">
+				<!-- 검색결과 나왔을때 괄호 노출 -->
+				<h2>기간별매출 (2019-06-01 ~ 2019-06-17)</h2>
+				<div class="search_bbs">
+					<form action="" id="" method="">
+						<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="" title="시작날짜">
+						~
+						<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="" title="마지막날짜">
+						<input type="submit" value="검색" class="button sm gray">
+					</form>
+				</div>
+				
+				<!-- 검색결과 -->
+				<table class="table">
+					<caption>매출현황</caption>
+					<thead>
+						<tr>
+							<th scope="col">주문일</th>
+							<th scope="col">주문수</th>
+							<th scope="col">주문합계</th>
+							<th scope="col">무통장</th>
+							<th scope="col">가상계좌</th>
+							<th scope="col">계좌이체</th>
+							<th scope="col">카드입금</th>
+							<th scope="col">휴대폰</th>
+							<th scope="col">포인트</th>
+							<th scope="col">주문취소</th>
+							<th scope="col">미수금</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<!-- 클릭시 일매출현황으로 -->
+							<td><a href="#">2019-06-17</a></td>
+							<td>1</td>
+							<td class="bg_yellow">47,000</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td class="bg_blue">47,000</td>
+							<td class="bg_red">0</td>
+						</tr>
+						<tr>
+							<td><a href="#">2019-06-17</a></td>
+							<td>1</td>
+							<td class="bg_yellow">47,000</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td class="bg_blue">47,000</td>
+							<td class="bg_red">0</td>
+						</tr>
+						<tr>
+							<td><a href="#">2019-06-17</a></td>
+							<td>1</td>
+							<td class="bg_yellow">47,000</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td class="bg_blue">47,000</td>
+							<td class="bg_red">0</td>
+						</tr>
+						<!-- 합계 -->
+						<tr class="total">
+							<td>합계</td>
+							<td>32</td>
+							<td class="bg_yellow">47,000</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td>0</td>
+							<td class="bg_blue">47,000</td>
+							<td class="bg_red">0</td>
+						</tr>
+						<!-- 결과없을때 -->
+						<tr>
+							<td colspan="11">검색된 결과가 없습니다.</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- //검색결과 -->
+			</div>
+
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

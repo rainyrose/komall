@@ -1,0 +1,49 @@
+						<!-- 내용 -->
+					
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>온라인폼 설정</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:25%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>									
+										<th scope="col">프로그램명</th>									
+										<th scope="col">프로그램 아이디</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+								<?
+									$query = "SELECT * FROM koweb_online_config ORDER BY sort ASC";
+									$result = mysqli_query($connect, $query);
+									$total = mysqli_num_rows($result);
+									 while($row = mysqli_fetch_array($result)){ 
+								?>
+									<tr>
+										<td><?=$total--?></td>
+										<td><?=$row[title]?></td>
+										<td><?=$row[id]?></td>
+										<td>
+											<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button sm gray">수정</a>
+											<a href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$row[no]?>" class="button sm white">삭제</a>
+										</td>
+									</tr>
+								<? } ?>
+								</tbody>
+							</table>
+
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<a href="<?=$common_queryString?>&amp;mode=write" class="button lg">신규등록</a>
+							</div>
+							<!-- //버튼 -->
+
+						</div>
+						

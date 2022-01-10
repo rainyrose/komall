@@ -1,0 +1,62 @@
+<?
+if(!$no){
+	$limit_query = "SELECT * FROM  koweb_event_info WHERE state='Y' ORDER BY sort DESC LIMIT 1";
+	$limit_result = mysql_query($limit_query);
+	$limit_row = mysql_fetch_array($limit_result);
+	$no = $limit_row[no];
+} 
+$query = "SELECT * FROM koweb_event_info WHERE no='$no'";
+$result = mysql_query($query);
+$row = mysql_fetch_array($result);
+$event_item = explode("|", $row[event_item]);
+$event_item_1 = explode("^", $event_item[0]);
+$event_item_2 = explode("^", $event_item[1]);
+?>
+<script type="text/javascript">
+	$("#"+"<?=$no?>").addClass("active");
+</script>
+
+<div class="title">
+	<h3><? if($apply){ ?>무료관람신청<? } else { ?>박람회소개<? } ?></h3>
+	<? if($apply){ ?><span>Apply for free viewing</span><? } else { ?><span>Show introduction</span><? } ?>
+</div>
+<!-- 1. 관리자에서 에디터로 등록하여 나중에 고객이 복사해서 사용할 수 있게 해주세요. 
+	 2. 관리자가 작성한 글 아래쪽에 사전등록 폼 만들어 주세요.(참고 http://www.dong-afairs.co.kr/03_sub/3c_sub02.php)
+	 [박람회 별로 따로 저장될 수 있게.DB 저장되는 부분 표형태로 한눈에 볼 수 있게 요청.]
+-->
+<div class="area_fair">
+	<div class="box02">
+		<h3><?=$row[event_title]?></h3>
+		<p><?=$row[event_contents2]?></p>
+	</div>
+	<div class="mview">※좌우드레그로 확인가능합니다.</div>
+	<div class="box01 scrollTable">
+		<table class="table">
+			<caption>전시품목</caption>
+			<colgroup>
+				<col style="width:18%">
+			</colgroup>
+			<tbody>
+				<tr>
+					<td style="text-align:center;">
+						<img src="/upload/program/<?=$program_id?>/<?=$row[event_poster]?>">
+					</td>
+					<td>
+						<ul>
+						<? for($i = 0; $i < count($event_item_1); $i++){ ?>
+							<li><b><?=$event_item_1[$i]?></b> : <?=$event_item_2[$i]?></li>
+						<? } ?>
+						</ul>
+					</td>
+					<td style="text-align:center;">
+						<? if($apply){ ?><a href="./program.html?program_id=koweb_event_info&amp;mode=apply_write&amp;no=<?=$row[no]?>"><img src="../../images/content/img_fair02.jpg"></a><? } ?>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="box02">
+		<h3>전시품목</h3>
+		<?=$row[event_contents1]?>
+	</div>
+</div>

@@ -1,0 +1,134 @@
+	<?
+
+	unset($_SESSION['NAVER']);
+	unset($_SESSION['KAKAO']);
+	if($type == "NAVER"){
+		$_SESSION['NAVER'] = $me_responseArr['response'];
+	} else if($type == "KAKAO"){
+		$_SESSION['KAKAO'] = $me_responseArr['response'];
+	} else if($type == "FB"){
+		$_SESSION['facebook_token'];
+	}
+		$config_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_config"));
+
+		$agree_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'sms_agree'"));
+
+		$agree2_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'email_agree'"));
+
+		$agree_r = ($agree_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+		$agree2_r = ($agree2_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+		$agree_r_txt = ($agree_[item_requierd] == "Y") ? "(필수)" : "(선택)";
+		$agree2_r_txt = ($agree2_[item_requierd] == "Y") ? "(필수)" : "(선택)";
+
+		$regist = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE state = 'Y' AND id='regist_info' AND lang='{$site_language}'"));
+		$private_info = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE state = 'Y' AND id='private_info' AND lang='{$site_language}'"));
+		$private_agree = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE state = 'Y' AND id='private_agree_regist' AND lang='{$site_language}'"));
+		$agreement = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE state = 'Y' AND id='agreement' AND lang='{$site_language}'"));
+		$shopping_agree = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_terms_config WHERE state = 'Y' AND id='shopping_agree' AND lang='{$site_language}'"));
+
+	?>
+	<form action="<?=$common_querySyring?>" name="join_form" method="post" id="agree_form">
+	<input type="hidden" name="step" value="2" />
+	<input type="hidden" name="mode" value="join" />
+	<input type="hidden" name="facebook" value="<?=$facebook?>" />
+		<div class="join_area">
+			<p>회원가입약관 및 개인정보처리방침안내 약관에  동의하셔야 회원가입 하실 수 있습니다.</p>
+
+			<!-- 이용약관-->
+			<div class="box">
+				<h3>이용약관</h3>
+				<div class="join_box_scroll">
+					<?=htmlspecialchars_decode($agreement[contents])?>
+				</div>
+				<div class="check">
+					<div class="designCheck">
+						<input type="checkbox" name="agree03" id="agree03" value="Y" title="개인정보 수집 및 이용동의" data-requierd-agree /><label for="agree03">홈페이지 이용약관에 동의합니다.</label>
+					</div>
+				</div>
+			</div>
+			<!--이용약관 끝-->
+
+
+			<!-- 개인정보 수집 및 이용동의 -->
+			<div class="box">
+				<h3>개인정보 수집 및 이용동의</h3>
+				<div class="join_box_scroll">
+					<?=htmlspecialchars_decode($private_agree[contents])?>
+				</div>
+				<div class="check">
+					<div class="designCheck">
+						<input type="checkbox" name="agree02" id="agree02" value="Y" title="개인정보 수집 및 이용동의" data-requierd-agree /><label for="agree02">개인정보 수집 및 이용에 동의합니다.</label>
+					</div>
+				</div>
+			</div>
+			<!--개인정보 수집 및 이용동의 끝-->
+
+
+			<? if($agree_[item_use] == "Y" || $agree2_[item_use] == "Y"){ ?>
+
+			<!-- 쇼핑정보수신동의 -->
+			<div class="box">
+				<h3>쇼핑정보수신동의</h3>
+				<div>
+					<?=htmlspecialchars_decode($shopping_agree[contents])?>
+				</div>
+
+
+				<div class="check">
+					<div class="designCheck">
+						<? if($agree_[item_use] == "Y"){ ?>
+						<input type="checkbox" name="sms_agree" id="sms_agree" value="Y" title="쇼핑정보 SMS 수신동의" <?=$agree_r?>/><label for="sms_agree">쇼핑정보 SMS 수신에 동의합니다.<?=$agree_r_txt?></label>
+						<? } ?>
+						<? if($agree2_[item_use] == "Y"){ ?>
+							<input type="checkbox" name="email_agree" id="email_agree" value="Y" title="쇼핑정보 이메일 수신동의" <?=$agree2_r?>/><label for="email_agree">쇼핑정보 이메일 수신에 동의합니다.<?=$agree2_r_txt?></label>
+						<? } ?>
+					</div>
+				</div>
+			</div>
+			<!--쇼핑정보수신동의 끝-->
+			<? } ?>
+
+			<div class="check">
+				<div class="designCheck">
+					<input type="checkbox" id="agree_all" value="Y"  title="회원가입약관"/><label for="agree_all">모두 동의합니다.</label>
+				</div>
+			</div>
+
+			<div class="btn_area">
+				<input type="submit" class="button black" value="약관동의" />
+				<a href="<?=$site[site_url]?>" class="button gray">메인으로</a>
+			</div>
+			<!-- //버튼 -->
+		</div>
+	</form>
+
+	<script type="text/javascript">
+	$(function(){
+		$("#agree_all").on("change",function(){
+			$("[name^=agree]").prop("checked",$(this).is(":checked"));
+			$("[name=sms_agree]").prop("checked",$(this).is(":checked"));
+			$("[name=email_agree]").prop("checked",$(this).is(":checked"));
+		})
+		$("#agree_form").submit(function(){
+			var chk = true;
+
+			$("[data-requierd-agree]").each(function(){
+				if(!$(this).is(":checked")){
+					alert($(this).attr("title") + "에 동의하셔야 회원가입을 진행 할 수 있습니다.");
+					$(this).focus;
+					chk = false;
+					return false;
+				}
+			});
+
+			if(!chk) return false;
+		});
+
+		$("input:checkbox").on("change",function(){
+			if(!$(this).prop("checked")){
+				$("#agree_all").prop("checked",false);
+			}
+		})
+
+	});
+	</script>

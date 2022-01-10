@@ -1,0 +1,215 @@
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="<?=$common_queryString?>">메뉴설정</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=category">메뉴분류</a></li>
+								<li><a href="<?=$common_queryString?>&amp;mode=write" class="on">메뉴관리</a></li>
+								<? if($_SESSION[member_id] == "koweb"){ ?>
+								<li><a href="<?=$common_queryString?>&amp;mode=administrator">관리자 메뉴관리</a></li>
+								<? } ?>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+						
+						<!-- 내용 -->
+						
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/ko_mall/images/content/loading.gif" class="img" alt="loading">
+						</div>
+						<!-- //로딩 -->
+						
+						<div class="box pd">
+							<h2>메뉴등록</h2>
+
+							<div class="select_menu">
+								<label for="category">언어선택</label>
+								<select name="category" id="category" onchange="javascript:location.href='?type=setting&core=manager_setting&manager_type=menu&mode=write&category='+this.value">
+								<? 
+								$category_checker = mysqli_query($connect, "SELECT * FROM koweb_menu_category WHERE state='Y' ORDER BY no ASC");
+								while($category_ = mysqli_fetch_array($category_checker)){
+								?>
+									<option value="<?=$category_[menu_category]?>"><?=$category_[menu_title]?></option>
+								<? } ?>
+								</select>
+							</div>
+							<script type="text/javascript">
+								$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+							</script>
+							<table class="table hover">
+								<caption>메뉴등록</caption>
+								<colgroup>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:30%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">메뉴명</th>									
+										<th scope="col">순서변경</th>									
+										<th scope="col">하위등록</th>									
+									</tr>
+								</thead>
+								<tbody data-list-view>
+									<?
+										if(!$category) $category = "default";
+										$query = "SELECT * FROM $setting_table WHERE state = 'Y' AND depth = '1' AND category='$category' ORDER BY sort ASC, ref_group ASC, depth ASC, ref_no ASC";
+										$result = mysqli_query($connect, $query);
+										$total = mysqli_num_rows($result);
+
+										if($total > 0){ ?>
+											<script type="text/javascript">
+												menu_list("list", "<?=$category?>");
+											</script>
+									<? } else { ?>
+										<tr>
+											<td colspan="3">등록 된 메뉴가 없습니다.</td>
+										</tr>
+									<? } ?>
+								</tbody>
+							</table>
+							
+							<!-- 버튼 -->
+							<? if($_SESSION[member_id] == "koweb"){ ?>
+							<div class="btn_area">
+								<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button lg">최상위메뉴 등록</a>
+							</div>
+							<? } ?>
+							<!-- //버튼 -->
+						</div>
+						
+						<!-- 레이어 하위등록 -->
+						<form action="<?=$common_queryString?>" method="POST" name="etc_menu_regist" id="emr_form">
+						<input type="hidden" name="mode" value="write_proc" />
+						<input type="hidden" name="category" value="<?=$category?>" />
+						<input type="hidden" name="ref_no" value="" data-menu-setting="ref_no"/>
+						<input type="hidden" name="ref_group" value="" data-menu-setting="ref_group"/>
+
+						<div id="popLayer01" style="display:none;">
+							<div class="popBox mini">
+								<!-- title -->
+								<h2>하위메뉴등록</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+									
+										<table class="table">
+											<caption>하위메뉴등록</caption>
+											<colgroup>
+												<col style="width:25%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row">상위메뉴명</th>
+													<td><strong data-ref-title></strong></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="">메뉴명</label></th>
+													<td><input type="text" name="menu_title" id="menu_title" data-smenu></td>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="btn_area">
+											<input type="submit" class="button lg" value="저장" data-smenu-proc/>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</form>
+						<!-- //레이어 하위등록 -->
+						
+						<!-- 레이어 최상위등록 -->
+						<form action="<?=$common_queryString?>" method="POST" name="first_menu_regist" id="fmr_form">
+						<input type="hidden" name="depth" value="1" />
+						<input type="hidden" name="mode" value="write_proc" />
+						<input type="hidden" name="category" value="<?=$category?>" />
+						<div id="popLayer02" style="display:none;">
+							<div class="popBox mini">
+								<!-- title -->
+								<h2>최상위메뉴 등록</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+										<table class="table">
+											<caption>최상위메뉴등록</caption>
+											<colgroup>
+												<col style="width:25%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row"><label for="">메뉴명</label></th>
+													<td><input type="text" name="menu_title" id="menu_title2" data-fmenu title="메뉴명"></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="">폴더명</label></th>
+													<td><input type="text" class="input200" name="dir_" id="dir_" placeholder="최초등록후 변경불가" data-id-check />
+													<br /><span data-result="id" style="margin-left:5px; font-weight:bold; font-size:12px;"></span></td>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="btn_area">
+											<input type="submit" class="button lg" value="저장" data-fmenu-proc/>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</form>
+						<!-- //레이어 최상위등록 -->
+
+						<script type="text/javascript">
+
+						$(function(){
+							//id 중복확인
+							$("#dir_").on({
+								keyup: function(){
+									check_infomation2("menu", "id", "<?=$category?>", $(this).val());
+								}
+							});
+
+							//submit시 id중복확인 진행하였는지 확인
+							$("[data-fmenu-proc]").click(function(){
+
+								var chk2 = true;
+
+								if($("[data-id-check]").data("id-check") == false){
+									alert("폴더명을 올바르게 입력해주세요.");
+									chk2 = false;
+									return false;
+								}
+
+								if(!chk2) return false;
+
+								if(!$("[data-fmenu]").val()){
+									alert("메뉴명 입력해주세요.");
+									chk2 = false;
+									return false;
+								}
+
+								if(!chk2) return false;
+								
+								
+							});
+							$("[data-smenu-proc]").click(function(){
+
+								var chk2 = true;
+
+								if(!$("[data-smenu]").val()){
+									alert("메뉴명 입력해주세요.");
+									chk2 = false;
+									return false;
+								}
+
+								if(!chk2) return false;
+								
+							});
+						});
+						</script>

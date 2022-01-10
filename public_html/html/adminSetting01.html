@@ -1,0 +1,303 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+
+			<nav class="lnb small" id="pro01">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#">사이트설정</a></li>
+					<li><a href="#">사업자정보 설정</a></li>
+					<li><a href="/html/adminSetting01.html" class="on">구매설정</a></li>
+					<li><a href="/html/adminSetting02.html">이용안내설정</a></li>
+					<li><a href="/html/adminSetting03.html">개인정보처리방침설정</a></li>
+					<li><a href="/html/adminSetting04.html">이용약관설정</a></li>
+					<li><a href="#">SMS문구 설정</a></li>
+				</ul>
+			</nav>
+			
+			<div class="box pd">
+				<h2>결제정보</h2>
+				<table class="bbsView">
+					<caption>결제정보</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">무통장입금
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">사용</span>선택시 계좌번호를 입력하시면 노출이 되며, 입력된 항목이 그대로 노출되오니 입력시 참고바랍니다.</div>
+								</a>
+							</th>
+							<td>
+								<!--<div class="designRadio">
+									<input type="radio" name="use_direct" value="Y" id="use_directY" /><label for="use_directY">사용</label>
+									<input type="radio" name="use_direct" value="N" id="use_directN" /><label for="use_directN">미사용</label>
+								</div>-->
+								<div data-content-type="use_direct" <? if($row[use_direct] != "Y"){ ?> style="display:none;" <? } ?>>
+									<p class="info" style="margin-top:5px">계좌번호를 입력해주세요.</p>
+									<textarea name="use_direct_content" class="inputFull"><?=$row[use_direct_content]?></textarea>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">LG U+ 전자결제
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">기본 사용 결제</span><br />1.신용카드 결제<br />2.계좌이체<br /><span class="txt_red">추가계약 후 사용가능 결제</span><br />1.신용카드 결제<br />2.휴대폰 결제<br />2.문화상품권 결제<br />3.유선전화 결제<br /></div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="use_uplus" value="Y" id="use_uplusY" /><label for="use_uplusY">사용</label>
+									<input type="radio" name="use_uplus" value="N" id="use_uplusN" /><label for="use_uplusN">미사용</label>
+								</div>
+
+								<div class="designCheck">
+									<label for="uplus_shopid">상점아이디</label> : <input type="text" name="uplus_shopid" id="uplus_shopid" value="<?=$row[uplus_shopid]?>" class="input100"/>
+									<input type="checkbox" name="uplus_type" id="uplus_type" value="test"><label for="uplus_type">테스트</label>
+									<label for="uplus_mertkey" style="margin-left:30px;">유플러스 MERT KEY</label> : <input type="password" name="uplus_mertkey" id="uplus_mertkey" value="<?=$row[uplus_mertkey]?>" />
+									<span class="info red">상점아이디와 MERT KEY를 모두 입력 하여야합니다.</span>
+								</div>
+
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">휴대폰 결제
+								<a href="#" data-tooltip="explan">안내
+									<div>휴대폰 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+								</a>
+							</th>
+							<td>
+							<div class="designRadio">
+								<input type="radio" name="use_phone_pay" value="Y" id="use_phone_payY" /><label for="use_phone_payY">사용</label>
+								<input type="radio" name="use_phone_pay" value="N" id="use_phone_payN" /><label for="use_phone_payN">미사용</label>
+							</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">문화상품권 결제
+								<a href="#" data-tooltip="explan">안내
+									<div>문화상품권 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+								</a>
+							</th>
+							<td>
+							<div class="designRadio">
+								<input type="radio" name="use_culture_pay" value="Y" id="use_culture_payY" /><label for="use_culture_payY">사용</label>
+								<input type="radio" name="use_culture_pay" value="N" id="use_culture_payN" /><label for="use_culture_payN">미사용</label>
+							</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">유선전화 결제
+								<a href="#" data-tooltip="explan">안내
+									<div>유선전화 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+								</a>
+							</th>
+							<td>
+							<div class="designRadio">
+								<input type="radio" name="use_tel_pay" value="Y" id="use_tel_payY" /><label for="use_tel_payY">사용</label>
+								<input type="radio" name="use_tel_pay" value="N" id="use_tel_payN" /><label for="use_tel_payN">미사용</label>
+							</div>
+							</td>				
+						</tr>
+
+
+						<!--<tr>
+							<th scope="row">포인트 사용여부</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" class="inputFull" name="use_point" id="use_pointY" value="Y" /><label for="use_pointY">사용</label>
+									<input type="radio" class="inputFull" name="use_point" id="use_pointN" value="N" /><label for="use_pointN">미사용</label>
+								</div>
+							</td>
+						</tr>
+						-->
+
+					</tbody>
+				</table>
+
+				<h2>환율설정</h2>
+				<table class="bbsView">
+					<caption>환율설정</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">환율설정
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">환율</span>설정시 제품의 결제금액은 해당환율에 따라 USD로 변경되어 결제됩니다 (PAYPAL 전용)</div>
+								</a>
+							</th>
+							<td>
+								<input type="text" name="transfer" value="<?=$row[transfer]?>" /> (결제화폐 USD)
+								<a href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query=%ED%99%98%EC%9C%A8" target="_blank" class="button gray">네이버환율 바로가기</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h2>배송정보 설정</h2>
+				<table class="bbsView">
+					<caption>배송정보 관리</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><label for="deli_company">배송업체</label></th>
+							<td>
+								<select name="deli_company" id="deli_company">
+									<option value="">없음</option>
+									<option value="자체배송">자체배송</option>
+									<option value="경동택배">경동택배</option>
+									<option value="대신택배">대신택배</option>
+									<option value="동부택배">동부택배</option>
+									<option value="로젠택배">로젠택배</option>
+									<option value="우체국">우체국</option>
+									<option value="이노지스택배">이노지스택배</option>
+									<option value="한진택배">한진택배</option>
+									<option value="롯데택배">롯데택배</option>
+									<option value="CJ대한통운">CJ대한통운</option>
+									<option value="CVSnet편의점택배">CVSnet편의점택배</option>
+									<option value="KG옐로우캡택배">KG옐로우캡택배</option>
+									<option value="KGB택배">KGB택배</option>
+									<option value="KG로지스">KG로지스</option>
+									<option value="건영택배">건영택배</option>
+									<option value="호남택배">호남택배</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">배송비
+								<a href="#" data-tooltip="explan">안내
+									<div>쇼핑몰의 기본 배송비 설정방법을 지정하는 방법이며 상품별로 지정이 되었을경우 상품별이 우선순위로 적용됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<select name="deli_type" id="deli_type">
+									<option value="free">무료배송</option>
+									<option value="fix">유료배송</option>
+									<option value="def">조건부무료배송</option>
+								</select>
+								<a href="#" class="button sm gray" id="add_category" data-deli-type="def"  <? if($row[deli_type] != "def"){ ?> style="display:none;" <? } ?>>+ 추가</a>
+								<span data-deli-type="fix" <? if($row[deli_type] != "fix"){ ?>style="display:none;"<? } ?>>
+									<input type="text" name="deli_price[]" value="<?=$deli_price[0]?>" placeholder="금액입력" <? if($row[deli_type] != "fix"){ ?>disabled<? } ?>/> 원
+								</span>
+
+								<div data-deli-type="def" <? if($row[deli_type] != "def"){ ?> style="display:none;" <? } ?>>
+									<input type="text" name="deli_price_type[]" value="<?=$deli_price_type[0]?>" placeholder="상품금액"/>원 이상
+									<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" value="<?=$deli_price[0]?>" placeholder="금액">원
+									<?
+										$count = 0;
+										foreach($deli_price_type as $key => $value){
+											if($count != 0){
+											$del_id = "#deli_price_type_".$count;
+									?>
+											<div id="deli_price_type_<?=$count?>">
+												<input type="text" name="deli_price_type[]" value="<?=$value?>" placeholder="상품금액"/>원 이상
+												<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" id="" value="<?=$deli_price[$key]?>" placeholder="금액">원
+												<a href="#" id="del_price_type_<?=$count?>" class="button white" onclick="$('<?=$del_id?>').remove();">- 삭제</a>
+											</div>
+									<?
+										}
+										$count++;
+									}
+									?>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">추가배송비관리
+								<a href="#" data-tooltip="explan">안내
+									<div>제주도 및 도서산간 지역 등 직접 우편번호로 설정하여 추가배송비를 관리가 가능합니다.</div>
+								</a>
+							</th>
+							<td class="inputTable">
+								<div class="input">
+									<p>추가배송비 입력</p>
+									<ul>
+										<li>
+											<span>지역명</span>
+											<span><input type="text" name="title" id="title" value=""></span>
+										</li>
+										<li>
+											<span>우편번호시작</span>
+											<span><input type="text" name="start_zip" id="start_zip" value=""></span>
+										</li>
+										<li>
+											<span>우편번호끝</span>
+											<span><input type="text" name="end_zip" id="end_zip" value=""></span>
+										</li>
+										<li>
+											<span>추가배송비</span>
+											<span><input type="text" name="price" id="price"></span>
+										</li>
+									</ul>
+								</div>
+								<div class="table" data-area-addprice>
+									<p>추가배송비 내역</p>
+									<div class="btn">
+										<a href="#" class="button sm" data-btn-deli="add">추가</a>
+										<a href="#" class="button sm white" data-btn-deli="del">선택삭제</a>
+									</div>
+									<table class="bbsList">
+										<caption>추가배송비 내역</caption>
+										<colgroup>
+											<col style="width:7%;"/>
+											<col/>
+											<col style="width:25%;"/>
+											<col style="width:20%;"/>
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col"><div class="designCheck noText"><input type="checkbox" name="1" id="this_all" /><label for="this_all">전체선택</label></div></th>
+												<th scope="col">지역명</th>
+												<th scope="col">우편번호</th>
+												<th scope="col">추가배송비</th>
+											</tr>
+										</thead>
+										<tbody>
+										<?
+											$rquery = "SELECT * FROM koweb_add_delivery_price ORDER BY no DESC";
+											$rresult = mysqli_query($connect, $rquery);
+											$total = mysqli_num_rows($rresult);
+											if($total > 0){
+											 while($delivery_price = mysqli_fetch_array($rresult)){ ?>
+												<tr>
+													<td><div class="designCheck noText"><input type="checkbox" name="all_delete[]" id="all_<?=$delivery_price[no]?>" value="<?=$delivery_price[no]?>"/><label for="all_<?=$delivery_price[no]?>">한줄선택</label></div></td>
+													<td><?=$delivery_price[title]?></td>
+													<td><?=$delivery_price[start_zip]?> ~ <?=$delivery_price[end_zip]?></td>
+													<td><?=number_format($delivery_price[price])?></td>
+												</tr>
+											<? } ?>
+											<? } else { ?>
+											<tr>
+												<td colspan="4">등록 된 추가배송비 내역이 없습니다.</td>
+											</tr>
+											<? } ?>
+										</tbody>
+									</table>
+								</div>
+
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="btn_area">
+					<input type="submit" class="button lg" value="설정 저장">
+				</div>
+
+			</div>
+			
+			
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

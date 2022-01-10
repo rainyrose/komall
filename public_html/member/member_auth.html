@@ -1,0 +1,11 @@
+<form method='post' action="<?=$PHP_SELF?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="<?=$return_mode?>" />
+<input type="hidden" name="return_mode" value="<?=$return_mode?>" />
+<div class="secret_area">
+	<p>비밀번호를 입력해주세요.</p>
+	<input type="password" id="passwd" name="password" maxlength="30" placeholder="비밀번호">
+	<input type="submit" value="확인" class="button" />
+	<a href="/" onclick="" class="button gray">취소</a>
+</div>
+</form>
+

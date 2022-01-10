@@ -1,0 +1,5 @@
+<?
+$_GET['mode'] = "view";
+$url =  http_build_query($_GET);
+header('Location: ?'.$url);
+?>

@@ -1,0 +1,46 @@
+<div id="find_password">
+    <form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+    <input type="hidden" name="mode" value="find_proc" />
+    <input type="hidden" name="return_mode" value="find_pw" />
+        <div class="join_area">
+            <!-- <h2><i>Find ID / Password</i></h2> -->
+            <p>Please enter the information you entered during registration.</p>
+            <div class="box find">
+                <table class="bbsView">
+                    <caption>Table of IDs providing name, email entry input</caption>
+                    <colgroup>
+                        <col data-member-form="th" style="width:30%;"/>
+                        <col data-member-form="td" style="width:70%;"/>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="find_id">ID</label></th>
+                            <td data-member-form="id">
+                                <input type="text" id="find_id" name="find_id" class="inputFull required"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="find_name">name</label></th>
+                            <td data-member-form="find_name">
+                                <input type="text" id="find_name" name="find_name" class="inputFull required"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="find_email">e-mail</label></th>
+                            <td data-member-form="email"><input type="text" id="find_email" name="find_email" class="inputFull required"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="btn_area">
+                    <input type="submit" class="button black" value="Forgot your password" />
+                    <a href="<?=$common_queryString?>&amp;mode=find_id" class="button white" id="form_change_id_1">find ID</a>
+                </div>
+                <p>
+                    Enter your ID, Name and Email and press the OK button.<br/>
+                    If your ID, name and email match, a temporary password will be sent to the email you entered at registration.<br/>
+                    If you have been unsubscribed, you will be unsubscribed to send your temporary password.
+                </p>
+            </div>
+        </div>
+    </form>
+</div>

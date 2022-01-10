@@ -1,0 +1,209 @@
+<?
+include_once $_SERVER[DOCUMENT_ROOT] . "/ko_admin/program/$program_id/view.html";
+
+$query = "SELECT * FROM koweb_event_info WHERE no='$no'";
+$result = mysql_query($query);
+$row = mysql_fetch_array($result);
+$now_date = date("Y-m-d");
+if($row[apply_start_date] > $now_date || $row[apply_end_date] < $now_date){
+	error("사전등록신청이 기간이 아닙니다.\\r\\n\\r\\n해당 박람회의 사전등록기간은 \\r\\n\\r\\n$row[apply_start_date] ~ $row[apply_end_date]입니다.");
+	exit;
+}
+
+if($mode == "apply_modify"){
+	$person_query = "SELECT * FROM koweb_event_person WHERE ref_event = '$row[no]' AND person='$person_no'";
+	$person_result = mysql_query($person_query);
+	$person = mysql_fetch_array($person_result);
+}
+?>
+<form action="<?=$PHP_SELF?>" method="post" name="form" enctype="multipart/form-data">
+<input type="hidden" name="program_id" value="<?=$program_id?>" />
+<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+<input type="hidden" name="return_url" value="<?=$url?>" />
+<input type="hidden" name="no" value="<?=$row[no]?>" />
+<input type="hidden" name="person_no" value="<?=$person[no]?>" />
+<h3 data-h3-title>신청자 정보 입력</h3>
+<table class="table">
+	<caption><?=$mode_title?></caption>
+	<colgroup>
+		<col data-write="th" style="width:15%"/>
+		<col data-write="td" style="width:85%"/>
+	</colgroup>
+	<tbody>
+		<tr>
+			<th scope="row"><span class="marking">필수항목</span>성명</th>
+			<td><input type="text" name="name" id="name" value="<?=$person[name]?>" title="성명" class="required input100" /></td>
+		</tr>
+		<tr>
+			<th scope="row">회사명</th>
+			<td><input type="text" name="company" id="company" value="<?=$person[company]?>" title="회사명" class="input200" /></td>
+		</tr>
+		<tr>
+			<th scope="row">직위</th>
+			<td><input type="text" name="rank" id="rank" value="<?=$person[rank]?>" title="직위" class="input200" /></td>
+		</tr>
+		<script type="text/javascript">
+			function mail_check(){
+				if($("#tmp_mail").val() == "other"){
+					$("#email2").val("");
+					$("#email2").prop("disabled", "");
+				} else {
+					$("#email2").val("");
+					$("#email2").val($("#tmp_mail").val());
+					$("#email2").prop("disabled", "disabled");
+				}
+					$("#email3").val($("#email2").val());
+			}
+		</script>
+		<tr>
+			<th scope="row"><span class="marking">필수항목</span><label for="email1">이메일</label></th>
+			<td class="mail">
+				<input type="text" name="email1" id="email1" value="<?=$email[0]?>" class="input200 required" title="이메일"/>
+				@
+				<select name="tmp_mail" id="tmp_mail" onchange="javascript:mail_check();">
+					<option value="">선택하세요</option>
+					<option value="naver.com">naver.com</option>
+					<option value="daum.net">daum.net</option>
+					<option value="hanmail.net">hanmail.net</option>
+					<option value="hotmail.com">hotmail.com</option>
+					<option value="gmail.com">gmail.com</option>
+					<option value="other">직접입력</option>
+				</select>
+				<input type="text" name="email2" value="<?=$email[1]?>" id="email2" disabled class="input200 required" title="이메일"/>
+				<input type="hidden" name="email3" id="email3" value="<?=$email[1]?>" />
+				<br /><input type="checkbox" name="email_check" id="email_check" value="Y" /> <label for="email_check">이메일을 통한 박람회 개최 관련 정보 수신에 동의합니다.</label>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row"><span class="marking">필수항목</span><label for="phone1">연락처</label></th>
+			<td class="tel">
+				<select name="phone1" id="phone1">
+					<option value="010">010</option>
+					<option value="011">011</option>
+					<option value="016">016</option>
+					<option value="017">017</option>
+					<option value="018">018</option>
+					<option value="019">019</option>
+				</select> -
+				<input type="text" name="phone2" id="phone2" class="input100 required" value="<?=$phone[1]?>" title="연락처" /> - <input type="text" name="phone3" id="phone3" class="input100 required" value="<?=$phone[2]?>" title="연락처" />
+				<br /><input type="checkbox" name="phone_check" id="phone_check" value="Y" /> <label for="phone_check">문자(SMS)를 통한 박람회 개최 관련 정보 수신에 동의합니다.</label>
+
+			</td>
+		</tr>
+		<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+			<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+		<? }else{ ?>
+			<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+		<? } ?>
+		<script type="text/javascript">
+			function execDaumPostcode()
+			{
+				new daum.Postcode(
+				{
+					oncomplete: function(data)
+					{
+						// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+						// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+						// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+						var fullAddr  = "";					// 최종 주소 변수
+						var extraAddr = "";					// 조합형 주소 변수
+
+						// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+						if (data.userSelectedType === "R")
+						{
+							// 사용자가 도로명 주소를 선택했을 경우
+							fullAddr = data.roadAddress;
+						}
+						else
+						{
+							// 사용자가 지번 주소를 선택했을 경우(J)
+							fullAddr = data.jibunAddress;
+						}
+
+						// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+						if (data.userSelectedType === "R")
+						{
+							// 법정동명이 있을 경우 추가한다.
+							if (data.bname !== "")
+							{
+								extraAddr += data.bname;
+							}
+
+							// 건물명이 있을 경우 추가한다.
+							if (data.buildingName !== "")
+							{
+								extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+							}
+
+							// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+							fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+						}
+
+						// 우편번호와 주소 정보를 해당 필드에 넣는다.
+						document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+						document.getElementById("address1").value = fullAddr;
+
+						// 커서를 상세주소 필드로 이동한다.
+						document.getElementById("address2").focus();
+					}
+				}).open();
+			}
+		</script>
+		<tr>
+			<th scope="row" rowspan="3"><span class="marking">필수항목</span><label for="phone">주소</label></th>
+			<td class="address">
+				<input type="text" class="input100 required"  name="zip" id="zip" value="<?=$row[zip]?>" title="주소" readOnly/>
+				<a href="javascript:execDaumPostcode()" class="button white">우편번호검색</a> <input type="checkbox" name="addr_check" id="addr_check" value="Y" /> <label for="addr_check">우편물 수령을 통한 박람회 개최 관련 정보 수신에 동의합니다.</label>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" class="input400 required" name="address1" id="address1" value="<?=$row[address1]?>" title="주소" readOnly/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" class="input400 required" name="address2" id="address2" value="<?=$row[address2]?>" title="주소"/>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">직업</th>
+			<td><input type="text" name="job" id="job" value="<?=$row[job]?>" title="직업" class="input200" /></td>
+		</tr>
+		<tr>
+			<th scope="row"><span class="marking">필수항목</span><label for="spam">스팸방지</label></th>
+			<td class="spam"><? $_SESSION[rand_auth] = rand(0000,9999); ?>
+			<span style="display: inline-block; padding:5px 10px; margin-right:10px; background: #222; color:#fff; letter-spacing:3px;"><?=$_SESSION[rand_auth]?></span><input type="text" name="rand_auth_" placeholder="좌측 번호를 입력해주세요." class="input200 required" title="스팸방지문자" /></td>
+		</tr>
+	</tbody>
+</table>
+<h3 data-h3-title style="margin-top:30px; margin-botton:30px;">개인정보정보제공 동의</h3>
+<div class="box_privacy">
+	<textarea name="comments" id="" style="width:100%; height:200px;" readonly>■ 수집하는 개인정보 항목
+
+회사는 상담 서비스 신청 등을 위해 아래와 같은 개인정보를 수집하고 있습니다.
+ο 수집항목 (필수): 성명, 이메일, 연락처, 주소
+ο 수집항목 (선택): 회사명, 직위, 직업
+ο 개인정보 수집방법 : 홈페이지(박람회 무료관람신청)
+
+■ 개인정보의 수집 및 이용목적
+
+회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.
+ο 박람회 무료관람신청 서비스 제공
+
+■ 개인정보의 보유 및 이용기간
+
+회원정보만을 추출하여 별도로 축적하지는 않으며, 해당 내용은 3년 동안 보존됩니다. </textarea>
+	<div style="text-align:center; margin:15px;" class="designRadio">
+		<input type="radio" name="agree" id="agree" value="Y"  title="개인정보 정보제공 동의" /><label for="agree"><b>동의합니다</b></label>
+		<input type="radio" name="agree" id="noagree" value="N"  title="개인정보 정보제공 동의" /><label for="noagree">동의하지 않습니다.</label>
+	</div>
+</div>
+<div class="btn_area">
+	<input type="submit" class="button" value="신청" />
+	<a href="<?=$PHP_SELF?>?program_id=koweb_event_info&mode=view&no=<?=$row[no]?>&apply=<?=$row[no]?>" class="button gray">취소</a>
+</div>
+</form>
+<script type="text/javscript">
+	$("#"+"<?=$no?>").addClass("active");
+</script>

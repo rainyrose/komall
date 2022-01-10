@@ -1,0 +1,370 @@
+<?
+//페이징 변수
+if (!$start) $start = 0;
+$scale = 15; // 리스트 수
+$page_scale	= 20; // 페이징 수
+
+//검색
+if($keyword){
+	$WHERE .= " AND $search_key LIKE '%$keyword%'";
+}
+
+//검색
+if($seller){
+	$WHERE .= " AND seller = '$seller'";
+}
+
+if($shower){
+	$WHERE .= " AND shower = '$shower'";
+}
+
+if($lower){
+	$WHERE .= " AND category_navi LIKE '$category_navi%'";
+
+} else {
+	if($category){
+		$WHERE .= " AND category = '$category'";
+	}
+}
+
+//리스트
+$total_query = "SELECT * FROM koweb_product WHERE 1=1 $WHERE";
+$total_result = mysqli_query($connect, $total_query);
+$total = mysqli_num_rows($total_result);
+
+$query = "SELECT * FROM koweb_product WHERE 1=1 $WHERE ORDER BY sort ASC, no DESC LIMIT $start, $scale";
+
+$result = mysqli_query($connect, $query);
+
+
+
+$total_show_query = "SELECT count(no) AS total_,
+				(SELECT count(no) FROM koweb_product WHERE seller='Y') AS sellerY,
+				(SELECT count(no) FROM koweb_product WHERE seller !='Y') AS sellerN,
+				(SELECT count(no) FROM koweb_product WHERE shower='Y') AS showerY,
+				(SELECT count(no) FROM koweb_product WHERE shower!='Y') AS showerN FROM koweb_product";
+$total_show = mysqli_fetch_array(mysqli_query($connect, $total_show_query));
+?>
+
+<div class="box pd" style="min-height:inherit;">
+<form action="<?=$PHP_SELF?>" method="GET">
+<input type="hidden" name="category" value="<?=$category?>" />
+<input type="hidden" name="category_navi" value="<?=$category_navi?>" />
+<? GETmake_form_action($common_queryString); ?>
+	<!-- 상품현황 -->
+	<div class="box_title">
+		<span>상품현황</span>
+		<ul>
+			<li><a href="?type=setting&core=manager_setting&manager_type=product" class="on"><em>전체</em><i><?=$total_show[total_]?></i></a></li>
+			<li><a href="?type=setting&core=manager_setting&manager_type=product&seller=Y"><em>판매함</em><i><?=$total_show[sellerY]?></i></a></li>
+			<li><a href="?type=setting&core=manager_setting&manager_type=product&seller=N"><em>판매안함</em><i><?=$total_show[sellerN]?></i></a></li>
+			<li><a href="?type=setting&core=manager_setting&manager_type=product&shower=Y"><em>진열함</em><i><?=$total_show[showerY]?></i></a></li>
+			<li><a href="?type=setting&core=manager_setting&manager_type=product&shower=N"><em>진열안함</em><i><?=$total_show[showerN]?></i></a></li>
+		</ul>
+	</div>
+	<!-- //상품현황 -->
+
+	<h2 style="margin-top:10px;">상품검색</h2>
+	<table class="table">
+		<caption>컨텐츠 기본설정</caption>
+		<colgroup>
+			<col style="width:15%;">
+			<col style="width:43%;">
+			<col style="width:15%;">
+			<col>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><label for="">검색분류</label></th>
+				<td>
+					<select name="search_key" id="search_key">
+						<option value="product_title">상품명</option>
+						<option value="id">상품코드</option>
+					</select>
+					<input type="text" name="keyword" id="keyword" class="input300" value="<?=$keyword?>"/>
+				</td>
+				<th scope="row">진열상태</th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" name="shower" id="shower" value=""/><label for="shower">전체</label>
+						<input type="radio" name="shower" id="showerY" value="Y"/><label for="showerY">진열함</label>
+						<input type="radio" name="shower" id="showerN" value="N"/><label for="showerN">진열안함</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">상품분류</th>
+				<td data-pcate-area>
+				<?
+					if($category_navi){
+						$category_navi_arr = explode("|", substr($category_navi, 0, -1));
+
+						//마지막 카테고리 no
+						$last_arr = print_navi_($connect, $category_navi);
+						$cate_default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE no='$last_arr'"));
+
+						//category_navi의 마지막
+						$cate_tmp = array_pop($category_navi_arr);
+						$cate_default2 = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE id='$cate_tmp'"));
+
+
+						if($last_arr == $cate_default2[no]){
+							$cate_ = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE ref_no = '$cate_default[no]' AND no != '$cate_default[no]' AND state = 'Y'");
+						} else {
+							$cate_ = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE ref_no = '$last_arr' AND state = 'Y'");
+							$checker = $cate_tmp;
+						}
+						?>
+						<select name="" id="" data-set-pcate data-cate="set-pcate">
+							<option value="">선택해주세요</option>
+							<? while($cate_result = mysqli_fetch_array($cate_)){ ?>
+									<option value="<?=$cate_result[id]?>" <? if($checker == $cate_result[id]) echo "selected"; ?>><?=$cate_result[title]?></option>
+							<? } ?>
+						</select>
+				<? } else { ?>
+					<select name="f_category" id="f_category" data-set-pcate data-cate="set-pcate">
+						<option value="">전체</option>
+						<?
+							$load_category_result = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE depth = '1' AND state = 'Y' ORDER BY sort ASC");
+							while($load_category = mysqli_fetch_array($load_category_result)){
+						?>
+							<option value="<?=$load_category[id]?>"><?=$load_category[title]?></option>
+						<? } ?>
+					</select>
+				<? } ?>
+					<div class="designCheck" style="display:inline-block;">
+						<input type="checkbox" name="lower" id="lower" value="Y"/><label for="lower">하위분류 포함검색</label>
+						<!--<input type="checkbox" name="" id=""/><label for="">분류 미등록 상품검색</label>-->
+					</div>
+				</td>
+				<th scope="row">판매상태</th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" name="seller" value="" id="seller"/><label for="seller">전체</label>
+						<input type="radio" name="seller" value="Y" id="sellerY"/><label for="sellerY">판매함</label>
+						<input type="radio" name="seller" value="N" id="sellerN"/><label for="sellerN">판매안함</label>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="tac" style="padding-top:10px;">
+		<input type="submit" class="button lg" value="검색">
+		<a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=product" class="button lg white">초기화</a>
+	</div>
+	</form>
+
+</div>
+
+<form action="<?=$PHP_SELF?>" method="GET" id="list_form">
+<input type="hidden" name="category" value="<?=$category?>" />
+<input type="hidden" name="category_navi" value="<?=$category_navi?>" />
+<input type="hidden" name="mode" value="" />
+<? GETmake_form_action($common_queryString."&category=$category&category_navi=$category_navi&search_key=$search_key&keyword=$keyword&start=&shower=$shower&seller=$seller"); ?>
+<div class="box pd">
+	<div class="box_title_btn">
+		<h2>상품목록</h2>
+		<div class="btn">
+			<a href="#" class="button sm white" data-button-event="showerY">진열함</a>
+			<a href="#" class="button sm white" data-button-event="showerN">진열안함</a>
+			<a href="#" class="button sm white" data-button-event="sellerY">판매함</a>
+			<a href="#" class="button sm white" data-button-event="sellerN">판매안함</a>
+			<a href="/ko_mall/setting/product/excel.php" class="button sm white">엑셀다운로드</a>
+			<a href="#" class="button sm white" data-button-event="delete">삭제</a>
+		</div>
+	</div>
+
+	<table class="bbsList product">
+		<caption>상품목록</caption>
+		<colgroup>
+			<col style="width:7%;">
+			<col style="width:7%;">
+			<col style="width:15%">
+			<col>
+			<col style="width:15%">
+			<col style="width:15%">
+			<col style="width:15%">
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col"><div class="designCheck noText"><input type="checkbox" name="all_checked" id="all_checked"/><label for="all_checked">전체선택</label></div></th>
+				<th scope="col">No.</th>
+				<th scope="col">상품코드</th>
+				<th scope="col">상품명</th>
+				<th scope="col">공급가격</th>
+				<th scope="col">판매가격</th>
+				<th scope="col">관리</th>
+			</tr>
+		</thead>
+		<tbody>
+		<?
+			$f_no = $total - $start;
+			while($row = mysqli_fetch_array($result)){
+		?>
+			<tr>
+				<td><div class="designCheck noText"><input type="checkbox" name="info_check[]" id="info_check<?=$row[no]?>" value="<?=$row[no]?>"/><label for="info_check<?=$row[no]?>">선택</label></div></td>
+				<td><?=$f_no--?></td>
+				<td><a href="#"><?=$row[id]?></a></td>
+				<td class="tal">
+					<!-- 대표썸네일노출 -->
+					<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="view"><span class="img" style="background-image:url('/upload/product/thumb_<?=$row[title_img]?>');"></span><?=$row[product_title]?></a>
+				</td>
+				<? if($row['use_telform'] != "Y"){ ?>
+					<td><?=number_format($row[origin_price])?></td>
+					<td><?=number_format($row[price])?></td>
+				<? }else{ ?>
+					<td colspan="2">전화문의</td>
+				<? }?>
+				<td>
+					<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button sm gray">수정</a>
+					<!--<a href="#" class="button sm white">복사</a>-->
+				</td>
+			</tr>
+		<? } ?>
+		</tbody>
+	</table>
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<a href="<?=$common_queryString?>&amp;mode=write" class="button lg"><span>신규등록</span></a>
+	</div>
+	<!-- //버튼 -->
+	<div class="pagination">
+		<?
+			/*----------------------------------------------------------------------------*/
+			// 페이지 표시
+			/*----------------------------------------------------------------------------*/
+
+			if ($total == 0) $total = 1;
+
+			$page_url = $common_queryString."&category={$category}&category_navi={$category_navi}&shower={$shower}&f_category={$f_category}&seller={$seller}";
+
+			// 처음
+			echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+			$page = floor($start / ($scale * $page_scale));
+
+			if ($start + $scale >  $scale * $page_scale) {
+				$pre_start = $start - $scale * $page_scale ;
+				echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+			}
+
+			for ($vj = 0; $vj < $page_scale ; $vj++) {
+				$ln = ($page * $page_scale + $vj) * $scale;
+				$vk = $page * $page_scale + $vj + 1 ;
+
+				if ($ln < $total) {
+					if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+					else echo "<span>$vk</span>";
+				}
+			}
+
+			// 마지막
+			$end_page = floor($total - $scale) + 1;
+			if ($end_page <= 0)	$end_page = 0;
+
+			if ($total > (($page + 1) * $scale * $page_scale)) {
+				$n_start = ($page + 1) * $scale * $page_scale ;
+				echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+			}
+
+			$end_page = ceil($total / $scale);
+			if ($total) $end_start = ($end_page -1) * $scale;
+			else $end_start = $end_page;
+
+			echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+		?>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+$(function(){
+	$("input:radio[name='seller']:radio[value='<?=$seller?>']").attr("checked",true);
+	$("input:radio[name='shower']:radio[value='<?=$shower?>']").attr("checked",true);
+	$(":checkbox[name='lower'][value='<?=$lower?>']").prop("checked", true);
+	$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+
+	$("#all_checked").change(function(){
+		if($(this).is(":checked")){
+			$("input:checkbox[name='info_check[]']").prop("checked", true);
+		} else {
+			$("input:checkbox[name='info_check[]']").prop("checked", false);
+		}
+	});
+
+	$("[data-button-event]").click(function(){
+		var this_event = $(this).data("button-event");
+
+		if(this_event == "delete"){
+			$("input[name=mode]").val("delete");
+			if($("input[name='info_check[]']:checked").length == 0){
+				 alert("선택된 상품이 없습니다.");
+				 return;
+			}
+			if(confirm("삭제한 데이터는 복구 할 수 없습니다.\r\n\r\n삭제하시겠습니까?")){
+				$("#list_form").submit();
+			}
+		} else if(this_event == "sellerY"){
+			$("input[name=mode]").val("sellerY");
+			$("#list_form").submit();
+
+		} else if(this_event == "sellerN"){
+			$("input[name=mode]").val("sellerN");
+			$("#list_form").submit();
+
+		} else if(this_event == "showerY"){
+			$("input[name=mode]").val("showerY");
+			$("#list_form").submit();
+
+		} else if(this_event == "showerN"){
+			$("input[name=mode]").val("showerN");
+			$("#list_form").submit();
+		}
+
+	});
+});
+
+$(document).on("change","[data-pcate-area] select",function(){
+	var tmp_var = "";
+	var tmp_var = "";
+
+	$("input[name=category_navi]").val("");
+	$("input[name=category]").val("");
+	$(this).next("select").val("");
+
+	$("[data-pcate-area] select").each(function(){
+		if($('option:selected',this).val() != ""){
+			tmp_var += $('option:selected',this).val()+"|";
+			tmp_var2 = $('option:selected',this).val();
+		}
+	});
+	$("input[name=category_navi]").val(tmp_var);
+	$("input[name=category]").val(tmp_var2);
+});
+
+$(document).on("change","[data-set-pcate]",function(){
+
+	var no = $(this).val();
+	var tmp = $(this);
+	var tmp_type = $(this).data("cate");
+
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/setting/product/product_load_catgegory.php",
+		data : {
+			no : no,
+			tmp_type : tmp_type
+		},
+		success : function(args) {
+			$(tmp).nextAll("select").remove();
+			$(tmp).after(args);
+		},
+		beforeSend: function () {
+			$("#div_ajax_load_image").show();
+		},
+		complete: function () {
+			$("#div_ajax_load_image").hide();
+		}
+	});
+});
+</script>

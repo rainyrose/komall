@@ -1,0 +1,87 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/auth_manager.php";
+
+$mode_title = $site[title]." 등록";
+$sort_ = mysql_fetch_array(mysql_query("SELECT * FROM $program_table ORDER BY sort DESC LIMIT 1"));
+$sort = $sort_[sort]+1;
+
+if($mode == "modify"){ 
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysql_query($query);
+	$row = mysql_fetch_array($result);
+	$mode_title = $site[title]." 수정";
+} 
+
+if(!$row[sort]) $row[sort] = $sort;
+?>
+<form action="<?=$PHP_SELF?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="program_id" value="<?=$program_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="return_url" value="<?=$url?>" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title">제목</label></th>
+				<td><input type="text" name="title" id="title" class="input300 required" value="<?=$row[title]?>" title="제목" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="sort">정렬값</label></th>
+				<td><input type="text" name="sort" id="sort" class="input100 required" value="<?=$row[sort]?>" title="정렬값" /> * 숫자가 높을수록 제일 상단에 위치합니다. </td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="link_url">링크 연결 주소</label></th>
+				<td>
+					<select name="link_type">
+						<option value="_blank">새창</option>
+						<option value="_self">현재창</option>
+					</select> <input type="text" name="link_url" id="link_url" value="<?=$row[link_url]?>" title="사이트 주소" class="input300" placeholder="http://를 꼭 포함시켜주세요." /></td>
+			</tr>
+			<tr>
+				<th scope="row">대체텍스트</th>
+				<td>
+					<textarea name="contents" id="contents" rows="2" cols="2" class="inputFull"><?=$row[contents]?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="banner_img">배너 이미지</label></th>
+				<td class="file">
+					<span>
+						<? 
+						if($row[banner_img]){ 
+							$del_2 = " <a href='/program/download.php?program_id=$program_id&amp;file=$row[banner_img]'>[ $row[banner_img] ]</a>";
+						}
+						?>
+						<div class='designFile'><input type='text' readonly='readonly' value=''/> <input type='file' name='banner_img' id='banner_img'/><label for='banner_img' class='button white'>찾아보기</label> <?=$del_2?></div>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="state">사용여부</label></th>
+				<td class="file">
+					<span>
+						<input type="radio" name="state" value="Y" checked /> 사용
+						<input type="radio" name="state" value="N" /> 미사용
+					</span>
+				</td>
+			</tr>
+			
+
+		</tbody>
+	</table>
+	<script type="text/javascript">
+		$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true); 
+		$("select[name='link_type'] option[value='<?=$row[link_type]?>']").prop("selected", true);
+	</script>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" onclick="msgImpletion();" class="button" value="저장" />
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;mode=list&amp;start=<?=$start?>&amp;no=<?=$row[no]?>" class="button gray">취소</a>
+	</div>
+</form>

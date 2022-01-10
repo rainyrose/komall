@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<title>배송지 목록-팝업</title>
+		<link rel="stylesheet" type="text/css" href="/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="/js/jquery-ui.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/board.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/shop.css"/>
+		
+		<script type="text/javascript" src="/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="/js/jquery.bxslider.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui.js"></script>
+		<script type="text/javascript" src="/js/base.js"></script>
+		<script type="text/javascript" src="/js/module.js"></script>
+		<script type="text/javascript" src="/js/shop_user.js"></script>
+		<script type="text/javascript" src="/js/custom.js"></script>
+	</head>
+	<body>
+		<div id="wrap" class="popWrap"> <!-- 팝업일때 class선언 -->
+		
+			<!-- 타이틀 -->
+			<h1>배송지 목록</h1>
+			<!-- 닫기 -->
+			<a href="javascript:self.close();" class="btn_popClose">팝업닫기</a>
+			
+			<!-- 내용 -->
+			<div id="content">
+				<table class="bbsList deliverList">
+					<caption>배송지 목록</caption>
+					<colgroup>
+						<col style="width:7%"/>
+						<col style="width:20%"/>
+						<col/>
+						<col style="width:10%"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col"><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">전체선택</label></div></th>
+							<th scope="col">받는사람</th>
+							<th scope="col">주소 / 연락처</th>
+							<th scope="col">선택</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">항목선택</label></div></td>
+							<td>김현호</td>
+							<td>
+								대구광역시 달성군 옥포면 돌미로 20
+								<em>010-1234-4567</em>
+							</td>
+							<td><a href="#" class="button sm">선택</a></td>
+						</tr>
+						<tr>
+							<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">항목선택</label></div></td>
+							<td>김현호</td>
+							<td>
+								대구광역시 달성군 옥포면 돌미로 20
+								<em>010-1234-4567</em>
+							</td>
+							<td><a href="#" class="button sm">선택</a></td>
+						</tr>
+						<tr>
+							<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">항목선택</label></div></td>
+							<td>김현호</td>
+							<td>
+								대구광역시 달성군 옥포면 돌미로 20
+								<em>010-1234-4567</em>
+							</td>
+							<td><a href="#" class="button sm">선택</a></td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<div class="btn_area">
+					<a href="#" class="button">삭제</a>
+					<a href="#" class="button white">닫기</a>
+				</div>
+			</div>
+			<!-- //내용 -->
+			
+		</div>
+	</body>
+</html>

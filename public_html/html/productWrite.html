@@ -1,0 +1,1168 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+
+			<nav class="lnb small" id="pro01">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01" class="on">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			
+			<div class="box pd">
+				<h2>표시설정</h2>
+				<table class="bbsView">
+					<caption>표시설정</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td"/>
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>판매여부
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">판매중지</span> 사용시 물품을 진열은 되어있지만 품절상태로 표시됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="seller" value="Y" id="sellerY"/><label for="sellerY">판매</label>
+									<input type="radio" name="seller" value="N" id="sellerN"/><label for="sellerN">판매중지</label>
+								</div>
+							</td>		
+							<th scope="row"><span class="marking">필수항목</span>진열여부
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">진열안함</span> 사용시 물품을 진열에서 제외시켜 사이트에서 표시되지 않습니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="seller" value="Y" id=""/><label for="">진열함</label>
+									<input type="radio" name="seller" value="N" id=""/><label for="">진열안함</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="f_category">분류 선택</label></th>
+							<td colspan="3" data-pcate-area>
+								<select name="f_category" id="f_category" data-set-pcate>
+									<option>선택해주세요</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="">출력순서</label></th>
+							<td>
+								<input type="text" name="id" value="" />
+								<p class="info">숫자가 작을 수록 상위에 표시됩니다.(미입력시 자동출력됩니다.)</p>
+							</td>		
+							<th scope="row">메인진열선택
+								<a href="#" data-tooltip="explan">안내
+									<div>메인에 노출되어있는 항목에 상품이 진열됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="hit" value="Y" id="hit"/><label for="hit">히트상품</label>
+									<input type="checkbox" name="pick" value="Y" id="pick"/><label for="pick">추천상품</label>
+									<input type="checkbox" name="new" value="Y" id="new"/><label for="new">신상품</label>
+									<input type="checkbox" name="best" value="Y" id="best"/><label for="best">인기상품</label>
+									<input type="checkbox" name="discount" value="Y" id="discount"/><label for="discount">할인상품</label>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			
+			<nav class="lnb small" id="pro02">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02" class="on">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>기본정보</h2>
+				<table class="bbsView">
+					<caption>기본정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td"/>
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>상품명</th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+							<th scope="row"><span class="marking">필수항목</span><label for="">상품코드</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>직접 작성을 할 수 있으며, 작성하지 않을시 <span class="txt_red">자동으로 배정</span>됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="" id="" /><label for="" style="margin-right:5px;">직접입력</label>
+								</div>
+								<input type="text" name="id" value="" class="input150" disabled/> 
+								<a href="#" class="button blue">중복확인</a>								
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="">상품간략설명</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>상품명외에 노출되는 간략 설명입니다.</div>
+								</a>
+							</th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+							<th scope="row"><span class="marking">필수항목</span>전화문의
+								<a href="#" data-tooltip="explan">안내
+									<div>상품금액을 노출하지 않고 전화문의로 받고 싶은 경우 사용할 수 있습니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id="" /><label for="">사용</label>
+									<input type="radio" name="" id="" checked/><label for="">미사용</label>
+								</div>								
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row"><label for="">제조사</label></th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+							<th scope="row"><label for="">원산지</label></th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+						</tr>
+						<tr>
+							<th scope="row"><label for="">브랜드</label></th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+							<th scope="row"><label for="">모델</label></th>
+							<td><input type="text" name="id" value="" class="inputFull"/></td>	
+						</tr>
+						<tr>
+							<th scope="row"><label for="">상품설명</label></th>
+							<td colspan="3">
+								<ul class="area_tab">
+									<li><a href="#" class="on" data-device-select="web">Web</a></li>
+									<li><a href="#" data-device-select="mob">Mobile</a></li>
+								</ul>
+										
+								<textarea name="" id="" class="inputFull">에디터</textarea>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row"><label for="">상점메모</label></th>
+							<td colspan="3"><textarea name="" id="" class="inputFull"></textarea></td>	
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			
+			<nav class="lnb small" id="pro03">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03" class="on">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>상품요약정보</h2>
+				<div class="box_title select">
+					<p style="margin-bottom:5px;"><i style="color:red;">전자상거래 등에서의 상품 등의 정보제공에 관한 고시</i>에 따라 총 35개 상품군에 대해 상품 특성 등을 양식에 따라 입력할 수 있습니다.</p>
+					<span><label for="set_type">상품군 선택</label></span>
+					<select name="set_type" id="set_type">
+						<option value="">선택하세요</option>
+						<option value="의류">의류</option>
+						<option value="구두/신발">구두/신발</option>
+						<option value="가방">가방</option>
+						<option value="패션잡화 (모자 / 벨트 / 액세서리)">패션잡화 (모자 / 벨트 / 액세서리)</option>
+						<option value="침구류/커튼">침구류/커튼</option>
+						<option value="가구(침대 / 소파 / 싱크대 / DIY제품)">가구(침대 / 소파 / 싱크대 / DIY제품)</option>
+						<option value="영상가전(TV류)">영상가전(TV류)</option>
+						<option value="가정용 전기제품(냉장고 / 세탁기 / 식기세척기 / 전자레인지)">가정용 전기제품(냉장고 / 세탁기 / 식기세척기 / 전자레인지)</option>
+						<option value="계절가전(에어컨 / 온풍기)">계절가전(에어컨 / 온풍기)</option>
+						<option value="사무용기기(컴퓨터 / 노트북 / 프린터)">사무용기기(컴퓨터 / 노트북 / 프린터)</option>
+						<option value="광학기기(디지털카메라 / 캠코더)">광학기기(디지털카메라 / 캠코더)</option>
+						<option value="소형전자(MP3 / 전자사전 등)">소형전자(MP3 / 전자사전 등)</option>
+						<option value="휴대폰">휴대폰</option>
+						<option value="내비게이션">내비게이션</option>
+						<option value="자동차용품 (자동차부품 / 기타 자동차용품)">자동차용품 (자동차부품 / 기타 자동차용품)</option>
+						<option value="의료기기">의료기기</option>
+						<option value="주방용품">주방용품</option>
+						<option value="화장품">화장품</option>
+						<option value="귀금속 / 보석 / 시계류">귀금속 / 보석 / 시계류</option>
+						<option value="식품(농수산물)">식품(농수산물)</option>
+						<option value="가공식품">가공식품</option>
+						<option value="건강기능식품">건강기능식품</option>
+						<option value="영유아용품">영유아용품</option>
+						<option value="악기">악기</option>
+						<option value="스포츠용품">스포츠용품</option>
+						<option value="서적">서적</option>
+						<option value="호텔 / 펜션 예약">호텔 / 펜션 예약</option>
+						<option value="여행패키지">여행패키지</option>
+						<option value="항공권">항공권</option>
+						<option value="자동차 대여 서비스 (렌터카)">자동차 대여 서비스 (렌터카)</option>
+						<option value="물품대여 서비스 (정수기, 비데, 공기청정기 등)">물품대여 서비스 (정수기, 비데, 공기청정기 등)</option>
+						<option value="물품대여 서비스 (서적, 유아용품, 행사용품 등)">물품대여 서비스 (서적, 유아용품, 행사용품 등)</option>
+						<option value="디지털 콘텐츠 (음원, 게임, 인터넷강의 등)">디지털 콘텐츠 (음원, 게임, 인터넷강의 등)</option>
+						<option value="상품권 / 쿠폰">상품권 / 쿠폰</option>
+						<option value="모바일 쿠폰">모바일 쿠폰</option>
+						<option value="영화·공연">영화·공연</option>
+						<option value="기타 용역">기타 용역</option>
+						<option value="기타 재화">기타 재화</option>
+					</select>
+				</div>
+				
+				<table class="bbsView mt20">
+					<caption>상품요약정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:25%"/>
+						<col data-write="td" style="width:75%"/>
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><label for="">제품소재</label></th>
+							<td>
+								<input type="text" name="id" value="상품페이지 참고" class="inputFull"/>
+								<p class="info">(섬유의 조성 또는 혼용률을 백분율로 표시) 충전재를 사용한 제품은 충전재를 함께 표기</p>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row"><label for="">세탁방법 및 취급시 주의사항</label></th>
+							<td>
+								<input type="text" name="id" value="상품페이지 참고" class="inputFull"/>
+							</td>	
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			
+			<nav class="lnb small" id="pro04">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04" class="on">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>판매정보</h2>
+				<table class="bbsView mt20">
+					<caption>판매정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" />
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="">판매가격</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>상품의 할인되지 않는 순수 판매가격을 의미합니다.</div>
+								</a>
+							</th>
+							<td><input type="text" name=""/></td>	
+							<th scope="row"><span class="marking">필수항목</span><label for="">시중가격</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>판매하고자 하는 최종가격을 작성하세요. <span class="txt_red">입력하지 않으면 출력하지 않습니다.</span></div>
+								</a>
+							</th>
+							<td>
+								<input type="text" name=""/>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>과세구분</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id="" checked/><label for="">과세</label>
+									<input type="radio" name="" id="" /><label for="">비과세</label>
+								</div>
+							</td>
+							<th scope="row"><span class="marking">필수항목</span>구매제한
+								<a href="#" data-tooltip="explan">안내
+									<div>기본설정은 쇼핑몰설정에 되어있는 전체설정으로 처리되며, 상품별로 별도로 지정을 하여 사용할 경우 해당부분이 우선순위로 인식되게 됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<select name="" id="">
+									<option value="">기본설정사용</option>
+									<option value="">비회원 구매 불가 (회원만 구매 가능)</option>
+									<option value="">제한안함</option>
+								</select>
+								<!-- 비회원구매불가 일경우 노출 -->
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="" id="" /><label for="">한번만 구매가능(재구매불가)</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">포인트유형</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id="" /><label for="">포인트 직접설정</label>
+									<input type="radio" name="" id="" checked/><label for="">판매가격 비율</label>
+								</div>
+							</td>	
+							<th scope="row">포인트적립금</th>
+							<td>
+								<input type="text" name=""/> <span>%</span>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">상품품절여부</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" /><label for="">예</label>
+								</div>
+							</td>	
+							<th scope="row">재입고SMS 알림</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" /><label for="">사용</label>
+								</div>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">최소구매수량</th>
+							<td><input type="text" name=""/></td>	
+							<th scope="row">최대구매수량</th>
+							<td><input type="text" name=""/></td>	
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="">재고수량</label></th>
+							<td><input type="text" name=""/></td>	
+							<th scope="row"><label for="">재고 통보수량</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>설정된 재고갯수 이하로 될 경우 관리자에게 문자로 안내해 드립니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="" id="" /><label for="">사용</label>
+								</div>
+								<input type="text" name="" class="input70" disabled/>
+							</td>	
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<nav class="lnb small" id="pro05">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05" class="on">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>선택 상품옵션</h2>
+				<div class="box_title">
+					<a href="javascript:void(0);" data-btn-event="add_optionset" class="button blue">+ 옵션 추가</a>
+					<i style="margin-left:15px; color:red;">버튼을 클릭하면 옵션값을 추가 할 수 있습니다.</i> 전체 입력한 후 하단의 모든 옵션 품목생성을 클릭하세요. 
+				</div>
+				
+				<!-- 옵션묶음 -->
+				<div class="product_option">
+					<dl>
+						<dt>
+							<!-- 순서위아래 클릭시 옵션묶음 class="product_option" 가 순서변경되어 적용 기존에 등록된 품목생성된 항목은 해제됨 -->
+							<span>
+								<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+							</span>										
+							<span><span class="marking">필수항목</span>옵션명</span>
+							<span>
+								<div class="designCheck" style="display:inline-block;"><input type="checkbox" name="" id=""/><label for="">색상사용</label></div>
+							</span>
+							<span><input type="text" name="" id="" value="색상" class="inputFull"/></span>
+							<span>
+								<a href="javascript:void(0);" data-btn-event="add_option" class="button blue">옵션값 추가</a>
+								<a href="#" class="button gray">옵션삭제</a>
+							</span>
+						</dt>
+						<dd>
+							<div class="color">
+								<div data-review-color="2"></div>
+								<input type="text" name="color_value[]" value="" data-color-value="2" data-option-info="color" placeholder="색상표 미사용"> 
+								<a href="#" data-color-picker="2" class="button sm white">컬러설정</a>
+							</div> 
+							
+							<div class="setting">
+								<span><i>옵션값 항목</i><input type="text" value="레드" data-option-info="option_title" class="input400"></span>
+								<span class="btn">
+									<div class="designRadio" style="display:inline-block;">
+										<input type="radio" name="" id="" checked/><label for="">사용함</label>
+										<input type="radio" name="" id="" /><label for="">사용안함</label>
+									</div>
+									<a href="#" data-option-del="2" class="button sm gray">삭제</a>
+								</span>
+							</div> 
+						</dd>
+						<dd>
+							<!-- 컬러값을 안쓰는경우 아예 div까지 완전삭제 -->
+							<div class="color">
+								<div data-review-color="3" style="background:rgb(57, 57, 173);"></div>
+								<input type="text" name="color_value[]" value="#3939ad" data-color-value="2" data-option-info="color" placeholder="색상표 미사용"> 
+								<a href="#" data-color-picker="2" class="button sm white">컬러설정</a> 
+							</div>
+							
+							<div class="setting">
+								<span><i>옵션값 항목</i><input type="text" value="블루" data-option-info="option_title" class="input400"></span>
+								<span class="btn">
+									<div class="designRadio" style="display:inline-block;">
+										<input type="radio" name="" id="" checked/><label for="">사용함</label>
+										<input type="radio" name="" id="" /><label for="">사용안함</label>
+									</div>
+									<a href="#" data-option-del="2" class="button sm gray">삭제</a>
+								</span>
+							</div> 
+						</dd>
+					</dl>
+				</div>
+				<!-- //옵션묶음 -->
+				
+				<div class="product_option">
+					<dl>
+						<dt>
+							<!-- 순서위아래 클릭시 옵션묶음 class="product_option" 가 순서변경되어 적용 기존에 등록된 품목생성된 항목은 해제됨 -->
+							<span>
+								<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+							</span>										
+							<span><span class="marking">필수항목</span>옵션명</span>
+							<span>
+								<div class="designCheck" style="display:inline-block;"><input type="checkbox" name="" id=""/><label for="">색상사용</label></div>
+							</span>
+							<span><input type="text" name="" id="" value="사이즈" class="inputFull"/></span>
+							<span>
+								<a href="javascript:void(0);" data-btn-event="add_option" class="button blue">옵션값 추가</a>
+								<a href="#" class="button gray">옵션삭제</a>
+							</span>
+						</dt>
+						<dd>
+							<div class="color hidden" style="display:none;">
+								<div data-review-color="3" style="background:rgb(57, 57, 173);"></div>
+								<input type="text" name="color_value[]" value="#3939ad" data-color-value="2" data-option-info="color" placeholder="색상표 미사용"> 
+								<a href="#" data-color-picker="2" class="button sm white">컬러설정</a> 
+							</div>
+							<div class="setting">
+								<span><i>옵션값 항목</i><input type="text" value="90" data-option-info="option_title" class="input400"></span>
+								<span class="btn">
+									<div class="designRadio" style="display:inline-block;">
+										<input type="radio" name="" id="" checked/><label for="">사용함</label>
+										<input type="radio" name="" id="" /><label for="">사용안함</label>
+									</div>
+									<a href="#" data-option-del="2" class="button sm gray">삭제</a>
+								</span>
+							</div> 
+						</dd>
+						<dd>
+							<div class="color hidden" style="display:none;">
+								<div data-review-color="3" style="background:rgb(57, 57, 173);"></div>
+								<input type="text" name="color_value[]" value="#3939ad" data-color-value="2" data-option-info="color" placeholder="색상표 미사용"> 
+								<a href="#" data-color-picker="2" class="button sm white">컬러설정</a> 
+							</div>
+							<div class="setting">
+								<span><i>옵션값 항목</i><input type="text" value="95" data-option-info="option_title" class="input400"></span>
+								<span class="btn">
+									<div class="designRadio" style="display:inline-block;">
+										<input type="radio" name="" id="" checked/><label for="">사용함</label>
+										<input type="radio" name="" id="" /><label for="">사용안함</label>
+									</div>
+									<a href="#" data-option-del="2" class="button sm gray">삭제</a>
+								</span>
+							</div> 
+						</dd>
+					</dl>
+				</div>
+				
+				<div class="btn_area">
+					<a href="#" class="button lg">모든 옵션 품목생성</a>
+				</div>
+				
+				<!-- 품목생성하면 표시 그전엔 숨기기 -->
+				<div class="product_option_list mt20">
+
+					<div class="btn_col">
+						<a href="#" class="button sm white">삭제</a>
+						<a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button sm white">일괄설정</a>
+						<!-- 품목필터링 -->
+						<div class="product_filter">
+							<a href="#" class="button sm">품목필터링</a>
+							<div class="box_filter accordion">
+								<ul>
+									<li><a href="#">전체</a></li>
+									<!-- 옵션명 -->
+									<li><a href="#">색상</a>
+										<ul>
+											<!-- 옵션값명 -->
+											<li><a href="#">레드</a></li>
+											<li><a href="#">블루</a></li>
+										</ul>
+									</li>
+									<li><a href="#">사이즈</a>
+										<ul>
+											<li><a href="#">90</a></li>
+											<li><a href="#">95</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<!-- //품목필터링 -->
+						
+						<div class="right">
+							<a href="#" class="button sm white">자체코드품목 중복확인</a>
+							<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button sm white">품절표시문구</a>
+						</div>
+					</div>
+					<table class="bbsList">
+						<caption>옵션품목생성</caption>
+						<colgroup>
+							<col style="width:5%"/>
+							<col style="width:5%"/>
+							<col style="width:5%"/>
+							<col />
+							<col style="width:10%"/>
+							<col style="width:15%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col"><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">전체선택</label></div></th>
+								<th scope="col">순서</th>
+								<th scope="col">no.</th>
+								<th scope="col">품목명[품목코드]</th>
+								<th scope="col">자체품목코드</th>
+								<th scope="col">추가금액</th>
+								<th scope="col">재고수량</th>
+								<th scope="col">안전재고</th>
+								<th scope="col">품절표시</th>
+								<th scope="col">판매상태</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">선택</label></div></td>
+								<td>
+									<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+								</td>
+								<td>1</td>
+								<td>
+									<!-- 컬러 -->
+									<div data-review-color="3" style="background:rgb(201, 22, 58);"></div>
+									<!-- 옵션묶음 조합생성 -->
+									레드/90 
+									<i>[자동생성]</i>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td>
+									<!-- 금액증감,감소 선택 -->
+									<select name="" id="">
+										<option value="">+</option>
+										<option value="">-</option>
+									</select>
+									<input type="text" name="" id="" value="" class="input100"/>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">품절사용</label></div></td>
+								<td>
+									<select name="" id="" class="inputFull">
+										<option value="">판매함</option>
+										<option value="">판매안함</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">선택</label></div></td>
+								<td>
+									<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+								</td>
+								<td>2</td>
+								<td>
+									<!-- 컬러 -->
+									<div data-review-color="3"></div>
+									<!-- 옵션묶음 조합생성 -->
+									레드/95 
+									<i>[자동생성]</i>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td>
+									<select name="" id="">
+										<option value="">+</option>
+										<option value="">-</option>
+									</select>
+									<input type="text" name="" id="" value="" class="input100"/>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">품절사용</label></div></td>
+								<td>
+									<select name="" id="" class="inputFull">
+										<option value="">판매함</option>
+										<option value="">판매안함</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">선택</label></div></td>
+								<td>
+									<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+								</td>
+								<td>3</td>
+								<td>
+									<!-- 컬러 -->
+									<div data-review-color="3"></div>
+									<!-- 옵션묶음 조합생성 -->
+									블루/90 
+									<i>[자동생성]</i>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td>
+									<select name="" id="">
+										<option value="">+</option>
+										<option value="">-</option>
+									</select>
+									<input type="text" name="" id="" value="" class="input100"/>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">품절사용</label></div></td>
+								<td>
+									<select name="" id="" class="inputFull">
+										<option value="">판매함</option>
+										<option value="">판매안함</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">선택</label></div></td>
+								<td>
+									<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+								</td>
+								<td>4</td>
+								<td>
+									<!-- 컬러 -->
+									<div data-review-color="3"></div>
+									<!-- 옵션묶음 조합생성 -->
+									블루/95 
+									<i>[자동생성]</i>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td>
+									<select name="" id="">
+										<option value="">+</option>
+										<option value="">-</option>
+									</select>
+									<input type="text" name="" id="" value="" class="input100"/>
+								</td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><input type="text" name="" id="" value="" class="inputFull"/></td>
+								<td><div class="designCheck noText"><input type="checkbox" name="" id=""/><label for="">품절사용</label></div></td>
+								<td>
+									<select name="" id="" class="inputFull">
+										<option value="">판매함</option>
+										<option value="">판매안함</option>
+									</select>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				
+				<h2 style="margin-top:30px;">추가 상품옵션</h2>
+				<div>
+				</div>
+			</div>
+			
+			<nav class="lnb small" id="pro06">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06" class="on">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>이미지정보</h2>
+				<table class="bbsView mt20">
+					<caption>이미지정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" />
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>대표이미지
+								<a href="#" data-tooltip="explan">안내
+									<div>상품목록에서 처음으로 보일 대표이미지를 말합니다. <br/>사진은 너무작거나 큰사이즈경우 손상될 수 있으니 유의바랍니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+							<th scope="row"><span class="marking">필수항목</span>추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+						</tr>
+						<tr>
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+							<th scope="row">추가이미지</th>
+							<td>
+								<div class="designFile" style="display:inline-block;">
+									<input type="text" readonly="readonly" value="">
+									<input type="file" name="fileUpload" id="fileUpload">
+									<label for="fileUpload" class="button white">파일선택</label>
+								</div>
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">삭제</label></div>
+							</td>	
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<nav class="lnb small" id="pro07">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07" class="on">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>관련상품정보 
+					<a href="#" data-tooltip="explan">안내
+						<div>해당상품과 관련된 상품을 등록시켜 해당 물품 페이지에서 노출되게 됩니다. <br/>아래 분류에서 선택하여 물품을 찾으시거나 검색을 이용하여 상품검색 후 이용바랍니다.</div>
+					</a>
+				</h2>
+				<div class="search_bbs">
+					<form name="">
+						<select name="" id="">
+							<option value="">분류선택</option>
+						</select>
+						<select name="" id="">
+							<option value="">분류선택</option>
+						</select>
+						<input type="text" name="" id=""/>
+						<input type="submit" class="button sm gray" value="검색">
+					</form>
+				</div>
+				
+				<div class="box_double relate">
+					<!-- 검색된상품 -->
+					<div class="step01">
+						<div class="scrollbar-inner">
+							<!-- 결과 -->
+							<ul>
+								<!-- 반복 -->
+								<li>
+									<!-- 대표이미지 -->
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<!-- 상품명 -->
+									<em><i>TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<!-- //반복 -->
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+								<li>
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<em><i>TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이 TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button white">추가</a>
+								</li>
+							</ul>
+							<!-- //결과 -->
+							
+							<!-- 검색된 상품이 없는경우
+							<p class="no_data">검색 된 상품이 없습니다.</p>
+							 -->
+						</div>
+					</div>
+					<!-- //검색된상품 -->
+					
+					<!-- 관련상품추가 -->
+					<div class="step02">
+						<div class="scrollbar-inner">
+							<!-- 결과 -->
+							<ul>
+								<!-- 반복 -->
+								<li>
+									<!-- 대표이미지 -->
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<!-- 상품명 -->
+									<em><i>TH-블락체크 셔츠-그레이</i></em>
+									<a href="#" class="button black">삭제</a>
+								</li>
+								<!-- //반복 -->
+							</ul>
+						</div>
+						<!-- 추가된 상품이 없는경우 -->
+						<p class="no_data">추가 된 상품이 없습니다.</p>
+					</div>
+					<!-- //관련상품추가 -->
+				</div>
+			</div>
+			
+			<nav class="lnb small" id="pro08">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08" class="on">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>배송정보</h2>
+				<table class="bbsView mt20">
+					<caption>배송정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:85%"/>
+					</colgroup>
+					<tbody>		
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="">배송유형</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>기본설정은 쇼핑몰설정에서 선택한 값으로 세팅되며, 해당물품만 변경하고자 할 경우 사용합니다.</div>
+								</a>
+							</th>
+							<td>
+								<select name="" id="">
+									<option value="">쇼핑몰기본설정사용</option>
+									<option value="">무료배송</option>
+									<option value="">조건부무료배송</option>
+									<option value="">유료배송</option>
+								</select>
+							</td>	
+						</tr>
+						<!-- 조건부무료배송, 유료배송 일경우 표시 -->
+						<tr>
+							<th scope="row"><label for="">배송비 결제</label></th>
+							<td>
+								<select name="" id="">
+									<option value="">선불</option>
+									<option value="">착불</option>
+								</select>
+							</td>
+						</tr>
+						<!-- //조건부무료배송, 유료배송 일경우 표시 -->
+						
+						<!-- 유료배송 표시 -->
+						<tr>
+							<th scope="row"><label for="">기본배송비</label></th>
+							<td>
+								<input type="text" name="" id="">원
+								<span class="info red" style="margin-left:20px;">무료배송 이외의 설정에 적용되는 배송비 금액입니다.</span>
+							</td>
+						</tr>
+						<!-- //유료배송 표시 -->
+						
+						<!-- 조건부무료배송 표시 -->
+						<tr>
+							<th scope="row">
+								구간설정
+								<a href="#" class="button sm gray">+ 추가</a>
+							</th>
+							<td>
+								<ul>
+									<!-- 항목표시 -->
+									<li>
+										<input type="text"  name="" id="" placeholder="상품금액"/>원 이상
+										<span style="margin-left:15px;">배송비</span> <input type="text"  name="" id="" placeholder="금액"/>원
+									</li>
+									<li>
+										<input type="text"  name="" id="" placeholder="상품금액"/>원 이상
+										<span style="margin-left:15px;">배송비</span> <input type="text"  name="" id="" placeholder="금액"/>원
+										<a href="#" class="button sm white">- 삭제</a>
+									</li>
+								</ul>
+								<p class="info red" style="margin-top:5px;">금액을 0원으로 입력하면 무료배송 처리가 됩니다.</p>
+							</td>
+						</tr>
+						<!-- //조건부무료배송 표시 -->
+					</tbody>
+				</table>
+			</div>
+			
+			
+			<!-- 레이어 일괄설정 -->
+			<div id="popLayer01" style="display:none;">
+				<div class="popBox">
+					<!-- title -->
+					<h2>옵션정보 일괄설정</h2>
+					<!-- scroll -->
+					<div class="scrollbar-inner">
+						<div class="popinBox">
+							
+							<table class="table">
+								<caption>옵션정보 일괄설정</caption>
+								<colgroup>
+									<col style="width:25%;"/>
+									<col/>
+								</colgroup>
+								<tbody>
+									<tr>	
+										<th scope="row">추가금액</th>
+										<td>
+											<select name="" id="">
+												<option value="">+</option>
+												<option value="">-</option>
+											</select>
+											<input type="text" name="" id="" value="" class="input150"/>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">재고수량</th>
+										<td>
+											<input type="text" name="" id="" value="" class="inputFull"/>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">품절표시</th>
+										<td><div class="designCheck"><input type="checkbox" name="" id=""/><label for="">품절사용</label></div></td>
+									</tr>
+									<tr>
+										<th scope="row">판매상태</th>
+										<td>
+											<select name="" id="" class="inputFull">
+												<option value="">판매함</option>
+												<option value="">판매안함</option>
+											</select>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<div class="btn_area">
+								<a href="#" class="button lg btn_close">일괄설정</a>
+								<a href="#" class="button lg white btn_close">닫기</a>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //레이어 일괄설정 -->
+			
+			<!-- 레이어 품절표시문구 -->
+			<div id="popLayer02" style="display:none;">
+				<div class="popBox">
+					<!-- title -->
+					<h2>품절표시문구</h2>
+					<!-- scroll -->
+					<div class="scrollbar-inner">
+						<div class="popinBox">
+							
+							<table class="table">
+								<caption>품절표시문구</caption>
+								<colgroup>
+									<col style="width:25%;"/>
+									<col/>
+								</colgroup>
+								<tbody>
+									<tr>	
+										<th scope="row">품절문구</th>
+										<td>
+											<input type="text" name="" id="" value="" class="inputFull"/>
+											<p class="info">옵션박스에 표기되는 [품절] 문구를 설정할 수 있습니다.<br/><i style="color:red;">미입력시 '품절'문구가 자동입력됩니다.</i></p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<div class="btn_area">
+								<a href="#" class="button lg btn_close">적용</a>
+								<a href="#" class="button lg white btn_close">닫기</a>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //레이어 품절표시문구 -->
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

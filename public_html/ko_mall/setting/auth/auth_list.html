@@ -1,0 +1,396 @@
+	<!-- 입력 -->
+					<script type="text/javascript">
+						//하위 부서등록
+						function auth_and_setup(el, target_txt, type, id){
+							var $el = $(el);
+							$el.fadeIn();
+							$el.children('div').layerCenter();
+							$('body').addClass('active');
+							setTimeout(function(){
+								$el.addClass('active');
+							}, 100);
+			
+							//$("[data-dept-setting=ref_no]").val(ref_no);
+							return false;
+						}
+
+						function process_auth_ajax(mode, type, id, use_auth_level, use_auth_person, use_auth_dept){
+							$.ajax({
+								type: "POST",
+								url: "/ko_mall/setting/auth/auth_list_ajax.php",
+								data : {
+									mode : mode
+									,auth_type : type
+									,auth_id : id
+									,use_auth_level : use_auth_level
+									,use_auth_person : use_auth_person
+									,use_auth_dept : use_auth_dept
+									,allow_level : $("[data-access-person=koweb_member_level]").val()
+									,allow_dept : $("[data-access-person=koweb_department]").val()
+									,allow_user : $("[data-access-person=koweb_member]").val()
+								},
+								success : function(args) {
+									if(mode == "load"){
+										$("#popLayer01").html(args);
+										auth_and_setup(popLayer01);
+									}
+									if(mode == "write"){
+										$("#popLayer01").css("display","none");
+										//console.log(args);
+										alert("설정되었습니다.");
+										//alert(args);
+										location.reload();
+									}
+								},beforeSend: function () {
+									$("#div_ajax_load_image").show();
+								},
+								complete: function () {
+									$("#div_ajax_load_image").hide();
+								}
+							});
+						}
+
+						$(document).on("click", "[data-auth]", function(){
+							if($(this).val() == "Y"){
+								//$("[data-auth]").not(this).prop("checked", false);
+								//$("[data-auth-control]").hide();
+								$("[data-auth-control="+$(this).data("auth")+"]").show();
+							} else {
+								$("[data-auth-control="+$(this).data("auth")+"]").hide();
+							}
+						});
+
+
+						$(document).on("mouseover", "[data-info]", function(){
+							$("[data-info]").draggable({
+								start: function(event,ui) {
+									$(this).draggable( "option", "revert", true );
+								}
+							});
+
+							$("[data-auth-info]" ).droppable({
+								drop: function(e, ui){
+									var target = ui.draggable;
+									var type_item = $(this).data("info-type");
+									var access = new Array();
+									var tmp_access;
+									$(this).append("<li data-info="+target.data("info")+">"+target.text()+"</li>");
+									target.remove();
+
+									$("[data-info-type="+type_item+"][data-auth-info=Y]").children("[data-info]").each(function(){
+										access.push($(this).data("info"));
+									});
+									tmp_access = access.join("|");
+
+									if(tmp_access == "|") { 
+										tmp_access = "";
+									}
+									$("[data-access-person="+type_item+"]").val(tmp_access);
+								}
+							});
+						});
+
+						
+						$(document).on("click", "[data-auth-proc]", function(){
+							var type = $("[data-auth-type]").data("auth-type");
+							var id = $("[data-auth-id]").data("auth-id");
+							var use_auth_level = $("input[name=use_level_auth]:checked").val();
+							var use_auth_person =  $("input[name=use_user_auth]:checked").val();
+							var use_auth_dept =  $("input[name=use_dept_auth]:checked").val();
+							process_auth_ajax("write", type, id, use_auth_level, use_auth_person, use_auth_dept);
+						});
+					</script>
+
+
+						<!-- lnb -->
+						<nav class="lnb" id="system">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="#system" class="on">시스템권한관리</a></li>
+								<li><a href="#board">게시판 접근권한</a></li>
+								<li><a href="#program">프로그램 접근권한</a></li>
+								<li><a href="#online">온라인 신청프로그램 접근권한</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<div class="box pd">
+							<h2>권한관리설정</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:12%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">프로그램명</th>									
+										<th scope="col">아이디</th>
+										<th scope="col">부서</th>
+										<th scope="col">등급</th>
+										<th scope="col">개별</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+
+								<?
+									$query = "SELECT * FROM koweb_administrator_config WHERE state = 'Y' ORDER BY sort ASC";
+									$result = mysqli_query($connect, $query);
+									$total = mysqli_num_rows($result);
+									while($row = mysqli_fetch_array($result)){
+										switch($row[state]){
+											case "Y" :
+												$state = "사용";
+												break;
+											case "N" : 
+												$state = "미사용";
+												break;
+										}
+
+										$level_auth = ($row[use_auth_level] == "Y") ? "사용" : "미사용";
+										$dept_auth = ($row[use_auth_dept] == "Y") ? "사용" : "미사용";
+										$person_auth = ($row[use_auth_person] == "Y") ? "사용" : "미사용";
+									
+									?>
+									<tr>
+										<td><?=$row[title]?></td>
+										<td><?=$row[id]?></td>
+										<td><?=$dept_auth?></td>
+										<td><?=$level_auth?></td>
+										<td><?=$person_auth?></td>
+										<td>
+											<a href="javascript:void(0);" onclick="javascript:process_auth_ajax('load', 'administrator', '<?=$row[id]?>', '<?=$row[use_auth_level]?>', '<?=$row[use_auth_person]?>', '<?=$row[use_auth_dept]?>');" class="button sm gray">설정</a>
+										</td>
+									</tr>
+								<? } ?>
+								</tbody>
+							</table>
+						</div>
+						
+
+							<!-- 입력 -->
+							<!-- lnb -->
+						<nav class="lnb" id="board">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="#system">시스템권한관리</a></li>
+								<li><a href="#board" class="on">게시판접근권한</a></li>
+								<li><a href="#program">프로그램접근권한</a></li>
+								<li><a href="#online">온라인 신청프로그램 접근권한</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<div class="box pd">
+							<h2>게시판접근권한 설정</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:12%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>									
+										<th scope="col">프로그램명</th>									
+										<th scope="col">아이디</th>
+										<th scope="col">부서</th>
+										<th scope="col">등급</th>
+										<th scope="col">개별</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+								<?
+									$query = "SELECT * FROM koweb_board_config ORDER BY sort ASC";
+									$result = mysqli_query($connect, $query);
+									$total = mysqli_num_rows($result);
+									 while($row = mysqli_fetch_array($result)){ 
+										switch($row[state]){
+											case "Y" :
+												$state = "사용";
+												break;
+											case "N" : 
+												$state = "미사용";
+												break;
+										}
+										$level_auth = ($row[use_auth_level] == "Y") ? "사용" : "미사용";
+										$dept_auth = ($row[use_auth_dept] == "Y") ? "사용" : "미사용";
+										$person_auth = ($row[use_auth_person] == "Y") ? "사용" : "미사용";
+
+								?>
+									<tr>
+										<td><?=$total--?></td>
+										<td><?=$row[title]?></td>
+										<td><?=$row[id]?></td>
+										<td><?=$dept_auth?></td>
+										<td><?=$level_auth?></td>
+										<td><?=$person_auth?></td>
+										<td>
+											<a href="javascript:void(0);" onclick="javascript:process_auth_ajax('load', 'board', '<?=$row[id]?>', '<?=$row[use_auth_level]?>', '<?=$row[use_auth_person]?>', '<?=$row[use_auth_dept]?>');" class="button sm gray">설정</a>
+										</td>
+									</tr>
+								<? } ?>
+						
+								</tbody>
+							</table>
+						</div>
+						
+
+
+							<!-- 입력 -->
+							<!-- lnb -->
+						<nav class="lnb" id="program">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="#system">시스템권한관리</a></li>
+								<li><a href="#board">게시판접근권한</a></li>
+								<li><a href="#program"  class="on">프로그램접근권한</a></li>
+								<li><a href="#online">온라인 신청프로그램 접근권한</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<div class="box pd">
+							<h2>프로그램 접근권한 설정</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:12%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>									
+										<th scope="col">프로그램명</th>									
+										<th scope="col">아이디</th>
+										<th scope="col">부서</th>
+										<th scope="col">등급</th>
+										<th scope="col">개별</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+								<?
+									$query = "SELECT * FROM koweb_program_config ORDER BY sort ASC";
+									$result = mysqli_query($connect, $query);
+									$total = mysqli_num_rows($result);
+									 while($row = mysqli_fetch_array($result)){ 
+										switch($row[state]){
+											case "Y" :
+												$state = "사용";
+												break;
+											case "N" : 
+												$state = "미사용";
+												break;
+										}
+
+										$level_auth = ($row[use_auth_level] == "Y") ? "사용" : "미사용";
+										$dept_auth = ($row[use_auth_dept] == "Y") ? "사용" : "미사용";
+										$person_auth = ($row[use_auth_person] == "Y") ? "사용" : "미사용";
+								?>
+									<tr>
+										<td><?=$total--?></td>
+										<td><?=$row[title]?></td>
+										<td><?=$row[id]?></td>
+										<td><?=$dept_auth?></td>
+										<td><?=$level_auth?></td>
+										<td><?=$person_auth?></td>
+										<td>
+											<a href="javascript:void(0);" onclick="javascript:process_auth_ajax('load', 'program', '<?=$row[id]?>', '<?=$row[use_auth_level]?>', '<?=$row[use_auth_person]?>', '<?=$row[use_auth_dept]?>' );" class="button sm gray">설정</a>
+										</td>
+									</tr>
+								<? } ?>
+								</tbody>
+							</table>
+						</div>
+
+						<!-- 입력 -->
+						<!-- lnb -->
+						<nav class="lnb" id="online">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="#system">시스템권한관리</a></li>
+								<li><a href="#board">게시판접근권한</a></li>
+								<li><a href="#program">프로그램접근권한</a></li>
+								<li><a href="#online" class="on">온라인 신청프로그램 접근권한</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<div class="box pd">
+							<h2>온라인 신청프로그램 접근권한 설정</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:8%"/>
+									<col style="width:12%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>									
+										<th scope="col">온라인 프로그램명</th>									
+										<th scope="col">아이디</th>
+										<th scope="col">부서</th>
+										<th scope="col">등급</th>
+										<th scope="col">개별</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+								<?
+									$query = "SELECT * FROM koweb_online_config ORDER BY sort ASC";
+									$result = mysqli_query($connect, $query);
+									$total = mysqli_num_rows($result);
+									 while($row = mysqli_fetch_array($result)){ 
+										switch($row[state]){
+											case "Y" :
+												$state = "사용";
+												break;
+											case "N" : 
+												$state = "미사용";
+												break;
+										}
+
+										$level_auth = ($row[use_auth_level] == "Y") ? "사용" : "미사용";
+										$dept_auth = ($row[use_auth_dept] == "Y") ? "사용" : "미사용";
+										$person_auth = ($row[use_auth_person] == "Y") ? "사용" : "미사용";
+								?>
+									<tr>
+										<td><?=$total--?></td>
+										<td><?=$row[title]?></td>
+										<td><?=$row[id]?></td>
+										<td><?=$dept_auth?></td>
+										<td><?=$level_auth?></td>
+										<td><?=$person_auth?></td>
+										<td>
+											<a href="javascript:void(0);" onclick="javascript:process_auth_ajax('load', 'online', '<?=$row[id]?>', '<?=$row[use_auth_level]?>', '<?=$row[use_auth_person]?>', '<?=$row[use_auth_dept]?>' );" class="button sm gray">설정</a>
+										</td>
+									</tr>
+								<? } ?>
+								</tbody>
+							</table>
+						</div>
+						<div id="popLayer01" style="display:none;">
+						</div>
+

@@ -1,0 +1,53 @@
+<form action="<?=$_SERVER['PHP_SELF']?>" method="GET">
+<div class="search_bbs">
+	<? GETmake_form_action($common_actionString);?>
+	<!-- Search -->
+	<div class="search">
+	<? if($board[use_category] == "Y"){ ?>
+		<select name="category" id="searchType_">
+		<option value="">all</option>
+
+		<? 
+		$cate_detail = explode("|", $board[category_detail]);
+		foreach($cate_detail as $v){ 
+			echo "<option value='$v'>$v</option>";
+		} ?>
+		</select>
+	<? } ?>
+	<? if($board[use_category] == "I"){ ?>
+		<select name="category" id="searchType_">
+		<option value="">all</option>
+		<? 
+		$cat_q = "SELECT * FROM $board_id GROUP BY category";
+		$cat_ = mysqli_query($connect, $cat_q);
+		while($cat_row = mysqli_fetch_array($cat_)){
+			echo "<option value='$cat_row[category]'>$cat_row[category]</option>";
+		}
+		?>
+		</select>
+	<? } ?>
+
+
+		<select name="search_key" id="searchType">
+			<option value="">all</option>
+			<option value="title"> title</option>
+			<option value="name">Writer</option>
+		</select>
+		<input type="text" id="keyword" name="keyword" value="<?=$keyword?>">
+		<input type="submit" class="button" value="Search">
+	</div>
+	<!-- //Search -->
+</form>
+
+<? if($auth_write){?>
+<!-- 버튼 -->
+	<div class="btn">
+		<a href="<?=$common_queryString?>&amp;mode=write" class="button">writing</a>
+	</div>
+<? } ?>
+	<!-- //버튼 -->
+</div>
+<script type="text/javascript">
+	$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+	$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+</script>

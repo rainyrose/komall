@@ -1,0 +1,55 @@
+<h2 class="mt0">팝업 설정</h2>
+<!-- 프로그램설정 -->	
+<table class="bbsList">
+	<caption>팝업 설정</caption>
+	<colgroup>
+		<col style="width:7%"/>
+		<col style="width:20%"/>
+		<col style="width:25%" />
+		<col />
+		<col style="width:10%"/>
+		<col style="width:15%"/>
+	</colgroup>
+	<thead>
+		<tr>
+			<th scope="col">No.</th>
+			<th scope="col">제목</th>
+			<th scope="col">일자</th>
+			<th scope="col">연결URL</th>
+			<th scope="col">상태</th>
+			<th scope="col">설정변경</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?
+			$query = "SELECT * FROM $program_table ORDER BY no DESC";
+			$result = mysqli_query($connect, $query);
+			$total = mysqli_num_rows($result);
+			 while($row = mysqli_fetch_array($result)){ 
+			 switch($row[state]){
+				case "Y" : 
+					$state_text = "사용";
+					break;
+				case "N" : 
+					$state_text = "미사용";
+					break;
+			 }
+		?>
+		<tr>
+			<td><?=$total--?></td>
+			<td><?=$row[title]?></td>
+			<td><?=$row[start_date]?> ~ <?=$row[end_date]?></td>
+			<td><?=$row[link_url]?></td>
+			<td><?=$state_text?></td>
+			<td>
+				<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button sm gray">수정</a> 
+				<a href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$row[no]?>" class="button sm white">삭제</a>
+			</td>
+		</tr>
+	<? } ?>
+	</tbody>
+</table>
+
+<div class="btn_area">
+	<a href="<?=$common_queryString?>&mode=write" class="button lg"/>팝업 등록</a>
+</div>

@@ -1,0 +1,503 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+			<nav class="lnb small">
+				<ul>
+					<li><a href="#order01" class="on">주문기본정보</a></li>
+					<li><a href="#order02">결제정보</a></li>
+					<li><a href="#order03">배송정보</a></li>
+					<li><a href="#order04">기타정보</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd" id="order01" style="min-height:inherit;">
+				<div class="box_title">
+					<span>주문내역 및 상태변경</span>
+					<ul>
+						<li><em>
+								<a href="#" data-tooltip="explan">안내
+									<div>항목선택시 상태값이 <span class="txt_red">수정반영</span>됩니다.</div>
+								</a>
+								현재 주문상태											
+							</em>
+							<span>
+								<!-- 주문상태값 셀렉트처리시 변경됨 -->
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="" selected>입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</span>
+						</li>
+						<li><em>주문시간</em><span>2019-06-13 19:06 (목)</span></li>
+						<li><em>총 결제금액</em><span>153,000원</span></li>
+					</ul>
+				</div>
+				
+				<table class="bbsList product mt20">
+					<caption>주문내역</caption>
+					<thead>
+						<tr>
+							<th scope="col">상품명</th>
+							<th scope="col">선택옵션</th>
+							<th scope="col">수량</th>
+							<th scope="col">판매가</th>
+							<th scope="col">소계
+								<a href="#" data-tooltip="explan">안내
+									<div>(판매가+옵션가)X수량 합계입니다.</div>
+								</a>
+							</th>
+							<th scope="col">포인트</th>
+							<th scope="col">배송비</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<!-- 클릭시 해당상품관리자 수정으로 이동 -->
+								<a href="#" class="view">
+									<!-- 이미지 -->
+									<span class="img" style="background-image:url(../images/sample.jpg);"></span>
+									<!-- 제품명 -->
+									<p>TH-블락체크 셔츠-그레이2</p>
+								</a>
+							</td>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id=""><label for="">[옵션 : 레드 / 48]</label>
+								</div>
+							</td>
+							<td><input type="text" name="" id="" value="2" class="input100"/></td>
+							<td>50,000</td>
+							<td>100,000</td>
+							<td>0</td>
+							<td>3,000</td>
+						</tr>
+						<tr>
+							<td>
+								<!-- 클릭시 해당상품관리자 수정으로 이동 -->
+								<a href="#" class="view">
+									<!-- 이미지 -->
+									<span class="img" style="background-image:url(/images/shop/sample.jpg);"></span>
+									<!-- 제품명 -->
+									<p>무항생제 한우 불고기용(1+등급)</p>
+								</a>
+							</td>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id=""><label for="">[옵션 : 블랙 / B타입 / 95]</label>
+								</div>
+							</td>
+							<td><input type="text" name="" id="" value="1" class="input100"/></td>
+							<td>50,000</td>
+							<td>50,000</td>
+							<td>0</td>
+							<td>0</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<p class="text_info">주문, 입금, 준비, 배송, 완료는 장바구니와 주문서 상태를 모두 변경하지만, 취소, 반품, 품절은 장바구니의 상태만 변경하며, 주문서 상태는 변경하지 않습니다.<br/>개별적인(이곳에서의) 상태 변경은 모든 작업을 수동으로 처리합니다. 예를 들어 주문에서 입금으로 상태 변경시 입금액(결제금액)을 포함한 모든 정보는 수동 입력으로 처리하셔야 합니다.</p>
+			</div>
+			
+			
+			<nav class="lnb small">
+				<ul>
+					<li><a href="#order01">주문기본정보</a></li>
+					<li><a href="#order02" class="on">결제정보</a></li>
+					<li><a href="#order03">배송정보</a></li>
+					<li><a href="#order04">기타정보</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd" id="order02">
+				<h2>주문결제내역</h2>
+				<table class="table">
+					<caption>주문결제내역</caption>
+					<thead>
+						<tr>
+							<th scope="col">주문번호</th>
+							<th scope="col">결제방법</th>
+							<th scope="col">주문총액
+								<a href="#" data-tooltip="explan">안내
+									<div>(판매가+옵션가)X수량 합계입니다.</div>
+								</a>
+							</th>
+							<th scope="col">배송비
+								<a href="#" data-tooltip="explan">안내
+									<div>배송비 + 추가배송비 합계입니다.</div>
+								</a>
+							</th>
+							<th scope="col">포인트</th>
+							<th scope="col">총결제
+								<a href="#" data-tooltip="explan">안내
+									<div>((판매가+옵션가)X수량) + 배송비 - ⓛ포인트사용<!--  - ③쿠폰사용 --> 합계입니다.</div>
+								</a>
+							</th>
+							<th scope="col">주문취소</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>2019060811172744</td>
+							<td>무통장입금</td>
+							<td>150,000</td>
+							<td>3,0000</td>
+							<td>0</td>
+							<td>153,000</td>
+							<td>0</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<h2>결제상세정보</h2>
+				<div class="box_title">결제정보 수정 후 <i style="color:red">저장버튼을 클릭</i>하셔야 반영됩니다.</div>
+				<table class="bbsView mt20">
+					<caption>결제상세정보</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col style="width:35%"/>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<!-- 무통장결제 -->
+						<tr>
+							<th scope="row" class="bg_thRed">계좌번호</th>
+							<td>
+								<select name="" id="">
+									<option value="" >OO은행 88555-67-89012 예금주명</option>
+									<option value="" selected>OO은행 12345-67-89012 예금주명</option>
+								</select>
+							</td>
+							<th scope="row" class="bg_thRed">무통장 입금액</th>
+							<!-- 입금된 금액을 노출 -->
+							<td><input type="text" name="" id="" value="153000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thRed">입금자</th>
+							<td><input type="text" name="" id="" value="홍길동" readonly="readonly"><div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">직접입력</label></div></td>
+							<th scope="row" class="bg_thRed">입금확인일시</th>
+							<!-- 관리자가 직접입력 -->
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+						</tr>
+						<!-- //무통장결제 -->
+						<!-- 가상계좌 -->
+						<tr>
+							<th scope="row" class="bg_thRed">계좌번호</th>
+							<td>신한 X3790127591904 주식회사 케이오웹</td>
+							<th scope="row" class="bg_thRed">가상계좌 입금액</th>
+							<!-- 입금된 금액을 노출 -->
+							<td><input type="text" name="" id="" value="153000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thRed">입금자</th>
+							<td><input type="text" name="" id="" value="홍길동" readonly="readonly"><div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">직접입력</label></div></td>
+							<th scope="row" class="bg_thRed">입금확인일시</th>
+							<!-- 관리자가 직접입력 -->
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+						</tr>
+						<!-- //무통장결제 -->
+						<!-- 계좌이체 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">계좌이체 입금액</th>
+							<td><input type="text" name="" id="" value="153000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+							<th scope="row" class="bg_thBlue">입금자</th>
+							<td><input type="text" name="" id="" value="홍길동" readonly="readonly"><div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">직접입력</label></div></td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">입금확인일시</th>
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td><a href="https://iniweb.inicis.com/security/login.do" target="_blank" class="button sm gray">KG이니시스바로가기</a></td>
+						</tr>
+						<!-- //계좌이체 -->
+						<!-- 휴대폰 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">휴대폰번호</th>
+							<td>010-1234-4567</td>
+							<th scope="row" class="bg_thBlue">휴대폰결제액</th>
+							<td><input type="text" name="" id="" value="50000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">휴대폰 결제일시</th>
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td><a href="https://pgweb.uplus.co.kr:7086/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+						</tr>
+						<!-- //휴대폰 -->
+						<!-- 신용카드 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">신용카드 결제금액</th>
+							<td><input type="text" name="" id="" value="36000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+							<th scope="row" class="bg_thBlue">카드승인일시</th>
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr:7086/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+						</tr>
+						<!-- //신용카드 -->
+						<!-- PG간편결제 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">KPAY 결제금액</th>
+							<td><input type="text" name="" id="" value="36000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+							<th scope="row" class="bg_thBlue">KPAY 승인일시</th>
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td colspan="3"><a href="https://iniweb.inicis.com/security/login.do" target="_blank" class="button sm gray">KG이니시스바로가기</a></td>
+						</tr>
+						<!-- //PG간편결제 -->
+						<!-- 카카오페이 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">카카오페이 결제금액</th>
+							<td><input type="text" name="" id="" value="36000" readonly="readonly"> 원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+							<th scope="row" class="bg_thBlue">카카오페이 승인일시</th>
+							<td>
+								<div class="designCheck"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td colspan="3"><a href="https://mms.cnspay.co.kr/" target="_blank" class="button sm gray">KAKAOPAY바로가기</a></td>
+						</tr>
+						<!-- //카카오페이 -->
+						
+						<!-- 공통 -->
+						<tr>
+							<th scope="row">과세공급가액</th>
+							<td>127,273원</td>
+							<th scope="row">과세부가세액</th>
+							<td>12,727원</td>
+						</tr>
+						<tr>
+							<th scope="row">비과세공급가액</th>
+							<td>0원</td>
+							<th scope="row">주문금액할인</th>
+							<td>0원</td>
+						</tr>
+						<tr>
+							<th scope="row">포인트 결제액</th>
+							<td><input type="text" name="" id="" class="input100" readonly="readonly"/>점 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+							<th scope="row">결제취소/환불액</th>
+							<td><input type="text" name="" id="" class="input100" readonly="readonly"/>원 <div class="designCheck" style="display:inline-block; margin-left:10px;"><input type="checkbox" name="" id="" ><label for="">결제금액입력</label></div></td>
+						</tr>
+						<!-- //공통 -->
+						<!-- 현금영수증 -->
+						<tr>
+							<th scope="row">현금영수증</th>
+							<!-- 현금영수증 발행이 이미 된경우면 버튼이 현금영수증 확인  으로 변경 -->
+							<td colspan="3"><a href="#" target="_blank" class="button sm gray">현금영수증 발행</a></td>
+						</tr>
+						<!-- //현금영수증 -->
+					</tbody>
+				</table>
+			</div>
+			
+			
+			<nav class="lnb small">
+				<ul>
+					<li><a href="#order01">주문기본정보</a></li>
+					<li><a href="#order02">결제정보</a></li>
+					<li><a href="#order03" class="on">배송정보</a></li>
+					<li><a href="#order04">기타정보</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd" id="order03">
+				<h2>배송정보</h2>
+				<div class="box_title">
+					<a href="javascript:void(0);" class="button blue">+ 배송추가</a>
+					<i style="margin-left:15px; color:red;">버튼을 클릭하면 배송정보를 추가로 입력가능합니다.</i> 배송이 추가로 있는 경우 작성하세요. 
+				</div>
+				<table class="bbsList mt20">
+					<caption>배송정보</caption>
+					<colgroup>
+						<col style="width:7%"/>
+						<col style="width:27%"/>
+						<col style="width:15%"/>
+						<col style="width:10%"/>
+						<col/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">관리</th>
+							<th scope="col">배송사</th>
+							<th scope="col">운송장번호</th>
+							<th scope="col">배송비</th>
+							<th scope="col">배송일시</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- 배송추가시 반복 -->
+						<tr>
+							<td><a href="#" class="button sm white">삭제</a></td>	
+							<td>
+								<input type="text" name="" id="" value=""/> 
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id=""><label for="">기본배송회사로 설정</label></div>
+							</td>	
+							<td>
+								<input type="text" name="" id="" value="" class="inputFull"/> 
+							</td>	
+							<td>
+								<input type="text" name="" id="" title="배송비입력" placeholder="배송비" class="inputFull"/>
+								<input type="text" name="" id="" title="추가배송비입력" placeholder="추가배송비" class="inputFull"/>
+							</td>
+							<td>
+								<input type="text" name="start_date" value="" class="input100" data-form-type="datepicker" id="">
+								&nbsp;
+								<input type="text" name="" id="" class="input70">시&nbsp;
+								<input type="text" name="" id="" class="input70">분&nbsp; 
+								<input type="text" name="" id="" class="input70">초
+								<div class="designCheck" style="display:inline-block; margin-left:5px;"><input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label></div>
+							</td>	
+						</tr>
+						<!-- //배송추가시 반복 -->
+					</tbody>
+				</table>
+				
+				<h2 class="mt20">배송지정보</h2>
+				<table class="bbsView">
+					<caption>배송지정보</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col style="width:35%"/>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">배송받는 분</th>
+							<td><input type="text" name="" id="" value="홍길동"/></td>
+							<th scope="row">핸드폰</th>
+							<td>
+								<input type="text" name="" id="" class="input100"/>
+								-
+								<input type="text" name="" id="" class="input100"/>
+								-
+								<input type="text" name="" id="" class="input100"/>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">주소</th>
+							<td colspan="3">
+								<input type="text" class="input200" name="zip" id="zip" value="">	
+								<a href="#" class="button white"><span>우편번호검색</span></a>
+								<input type="text" class="inputFull" name="" id="" value="" readonly="readonly">	
+								<input type="text" class="inputFull" name="" id="" value="" placeholder="상세주소">	
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">배송메세지</th>
+							<td colspan="3">
+								내용- 수정은안됨
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<nav class="lnb small">
+				<ul>
+					<li><a href="#order01">주문기본정보</a></li>
+					<li><a href="#order02">결제정보</a></li>
+					<li><a href="#order03">배송정보</a></li>
+					<li><a href="#order04" class="on">기타정보</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd" id="order04">
+				<h2>기타정보</h2>
+				<table class="bbsView">
+					<caption>기타정보</caption>
+					<colgroup>
+						<col style="width:15%"/>
+						<col style="width:35%"/>
+						<col style="width:15%"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">주문자</th>
+							<td>김현호</td>
+							<th scope="row">핸드폰</th>
+							<td>010-1234-4567</td>
+						</tr>
+						<tr>
+							<th scope="row">이메일</th>
+							<td>test@naver.com</td>
+							<th scope="row">주소</th>
+							<td>우)17521 대구광역시 달서구 두류동 107-24번지</td>
+						</tr>
+						<tr>
+							<th scope="row">IP Address</th>
+							<td colspan="3">171.144.474.4</td>
+						</tr>
+						<tr>
+							<th scope="row">상점메모</th>
+							<td colspan="3">
+								<textarea name="" id="" class="inputFull"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

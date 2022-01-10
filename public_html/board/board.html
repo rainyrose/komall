@@ -1,0 +1,22 @@
+<? include_once $_SERVER['DOCUMENT_ROOT']."/head.php"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/top.html"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/header.html"; ?>
+<div id="container">
+	<!-- 본문 -->
+	<div id="content">
+		<div class="inr">
+
+			<h2 class="board_title"></h2>
+
+			<? include("inc_lnb.html") ?>
+
+			<? include $_SERVER['DOCUMENT_ROOT']."/board/board.php"; ?>
+
+
+		</div>
+	</div>
+	<!-- //본문 -->
+</div>
+
+
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/footer.html" ?>

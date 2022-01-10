@@ -1,0 +1,38 @@
+<div id="find_id">
+    <form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+    <input type="hidden" name="mode" value="find_proc" />
+    <input type="hidden" name="return_mode" value="find_id" />
+        <div class="join_area">
+            <h2><i>Find ID / Password</i></h2>
+            <p>Please enter the information you entered during registration.</p>
+            <div class="box find">
+                <table class="bbsView">
+                    <caption>아이디 찾기를 이름, 이메일 항목을 입력을 제공하는 표</caption>
+                    <colgroup>
+                        <col data-member-form="th" style="width:30%;"/>
+                        <col data-member-form="td" style="width:70%;"/>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="find_name">name</label></th>
+                            <td data-member-form="name">
+                                <input type="text" id="find_name" name="find_name"  class="inputFull required"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="find_email">email</label></th>
+                            <td data-member-form="email"><input type="text" id="find_email" name="find_email" class="inputFull required"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="btn_area">
+                    <input type="submit" class="button black" value="find ID" />
+                    <a href="<?=$common_queryString?>&amp;mode=find_pw" class="button white" id="">Forgot your password</a>
+                </div>
+                <p>Enter your name, email, and click the Find ID button.</p>
+            </div>
+        </div>
+    </form>
+</div>
+
+        

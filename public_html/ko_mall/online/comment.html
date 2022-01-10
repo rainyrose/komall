@@ -1,0 +1,52 @@
+<h2 class="mt0">관리자 메모</h2>
+<div class="comment_area" style="padding:10px;">
+	<!-- 댓글작성 -->
+	<form name="comment" method="post" action="<?=$common_actionString?>" class="comment_write">
+	<input type="hidden" name="mode" value="memo_write_proc" />
+	<input type="hidden" name="ref_no" value="<?=$no?>" />
+	<input type="hidden" name="online_id" value="<?=$online[id]?>" />
+	<input type="hidden" name="return_url" value="<?=$common_actionString?>" />
+
+	<div class="write">
+		<textarea name="content" id="content" title="댓글입력하기" placeholder="내용과 무관한 글은 임의로 삭제 될 수 있습니다." title="댓글입력" /></textarea>
+		<div class="send">					
+			<input type="submit" class="btn_submit" value="등록"  />
+		</div>
+	</div>
+	</form>
+	<!-- 삭제눌럿을때 비번확인 -->
+	<div class="list">
+		<ul>
+		<?
+			$comm_query = "SELECT * FROM online_comment WHERE id='$online[id]' AND ref_no='$no' ORDER BY no DESC"; 
+			$comm_result = mysqli_query($connect, $comm_query);
+			while($comm_row = mysqli_fetch_array($comm_result)){
+				$com_name = $comm_row['writer'];
+				?>
+				<li style="<?=$depth?>">
+					<span class="name"><?=$com_name?></span>
+					<div class="btn">
+						<a href="#" class="btn_del" id="passwod_<?=$comm_row[no]?>">삭제</a>
+					</div>
+					<p><?=nl2br($comm_row[content])?></p>
+				
+					<!-- 댓글에 삭제 눌럿을때 -->
+					<div class="comment_password passwod_<?=$comm_row[no]?>" style="display:none;">
+						<form action="<?=$common_actionString?>" method="post" name="del_form_<?=$comm_row[no]?>" class="comment_del_form">
+						<input type="hidden" name="comm_no" value="<?=$comm_row[no]?>" />
+						<input type="hidden" name="online_id" value="<?=$online[id]?>" />
+						<input type="hidden" name="ref_no" value="<?=$no?>" />
+						<input type="hidden" name="mode" value="memo_delete" />
+						<input type="hidden" name="return_url" value="<?=$common_actionString?>" />
+							<p>삭제하시겠습니까?</p>
+							<input type="submit" class="button" value="확인" />
+							<a href="#" class="button gray hide_all">취소</a>
+						</form>
+					</div>		
+					<!-- //댓글에 삭제 눌럿을때 -->
+				</li>
+			<? } ?>
+		</ul>
+	</div>
+</div>
+<!-- //삭제눌럿을때 비번확인 -->		

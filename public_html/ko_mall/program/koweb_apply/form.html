@@ -1,0 +1,135 @@
+<script type="text/javascript">
+  $("form").submit(function(){
+	var chk = true;
+		$('.required').each(function() {
+			if (!$(this).val()) {			
+				alert($(this).attr('title') + "을 입력하세요.");
+				$(this).focus();
+				chk = false;
+				return false;
+			}
+		});
+	if (!chk) { return false; }
+  });
+});
+</script>
+<?
+$mode_title = $site[title]." 등록";
+$query = "SELECT * FROM $program_table WHERE no='$no'";
+$result = mysql_query($query);
+$row = mysql_fetch_array($result);
+$phone = explode("-",$row[phone]);
+$tel = explode("-",$row[tel]);
+$email = explode("@", $row[email]);
+$event_item = explode("|", $row[event_item]);
+$event_item_1 = explode("^", $event_item[0]);
+$event_item_2 = explode("^", $event_item[1]);
+
+if(!$row[sort]){
+$sort_ = mysql_fetch_array(mysql_query("SELECT * FROM $program_table ORDER BY sort DESC LIMIT 1"));
+$row[sort] = $sort_[sort]+1;
+}
+?>
+<form action="<?=$PHP_SELF?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="program_id" value="<?=$program_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$no?>" />
+	<input type="hidden" name="return_url" value="<?=$url?>" />
+	<input type="hidden" name="education_no" value="<?=$row[no]?>" />
+	<input type="hidden" name="key" value="<?=$key?>" />
+	<input type="hidden" name="keyword" value="<?=$keyword?>" />
+	<input type="hidden" name="start" value="<?=$start?>" />
+	<input type="hidden" name="search_education" value="<?=$search_education?>" />
+
+	<table class="bbsView" style="margin-bottom:20px;">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<h3 class="bbsTitle">이벤트 정보 입력</h3>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>이벤트 제목</th>
+					<td><input type="text" name="event_title" id="event_title" value="<?=$row[event_title]?>" title="이벤트 제목" class="required input400" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>출력순서</th>
+					<td><input type="text" name="sort" id="sort" value="<?=$row[sort]?>" title="출력순서" class="required input100" /> * 숫자가 높을수록 상위노출됩니다.</td>
+				</tr>
+				<tr>
+					<th scope="row">출력 항목</th>
+					<td id="item_area" class="category">
+						<input type="text" name="item_tmp[]" value="<?=$event_item_1[0]?>" class="input100" title="출력항목명" placeholder="출력항목명" /> : 
+						<input type="text" name="value_tmp[]" value="<?=$event_item_2[0]?>" class="input400" title="출력항목값" placeholder="출력항목값" />
+						<a href="#" class="button gray" id="add_item">+ 추가</a>
+					<?	
+						for($i = 1; $i < count($event_item_1); $i++){
+							$count = $i;
+							$del_id = "#item_".$count;
+							?>
+							<div id="item_<?=$count?>">
+								<input type="text" name="item_tmp[]" value="<?=$event_item_1[$i]?>" class="input100" /> : <input type="text" name="value_tmp[]" value="<?=$event_item_2[$i]?>" class="input400"/>
+								<a href="#" id="del_item_<?=$count?>" class="button white" onclick="$('<?=$del_id?>').remove();">- 삭제</a>
+							</div>
+							<? 
+						}
+					?>
+					</td>
+					<!-- //버튼 -->
+					<script type="text/javascript">
+						$("#add_item").click(function(){
+							var count = $("#item_area > div").size() + 1;
+							var del_id = "item_"+count;
+							if(count > 6){
+								alert("7개 이상 등록하실 수 없습니다.");
+								return false;
+							}
+							$("#item_area").append("<div id='item_"+count+"'><input type='text' name='item_tmp[]' class='input100'/> : <input type='text' name='value_tmp[]' class='input400'/> <a href='#' id='del_item_"+count+"' class='button white' onclick='$(\"#"+del_id+"\").remove();'><span>- 삭제</span></a></div>");
+						});
+					</script>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span>신청기간</th>
+					<td>
+					<input type="text" name="apply_start_date" id="apply_start_date" value="<?=$row[apply_start_date]?>" title="신청기간 시작" class="required input100 datepicker" /> ~ <input type="text" name="apply_end_date" id="apply_end_date" value="<?=$row[apply_end_date]?>" title="신청기간 종료" class="required input100 datepicker" />
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">첨부파일</th>
+						<td>
+						<?
+							$file_title = $row[event_poster];
+							$del_ = "파일선택";
+							$del_2 = "";
+							if($file_title){
+								 $del_2 = "<label for='event_poster' class='button white'><span>기존 첨부파일 : <a href='/upload/program/$program_id/$file_title' target='_blank'>$file_title</a></label>";
+							}
+							echo "<div class='designFile'><input type='text' readonly='readonly' value=''/><input type='file' name='event_poster' id='event_poster'/> <label for='event_poster' class='button white'> $del_</label> $del_2 </div>";
+						?>
+						<span>첨부파일 가능 용량은 3MB 입니다</span>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">전시품목</th>
+					<td><textarea name="event_contents1" id="smart_content"><?=$row[event_contents1]?></textarea></td>
+				</tr>
+				<tr>
+					<th scope="row">상태</th>
+					<td>
+						<input type="radio" name="state" id="stateY" value="Y" /> <label for="stateY">사용</label>
+						<input type="radio" name="state" id="stateN" value="N" /> <label for="stateN">미사용</label>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button" value="수정" />
+		<a href="<?=$PHP_SELF?>?program_id=<?=$program_id?>&amp;mode=list&amp;start=<?=$start?>&amp;no=<?=$row[no]?>&amp;search_education=<?=$search_education?>&amp;key=<?=$key?>&amp;keyword=<?=$keyword?>" class="button gray">취소</a>
+	</div>
+</form>
+<script type="text/javascript">
+$("input:radio[name='state']:radio[value='<?=$row[state]?>']").attr("checked",true); 
+</script>

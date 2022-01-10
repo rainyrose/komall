@@ -1,0 +1,2251 @@
+<?
+//if (!$auth_write) error("작성권한이 없습니다.");
+
+$modes_title = "글쓰기";
+$row[name] = $_SESSION['member_name'];
+
+if($mode == "modify"){
+	$query = "SELECT * FROM koweb_product WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = "상품수정";
+	$deli_price_type_arr = explode("|", $row[deli_price_type]);
+	$deli_price_arr = explode("|", $row[deli_price]);
+	$row[product_title] = htmlspecialchars($row[product_title]);
+
+}
+?>
+<!-- 로딩 -->
+<div id="div_ajax_load_image" class="area_loding" style="display:none">
+	<img src="/ko_mall/images/content/loading.gif" class="img" alt="loading">
+</div>
+<!-- //로딩 -->
+<!-- <h2>상품등록</h2> -->
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+<input type="hidden" name="return_url" value="<?=$common_queryString?>" />
+<input type="hidden" name="referer_url" value="<?=$_SERVER['HTTP_REFERER']?>" />
+<input type="hidden" name="no" value="<?=$row[no]?>" id="no"/>
+<input type="hidden" name="tag_type" value="<?=$tag_type?>" />
+<input type="hidden" name="is_admin_" id="is_admin_" value="<?=$is_admin?>" />
+<input type="hidden" name="pcate_navication" value="<?=$row[category_navi]?>" />
+<input type="hidden" name="category" value="<?=$row[category]?>"/>
+<input type="hidden" name="refer_product" value="<?=$row[refer_product]?>" id="refer_product"/>
+<input type="hidden" name="hidden_code" value="<? if($mode != "modify"){ ?> false <? } else { ?> true <? } ?>"/>
+<input type="hidden" name="hidden_code_add" value="<? if($mode != "modify"){ ?> false <? } else { ?> true <? } ?>"/>
+<input type="hidden" name="hidden_code_detail" value="<? if($mode != "modify"){ ?> false <? } else { ?> true <? } ?>"/>
+
+
+
+<nav class="lnb small" id="pro01">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01" class="on">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+
+			<div class="box pd">
+				<h2>표시설정</h2>
+				<table class="bbsView">
+					<caption>표시설정</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td"/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>판매여부
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">판매중지</span> 사용시 물품을 진열은 되어있지만 품절상태로 표시됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="seller" value="Y" id="sellerY" checked/><label for="sellerY">판매</label>
+									<input type="radio" name="seller" value="N" id="sellerN"/><label for="sellerN">판매중지</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='seller']:radio[value='<?=$row[seller]?>']").prop("checked",true);
+								</script>
+							</td>
+							<th scope="row"><span class="marking">필수항목</span>진열여부
+								<a href="#" data-tooltip="explan">안내
+									<div><span class="txt_red">진열안함</span> 사용시 물품을 진열에서 제외시켜 사이트에서 표시되지 않습니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="shower" value="Y" id="showY" checked/><label for="showY">진열함</label>
+									<input type="radio" name="shower" value="N" id="showN"/><label for="showN">진열안함</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='shower']:radio[value='<?=$row[shower]?>']").prop("checked",true);
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="title">분류 선택</label></th>
+							<td colspan="3" data-pcate-area>
+								<? if($mode == "modify"){
+								$category_tmp = explode("|", substr($row[category_navi], 0, -1));
+								$cate_depth = 1;
+								$cate_flag = false;
+								foreach($category_tmp AS $c){
+									$cate_flag = true;
+									$t_cat_q = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE id = '$c'"));
+									$string_cat .= $t_cat_q[title] . " > ";
+								}
+
+								if($cate_flag){ ?>
+								<div class="cate_flag_box"><?=$string_cat?></div>
+								<? }
+
+								} ?>
+
+
+								<select name="f_category" id="f_category" data-set-pcate data-cate="set-pcate">
+									<? if($mode == "modify"){ ?>
+										<option>변경 안함</option>
+									<? } else { ?>
+										<option>선택해주세요</option>
+									<? } ?>
+									<?
+										$load_category_result = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE depth = '1' AND state = 'Y' ORDER BY sort ASC");
+										while($load_category = mysqli_fetch_array($load_category_result)){
+									?>
+										<option value="<?=$load_category[id]?>"><?=$load_category[title]?></option>
+									<? } ?>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<? if($mode !=  "write"){ ?>
+							<th scope="row"><label for="sort">출력순서</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>화면 목록에 나오는 순서를 지정을 할 경우 사용합니다. <span class="txt_red">숫자가 작을수록</span> 목록 상위에 표시됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<input type="text" name="sort" id="sort" value="<?=$row[sort]?>" class="input100"/>
+								<span class="info">숫자가 작을 수록 상위에 표시됩니다.(미입력시 자동출력)</span>
+							</td>
+							<? }else{ ?>
+								<input type="hidden" name="sort" id="sort" value="999999" />
+							<? } ?>
+							<th scope="row">메인진열선택
+								<a href="#" data-tooltip="explan">안내
+									<div>메인에 노출되어있는 항목에 상품이 진열됩니다.</div>
+								</a>
+							</th>
+							<td colspan="<?=$mode =="write" ? "3" : ""?>">
+								<div class="designCheck">
+									<!--<input type="checkbox" name="hit" value="Y" id="hit"/><label for="hit">히트상품</label>-->
+									<!--<input type="checkbox" name="pick" value="Y" id="pick"/><label for="pick">추천상품</label>-->
+									<!--<input type="checkbox" name="new" value="Y" id="new"/><label for="new">신상품</label>-->
+									<input type="checkbox" name="best" value="Y" id="best"/><label for="best">인기상품</label>
+									<!--<input type="checkbox" name="discount" value="Y" id="discount"/><label for="discount">할인상품</label>-->
+								</div>
+								<script type="text/javascript">
+									//$(":checkbox[name='hit'][value='<?=$row['hit']?>']").prop("checked", true);
+									//$(":checkbox[name='pick'][value='<?=$row['pick']?>']").prop("checked", true);
+									//$(":checkbox[name='new'][value='<?=$row['new']?>']").prop("checked", true);
+									$(":checkbox[name='best'][value='<?=$row['best']?>']").prop("checked", true);
+									//$(":checkbox[name='discount'][value='<?=$row['discount']?>']").prop("checked", true);
+								</script>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+			<nav class="lnb small" id="pro02">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02" class="on">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>기본정보</h2>
+				<table class="bbsView">
+					<caption>기본정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td"/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>상품명</th>
+							<td><input type="text" name="product_title" value="<?=$row[product_title]?>" class="inputFull"/></td>
+							<th scope="row"><span class="marking">필수항목</span><label for="id">상품코드</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>직접 작성을 할 수 있으며, 작성하지 않을시 <span class="txt_red">자동으로 배정</span>됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="direct_id" id="direct_id" value="Y"/><label for="direct_id" style="margin-right:5px;">직접입력</label>
+								</div>
+								<input type="text" name="id" id="id" value="<?=$row[id]?>" class="input150" disabled/>
+								<a href="#" class="button blue" data-btn-event="check_id">중복확인</a>
+								<p class="info red">작성하지 않을시 자동으로 배정됩니다.</p>
+								<script type="text/javascript">
+								$(function(){
+									$("#direct_id").change(function(){
+										if($(this).is(":checked")){
+											$("input[name=hidden_code]").val("false");
+											$("input[name=id]").attr("disabled", false);
+										} else {
+											$("input[name=id]").attr("disabled", true);
+										}
+									});
+								});
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="simple_info">상품간략설명</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>상품명외에 노출되는 간략 설명입니다.</div>
+								</a>
+							</th>
+							<td><input type="text" name="simple_info" id="simple_info" value="<?=$row[simple_info]?>" class="inputFull"/></td>
+							<th scope="row">전화문의
+								<a href="#" data-tooltip="explan">안내
+									<div>상품금액을 노출하지 않고 전화문의로 받고 싶은 경우 사용할 수 있습니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="use_telform" id="use_telformY" value="Y"/><label for="use_telformY">사용</label>
+									<input type="radio" name="use_telform" id="use_telformN" value="N" checked/><label for="use_telformN">미사용</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='use_telform']:radio[value='<?=$row[use_telform]?>']").prop("checked",true);
+								</script>
+								<p class="info">상품 금액 대신 전화문의로 표시됩니다.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="manufacturer">제조사</label></th>
+							<td><input type="text" name="manufacturer" id="manufacturer" value="<?=$row[manufacturer]?>" class="inputFull"/></td>
+							<th scope="row"><label for="origin">원산지</label></th>
+							<td><input type="text" name="origin" id="origin" value="<?=$row[origin]?>" class="inputFull"/></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="brand">브랜드</label></th>
+							<td><input type="text" name="brand" id="brand" value="<?=$row[brand]?>" class="inputFull"/></td>
+							<th scope="row"><label for="model">모델</label></th>
+							<td><input type="text" name="model" id="model" value="<?=$row[model]?>" class="inputFull"/></td>
+						</tr>
+						<tr>
+							<th scope="row">상품설명</th>
+							<td colspan="3">
+								<ul class="area_tab">
+									<li><a href="#" class="on" data-device-select="web">Web</a></li>
+									<!-- <li><a href="#" data-device-select="mob">Mobile</a></li> -->
+								</ul>
+								<div data-data-type="web">
+									<textarea name="web_content" id="smart_content" style="width:100%;"><?=$row[web_content]?></textarea>
+								</div>
+								<!-- <div data-data-type="mob" style="display:none;">
+									<textarea name="mob_content" id="smart_content_mob" style="width:100%;"><?=$row[mob_content]?></textarea>
+								</div> -->
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="product_memo">상점메모</label></th>
+							<td colspan="3"><textarea name="product_memo" id="product_memo" class="inputFull"><?=$row[product_memo]?></textarea></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+			<nav class="lnb small" id="pro03">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03" class="on">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>상품요약정보</h2>
+				<div class="box_title select">
+					<p style="margin-bottom:5px;"><i style="color:red;">전자상거래 등에서의 상품 등의 정보제공에 관한 고시</i>에 따라 총 35개 상품군에 대해 상품 특성 등을 양식에 따라 입력할 수 있습니다.</p>
+
+
+					<span><label for="set_type">상품군 선택</label></span>
+					<select name="set_type" id="set_type">
+						<option value="">선택하세요</option>
+						<?
+							$simple_result = mysqli_query($connect, "SELECT * FROM koweb_product_simple_info_data GROUP BY category ORDER BY no ASC");
+							while($simple = mysqli_fetch_array($simple_result)){
+						?>
+							<option value="<?=$simple[category]?>"><?=$simple[category]?></option>
+						<? } ?>
+					</select>
+					<? if($row[set_type]){?>
+					<script type="text/javascript">
+					//<![CDATA[
+						$("select[name=set_type] option[value='<?=$row[set_type]?>']").prop("selected", true);
+						//]]>
+					</script>
+					<? } ?>
+
+				</div>
+
+				<table class="bbsView mt20" data-load-simpleinfo>
+					<caption>상품요약정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:25%"/>
+						<col data-write="td" style="width:75%"/>
+					</colgroup>
+					<tbody>
+					<?
+						$setting_table = "koweb_product_simple_info_data";
+						$query = "SELECT * FROM $setting_table WHERE category = '$row[set_type]' ORDER BY no ASC";
+
+						$result = mysqli_query($connect, $query);
+						$count = 1;
+						$data_query =  mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_simple_info WHERE ref_product = '$no' order by no desc LIMIT 1"));
+						while($row2 = mysqli_fetch_array($result)){
+							echo "<tr><th scope=\"row\">".$row2[field_name]."</th><td><input type=\"text\" name=\"field_" . $count ."\" id=\"field_".$count."\" class=\"inputFull\" value=\"".$data_query["field_".$count]."\"/> <p class=\"info\">".$row2[field_txt]."</p></td></tr>";
+							$count++;
+						}
+					?>
+					</tbody>
+				</table>
+			</div>
+
+			<nav class="lnb small" id="pro04">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04" class="on">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>판매정보</h2>
+				<table class="bbsView mt20">
+					<caption>판매정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="price">판매가격</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>판매하고자 하는 최종가격을 작성하세요. </div>
+								</a>
+							</th>
+							<td><input type="text" name="price" value="<?=$row[price]?>" id="price"/></td>
+							<th scope="row"><label for="origin_price">시중가격</label>
+								<a href="#" data-tooltip="explan">안내
+									<div>상품의 할인되지 않는 순수 판매가격을 의미합니다. <span class="txt_red">입력하지 않으면 출력하지 않습니다.</span></div>
+								</a>
+							</th>
+							<td>
+								<input type="text" name="origin_price" value="<?=$row[origin_price]?>" id="origin_price"/>
+								<span class="info red">입력하지 않으면 출력하지 않습니다.</span>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">과세구분</th>
+							<td colspan="3">
+								<div class="designRadio">
+									<input type="radio" name="tax_type" id="tax_type1" value="1" checked/><label for="tax_type1">과세</label>
+									<input type="radio" name="tax_type" id="tax_type2" value="2"/><label for="tax_type2">비과세</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='tax_type']:radio[value='<?=$row[tax_type]?>']").prop("checked",true);
+								</script>
+
+							</td>
+							<!--<th scope="row"><span class="marking">필수항목</span>구매제한
+								<a href="#" data-tooltip="explan">안내
+									<div>기본설정은 쇼핑몰설정에 되어있는 전체설정으로 처리되며, 상품별로 별도로 지정을 하여 사용할 경우 해당부분이 우선순위로 인식되게 됩니다.</div>
+								</a>
+							</th>
+							<td>
+								<select name="limit_type" id="limit_type">
+									<option value="default">기본설정사용</option>
+									<option value="onlymember">비회원 구매 불가 (회원만 구매 가능)</option>
+									<option value="notused">제한안함</option>
+								</select>
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="limit_1st" id="limit_1st" value="Y"/><label for="limit_1st">한번만 구매가능(재구매불가)</label>
+									<script type="text/javascript">
+										$("input:checkbox[id='limit_1st'][value='<?=$row[limit_1st]?>']").prop("checked", true);
+									</script>
+
+								</div>
+							</td>-->
+						</tr>
+						<tr>
+							<th scope="row">포인트 적립유형</th>
+							<td>
+								<div class="designRadio">
+									<!--<input type="radio" name="point_type" value="1" id="point_type1" data-point-type="1" checked/><label for="point_type1">포인트 직접설정</label>-->
+									<input type="radio" name="point_type" value="2" id="point_type2" data-point-type="2" checked/><label for="point_type2">판매가격 비율</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='point_type']:radio[value='<?=$row[point_type]?>']").prop("checked",true);
+								</script>
+							</td>
+							<th scope="row"><label for="point_detail">포인트 적립비율</label></th>
+							<td>
+								<input type="text" name="point_detail" value="<?=$row[point_detail]?>" id="point_detail" class="input50"/> <span id="point_type_show">%</span>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">상품품절여부</th>
+							<td colspan="3">
+								<div class="designCheck">
+									<input type="checkbox" name="use_soldout" id="use_soldout" value="Y"/><label for="use_soldout">예</label>
+								</div>
+								<script type="text/javascript">
+									$("input:checkbox[id='use_soldout'][value='<?=$row[use_soldout]?>']").prop("checked", true);
+								</script>
+							</td>
+							<!--<th scope="row">재입고SMS 알림</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="use_smsalram" id="use_smsalram" value="Y"/><label for="use_smsalram">사용</label>
+								</div>
+								<script type="text/javascript">
+									$("input:checkbox[id='use_smsalram'][value='<?=$row[use_smsalram]?>']").prop("checked", true);
+							</script>
+							</td>-->
+						</tr>
+						<tr>
+							<th scope="row"><label for="min_count">최소구매수량</label></th>
+							<td><input type="text" name="min_count" value="<?=$row[min_count]?>"/></td>
+							<th scope="row"><label for="max_count">최대구매수량</label></th>
+							<td><input type="text" name="max_count" value="<?=$row[max_count]?>"/></td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="stock_count">재고수량</label></th>
+							<td><input type="text" name="stock_count" id="stock_count" value="<?=$row[stock_count]?>"/></td>
+							<th scope="row"><label for="stock_alram">재고 통보수량</label></th>
+							<td>
+								<div class="designCheck" style="display:inline-block;">
+									<input type="checkbox" name="use_stock_alram" id="use_stock_alram" value="Y"/><label for="use_stock_alram">사용</label>
+								</div>
+								<input type="text" name="stock_alram" id="stock_alram" class="input70" disabled value="<?=$row[stock_alram]?>"/>
+								<script type="text/javascript">
+								$(function(){
+									$("#use_stock_alram").change(function(){
+										if($(this).is(":checked")){
+											$("input[name=stock_alram]").attr("disabled", false);
+										} else {
+											$("input[name=stock_alram]").attr("disabled", true);
+										}
+									});
+									$(":checkbox[name='use_stock_alram'][value='<?=$row['use_stock_alram']?>']").prop("checked", true);
+									$("#use_stock_alram").trigger("change");
+								});
+								</script>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<nav class="lnb small" id="pro05">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05" class="on">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>선택 상품옵션</h2>
+				<div class="box_title">
+					<a href="javascript:void(0);" data-btn-event="add_optionset" class="button blue">+ 옵션 추가</a>
+					<i style="margin-left:15px; color:red;">버튼을 클릭하면 옵션값을 추가 할 수 있습니다.</i> 전체 입력한 후 하단의 모든 옵션 품목생성을 클릭하세요.
+				</div>
+
+				<!-- 옵션묶음 -->
+				<div id="option_set_area">
+				<!-- //옵션묶음 -->
+				<?
+				$option_set_count = 1;
+				$set_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$no' AND option_type = 'P' ORDER BY sort ASC";
+				$set_result = mysqli_query($connect, $set_query);
+				$option_detail_count = 1;
+				while($set_ = mysqli_fetch_array($set_result)){
+				//$option_value_ = explode("^", $set_[option_value]);
+				?>
+					<div class="product_option" data-option-set="<?=$option_set_count?>">
+						<dl>
+							<dt>
+								<span><em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em></span>
+								<span><span class="marking">필수항목</span>옵션명</span>
+								<span>
+									<div class="designCheck" style="display:inline-block;">
+										<input type="hidden" name="parents_use_color_value[]" data-usecolor-info="use_color_control" value="<?=$set_[use_color]?>" id="<?=$option_set_count?>_use_color_control" />
+										<input type="checkbox" name="use_color[]" data-option-info="use_color" value="Y" id="<?=$option_set_count?>_use_color"><label for="<?=$option_set_count?>_use_color">색상사용</label>
+										<input type="hidden" name="refer_idx[]" value="option<?=$option_set_count?>" data-refer-idx="<?=$option_set_count?>">
+									</div>
+								</span>
+								<span><input type="text" name="parents_title[]" value="<?=$set_[title]?>" data-option-info="set_title" class="inputFull">
+								<input type="hidden" name="set_current_id[]" value="<?=$set_[no]?>"/></span>
+								<span>
+									<a href="javascript:void(0);" data-btn-event="add_option" class="button blue" data-idx="<?=$option_set_count?>">옵션값 추가</a>
+									<a href="javascript:void(0);" data-optionset-del="<?=$option_set_count?>" class="button gray">옵션삭제</a>
+								</span>
+							</dt>
+							<script type="text/javascript">
+								$("input:checkbox[id='<?=$option_set_count?>_use_color'][value='<?=$set_[use_color]?>']").prop("checked", true);
+							</script>
+							<? //foreach($option_value_ AS $ov){ ?>
+							<?
+								$op_v = "SELECT * FROM koweb_option_set WHERE option_type ='C' AND ref_parents='$set_[no]' ORDER BY no ASC";
+								$op_result = mysqli_query($connect, $op_v);
+								while($op_va_ = mysqli_fetch_array($op_result)){
+							?>
+								<dd data-detail-option="<?=$option_detail_count?>">
+									<div class="color  <? if($set_[use_color] != "Y") {  echo "hidden"; } ?> " <? if($set_[use_color] != "Y") {  echo "style=\"display:none;\""; } ?> >
+									<?
+										if($set_[use_color] != "Y"){
+											$op_va_[color_value] = "";
+										}
+									?>
+										<div data-review-color="<?=$option_detail_count?>" style="background: <?=$op_va_[color_value]?>";></div>
+										<input type="text" name="option<?=$option_set_count?>_color_value[]" value="<?=$op_va_[color_value]?>" data-color-value="<?=$option_detail_count?>" data-color-picker="<?=$option_detail_count?>" data-option-info="color" placeholder="색상표 선택">
+									</div>
+
+									<div class="setting">
+										<span><i>옵션값 항목</i><input type="text" data-create-value="<?=$op_va_[option_title]?>" value="<?=$op_va_[option_title]?>" name="option<?=$option_set_count?>_option_title[]" data-option-info="option_title" class="input400">	<input type="hidden" name="set_current_id[]" value="<?=$op_va_[no]?>"/></span>
+										<span class="btn">
+											<div class="designCheck" style="display:inline-block;">
+												<input type="hidden" name="option<?=$option_set_count?>_option_state_value[]" value="<?=$op_va_[option_state]?>" data-optionvalue-info />
+												<input type="checkbox" name="option<?=$option_set_count?>_option_state[]" id="stateY_<?=$option_set_count?>_<?=$option_detail_count?>" value="N" data-option-info="checked_state_option">
+												<label for="stateY_<?=$option_set_count?>_<?=$option_detail_count?>">사용안함</label>
+											</div>
+											<a href="#" data-option-del="<?=$option_detail_count?>" class="button sm gray">삭제</a>
+										</span>
+										<script type="text/javascript">
+											$("input:checkbox[id='stateY_<?=$option_set_count?>_<?=$option_detail_count?>'][value='<?=$op_va_[option_state]?>']").prop("checked", true);
+										</script>
+									</div>
+								</dd>
+							<? $option_detail_count++; } ?>
+						</dl>
+					</div>
+				<? $option_set_count++; } ?>
+				</div>
+
+				<div class="btn_area">
+					<a href="javascript:void(0);" data-btn-event="option_detail_make" class="button lg">모든 옵션 품목생성</a>
+				</div>
+
+				<!-- 품목생성하면 표시 그전엔 숨기기 -->
+				<div class="product_option_list" id="option_detail_area">
+					<div class="btn_col">
+						<a href="#" class="button sm white" id="all_deleted">삭제</a>
+						<a href="javascript:;" onclick="javascript:showPopup(popLayer01, 'option');" class="button sm white">일괄설정</a>
+
+						<div class="right">
+							<a href="#" class="button sm white" data-btn-event="detail_check_id">자체코드품목 중복확인</a>
+							<!--<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button sm white">품절표시문구</a>-->
+						</div>
+					</div>
+					<table class="bbsList" data-detail-table="">
+						<caption>옵션품목생성</caption>
+						<colgroup>
+							<col style="width:5%">
+							<col style="width:5%">
+							<col>
+							<col style="width:10%">
+							<col style="width:15%">
+							<col style="width:10%">
+							<col style="width:10%">
+							<col style="width:10%">
+							<col style="width:10%">
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col"><div class="designCheck noText"><input type="checkbox" name="all_selected" id="all_selected"><label for="all_selected">전체선택</label></div></th>
+								<th scope="col">순서</th>
+								<th scope="col">품목명[품목코드]</th>
+								<th scope="col">자체품목코드</th>
+								<th scope="col">추가금액</th>
+								<th scope="col">재고수량</th>
+								<th scope="col">안전재고</th>
+								<th scope="col">품절표시</th>
+								<th scope="col">판매상태</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?
+							$detail_query = mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE ref_product = '$no' AND otype='detail' ORDER BY sort ASC");
+							$detail_count = 1;
+							while($detail_ = mysqli_fetch_array($detail_query)){
+							?>
+							<tr data-detail-info="<?=$detail_count?>">
+								<td>
+									<div class="designCheck noText">
+										<input type="checkbox" name="detail_del" value="<?=$detail_count?>" id="detail_del_<?=$detail_count?>" data-detail-selector="<?=$detail_count?>" >
+										<label for="detail_del_<?=$detail_count?>">선택</label>
+									</div>
+								</td>
+								<td>
+									<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+								</td>
+								<td class="tal">
+									<? if($detail_[option_color1]){ ?><div data-review-color="<?=$detail_count?>" style="background:<?=$detail_[option_color1]?>"></div><? } ?>
+									<? if($detail_[option_color2]){ ?><div data-review-color="<?=$detail_count?>" style="background:<?=$detail_[option_color2]?>"></div><? } ?>
+									<? if($detail_[option_color3]){ ?><div data-review-color="<?=$detail_count?>" style="background:<?=$detail_[option_color3]?>"></div><? } ?>
+									<input type="hidden" name="option_color1[]" value="<?=$detail_[option_color1]?>">
+									<input type="hidden" name="option_color2[]" value="<?=$detail_[option_color2]?>">
+									<input type="hidden" name="option_color3[]" value="<?=$detail_[option_color3]?>">
+									<?=$detail_[title]?> <i>[<?=$detail_[current_id]?>]</i>
+									<input type="hidden" name="option_title[]" value="<?=$detail_[title]?>">
+								</td>
+								<td>
+									<input type="text" name="option_id[]" value="<?=$detail_[id]?>" data-detail-input="option_id" class="inputFull">
+									<input type="hidden" name="current_option_id[]" value="<?=$detail_[current_id]?>" class="inputFull">
+								</td>
+								<td>
+									<select name="option_type[]" data-detail-input="type">
+										<option value="+" <? if($detail_[price_type] == "+"){ echo "selected"; } ?> >+</option>
+										<option value="-" <? if($detail_[price_type] == "-"){ echo "selected"; } ?> >-</option>
+									</select>
+									<input type="text" name="option_price[]" data-detail-input="price" value="<?=$detail_[price]?>" class="input100">
+								</td>
+								<td>
+									<input type="text" name="stock[]" data-detail-input="stock" value="<?=$detail_[stock]?>" class="inputFull">
+								</td>
+								<td>
+									<input type="text" name="safe_stock[]" data-detail-input="safety_stock" value="<?=$detail_[safe_stock]?>" class="inputFull">
+								</td>
+								<td>
+									<div class="designCheck noText">
+										<input type="hidden" name="use_soldout_value[]" data-detail-soldout="" value="<?=$detail_[soldout]?>">
+										<input type="checkbox" data-detail-input="use_soldout" name="option_use_sold[]" id="use_soldout_op_<?=$detail_count?>" value="Y" <? if($detail_[soldout] == "Y"){ echo "checked"; } ?> >
+										<label for="use_soldout_op_<?=$detail_count?>">품절사용</label>
+									</div>
+								</td>
+								<td>
+									<select name="detail_state[]" id="" class="inputFull" data-detail-input="state">
+										<option value="Y" <? if($detail_[state] == "Y"){ echo "selected"; }?>>판매함</option>
+										<option value="N" <? if($detail_[state] == "N"){ echo "selected"; }?>>판매안함</option>
+									</select>
+								</td>
+							</tr>
+							<? $detail_count++; } ?>
+						</tbody>
+					</table>
+				</div>
+
+				<h2 style="margin-top:30px;">추가 상품옵션</h2>
+				<div class="box_title">
+					<a href="javascript:void(0);" data-btn-event="add_ad_optionset" class="button blue">+ 옵션 추가</a>
+					<i style="margin-left:15px; color:red;">버튼을 클릭하면 추가 상품옵션값을 추가 할 수 있습니다.</i>
+				</div>
+
+				<div class="btn_col mt20">
+					<a href="#" class="button sm white" id="all_deleted2">삭제</a>
+					<a href="javascript:;" onclick="javascript:showPopup(popLayer01, 'additional');" class="button sm white" >일괄설정</a>
+
+					<div class="right">
+						<a href="#" class="button sm white" data-btn-event="add_check_id">자체코드품목 중복확인</a>
+						<!--<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button sm white">품절표시문구</a>-->
+					</div>
+				</div>
+
+				<table class="bbsList" data-detail-additional>
+					<caption>옵션품목생성</caption>
+					<colgroup>
+						<col style="width:5%"/>
+						<col style="width:5%"/>
+						<col />
+						<col style="width:10%"/>
+						<col style="width:15%"/>
+						<col style="width:10%"/>
+						<col style="width:10%"/>
+						<col style="width:10%"/>
+						<col style="width:10%"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col"><div class="designCheck noText"><input type="checkbox" name="all_selected" id="all_selected2"/><label for="all_selected2">전체선택</label></div></th>
+							<th scope="col">순서</th>
+							<th scope="col">추가상품명[품목코드]</th>
+							<th scope="col">자체품목코드</th>
+							<th scope="col">추가금액</th>
+							<th scope="col">재고수량</th>
+							<th scope="col">안전재고</th>
+							<th scope="col">품절표시</th>
+							<th scope="col">판매상태</th>
+						</tr>
+					</thead>
+					<tbody data-additional-option>
+					<?
+					$addoption_query = mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE ref_product = '$no' AND otype='add' ORDER BY sort ASC");
+					$addoption_count = 1;
+					while($addoption_ = mysqli_fetch_array($addoption_query)){
+					?>
+						<tr data-addoption-set="<?=$addoption_count?>">
+							<td>
+								<div class="designCheck noText">
+									<input type="checkbox" name="additional_checker" id="additional_checker_<?=$addoption_count?>" value="<?=$addoption_count?>" data-additional-selector="<?=$addoption_count?>">
+									<label for="additional_checker_<?=$addoption_count?>">선택</label>
+								</div>
+							</td>
+							<td>
+								<em class="icon_drag">마우스드레그하시면 순서변경이 가능합니다</em>
+							</td>
+							<td class="tal">
+								<input type="text" name="additional_item_title[]" value="<?=$addoption_[title]?>" class="inputFull">
+							</td>
+							<td>
+								<input type="text" name="additional_item_id[]" value="<?=$addoption_[id]?>" data-detail-input="add_option_id" class="inputFull">
+								<input type="hidden" name="additional_item_current_id[]" value="<?=$addoption_[current_id]?>" class="inputFull">
+							</td>
+							<td>
+								<select name="additional_item_type[]" data-detail-input="type">
+									<option value="+" <? if($addoption_[price_type] == "+"){ echo "selected"; } ?> >+</option>
+									<option value="-" <? if($addoption_[price_type] == "-"){ echo "selected"; } ?> >-</option>
+								</select>
+								<input type="text" name="additional_item_price[]" class="input100" data-detail-input="price" value="<?=$addoption_[price]?>">
+							</td>
+							<td>
+								<input type="text" name="additional_item_stock[]" value="<?=$addoption_[stock]?>" class="inputFull" data-detail-input="stock">
+							</td>
+							<td>
+								<input type="text" name="additional_item_safe_stock[]" value="<?=$addoption_[safe_stock]?>" class="inputFull" data-detail-input="safety_stock">
+							</td>
+							<td>
+								<div class="designCheck noText">
+									<input type="hidden" name="additional_item_soldout_value[]" value="<?=$addoption_[soldout]?>" data-detailvalue-input />
+									<input type="checkbox" name="additional_item_soldout[]" id="add_soldout_<?=$addoption_count?>" value="Y" data-detail-input="use_soldout" <? if($addoption_[soldout] == "Y"){ echo "checked"; } ?> >
+									<label for="add_soldout_<?=$addoption_count?>">품절사용</label>
+								</div>
+							</td>
+							<td>
+								<select name="additional_item_state[]" id="" class="inputFull" data-detail-input="state">
+									<option value="Y" <? if($addoption_[state] == "Y"){ echo "selected"; }?>>판매함</option>
+									<option value="N" <? if($addoption_[state] == "N"){ echo "selected"; }?>>판매안함</option>
+								</select>
+							</td>
+						</tr>
+						<? $addoption_count++;} ?>
+					</tbody>
+				</table>
+				<?	if($_SERVER[REMOTE_ADDR] == "106.242.31.74"){?>
+				<h2 style="margin-top:30px;">직접입력 상품옵션</h2>
+				<table class="bbsView">
+					<caption>표시설정</caption>
+					<colgroup>
+						<col data-write="th" style="width:10%"/>
+						<col data-write="td" style="width:80%"/>
+						<!--<col data-write="th" style="width:15%"/>
+						<col data-write="td"/>-->
+					</colgroup>
+					<?
+						$direct_query = mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE ref_product = '$no' AND otype='direct' ORDER BY sort ASC");
+						$direct_row = mysqli_fetch_array($direct_query);
+					?>
+					<tbody>
+						<tr>
+							<th scope="row">사용여부</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="direct_state" value="Y" id="direct_stateY" /><label for="direct_stateY">사용</label>
+									<input type="radio" name="direct_state" value="N" id="direct_stateN" checked/><label for="direct_stateN">미사용</label>
+								</div>
+								<script type="text/javascript">
+									$("input:radio[name='direct_state']:radio[value='<?=$direct_row[state]?>']").prop("checked",true);
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="title">옵션명</label></th>
+							<td >
+								<input type="text" name="direct_title" value="<?=$direct_row[title]?>" class="input400"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<?	}?>
+			</div>
+
+			<nav class="lnb small" id="pro06">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06" class="on">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>이미지정보</h2>
+				<table class="bbsView mt20">
+					<caption>이미지정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:35%"/>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span>대표이미지
+								<a href="#" data-tooltip="explan">안내
+									<div>상품목록에서 처음으로 보일 대표이미지를 말합니다. <br>사진은 너무작거나 큰사이즈경우 손상될 수 있으니 유의바랍니다. <br>최적사이즈는 500px * 500px입니다.</div>
+								</a>
+							</th>
+							<td>
+								<div class="designFile">
+									<input type="text" name="" readonly="readonly" value="<?=$row[title_img]?>">
+									<input type="file" name="title_img" id="title_img">
+									<label for="title_img" class="button white">파일선택</label>
+								</div>
+								<?
+								$del_3 = "";
+								if($row[title_img]){
+									$del_3 = "<div class='designCheck mb10' style='display:inline-block;'><input type='checkbox' value='Y' id='del_title_img' name='del_title_img'/><label for='del_title_img'>파일삭제</label></div>";
+								}
+								echo $del_3;
+								?>
+							</td>
+							<th scope="row"><span class="marking">필수항목</span>추가이미지</th>
+							<td>
+								<div class="designFile">
+									<input type="text"  name="" readonly="readonly" value="<?=$row[img_1]?>">
+									<input type="file" name="img_1" id="img_1">
+									<label for="img_1" class="button white">파일선택</label>
+								</div>
+								<?
+								$del_3 = "";
+								if($row[img_1]){
+									$del_3 = "<div class='designCheck mb10' style='display:inline-block;'><input type='checkbox' value='Y' id='del_1' name='del_1'/><label for='del_1'>파일삭제</label></div>";
+								}
+								echo $del_3;
+								?>
+							</td>
+						</tr>
+						<? for($i = 2; $i <= 9; $i++){
+						if($i%2 == 0){ echo "<tr>";}
+						?>
+						<th scope="row">추가이미지</th>
+						<td>
+							<div class="designFile">
+								<input type="text" name="" readonly="readonly" value="<?=$row["img_".$i]?>">
+								<input type="file" name="img_<?=$i?>" id="img_<?=$i?>">
+								<label for="img_<?=$i?>" class="button white">파일선택</label>
+							</div>
+							<?
+							$del_3 = "";
+							if($row["img_".$i]){
+								$del_3 = "<div class='designCheck mb10' style='display:inline-block;'><input type='checkbox' value='Y' id='del_$i' name='del_$i'/><label for='del_$i'>파일삭제</label></div>";
+							}
+							echo $del_3;
+							?>
+						</td>
+						<?
+						if($i%2 == 1){ echo "</tr>";}
+						}
+						?>
+					</tbody>
+				</table>
+			</div>
+
+			<nav class="lnb small" id="pro07">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07" class="on">관련상품정보</a></li>
+					<li><a href="#pro08">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>관련상품정보
+					<a href="#" data-tooltip="explan">안내
+						<div>해당상품과 관련된 상품을 등록시켜 해당 물품 페이지에서 노출되게 됩니다. <br/>아래 분류에서 선택하여 물품을 찾으시거나 검색을 이용하여 상품검색 후 이용바랍니다.</div>
+					</a>
+				</h2>
+				<div class="search_bbs" data-rcate-area>
+					<select name="rf_category" id="rf_category" data-set-rcate data-cate="set-rcate">
+						<option>선택해주세요</option>
+						<?
+							$load_category_result = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE depth = '1' AND state = 'Y' ORDER BY sort ASC");
+							while($load_category = mysqli_fetch_array($load_category_result)){
+						?>
+							<option value="<?=$load_category[id]?>"><?=$load_category[title]?></option>
+						<? } ?>
+					</select>
+					<input type="text" name="search_info" id="search_info" class="input300" placeholder="검색어를 입력해주세요"/>
+				</div>
+
+				<div class="box_double relate">
+					<!-- 검색된상품 -->
+					<div class="step01" >
+						<div class="scrollbar-inner" data-refer-list>
+							<!-- 결과 --//>
+							<ul>
+							<?
+							$refer_info = explode("|", $row[refer_product]);
+							$refer_info = array_filter($refer_info);
+
+							foreach($refer_info AS $rfinfo){
+								$add_query .= "AND ( id != '$rfinfo' ) ";
+							}
+
+							$refer_query = "SELECT * FROM koweb_product WHERE seller ='Y' AND id != '$row[id]' $add_query";
+							$refer_result = mysqli_query($connect, $refer_query);
+							$refer_count = 1;
+							while($refer_ = mysqli_fetch_array($refer_result)){
+							?>
+								<li data-refer-info="<?=$refer_[id]?>" data-refer-catev="<?=$refer_[category_navi]?>">
+									<!-- 대표이미지 --//>
+									<? if($refer_[title_img]){?>
+										<span class="img" style="background-image:url(/upload/product/<?=$refer_[title_img]?>);"></span>
+									<? } else { ?>
+										<span class="img" style=""></span>
+									<? } ?>
+									<!-- 상품명 --//>
+									<em><i><?=$refer_[product_title]?></i></em>
+									<a href="#" class="button white" data-btn-event="add_refer">추가</a>
+								</li>
+								<? $refer_count++; } ?>
+							</ul>
+							<!-- //결과 -->
+
+							<!-- 검색된 상품이 없는경우 -->
+
+							<p class="no_data">검색 된 상품이 없습니다.</p>
+						</div>
+					</div>
+					<!-- //검색된상품 -->
+					<!-- 관련상품추가 -->
+					<div class="step02" data-refer-area>
+						<?
+						$refer_info = explode("|", $row[refer_product]);
+						$refer_info = array_filter($refer_info);?>
+						<div class="scrollbar-inner">
+						<?
+						if(count($refer_info) > 0){
+						?>
+								<!-- 결과 -->
+								<ul>
+									<!-- 반복 -->
+									<?
+									foreach($refer_info AS $rf){
+										$refer_query = "SELECT * FROM koweb_product WHERE id = '$rf' AND seller = 'Y'";
+										$refer_result = mysqli_query($connect, $refer_query);
+										while($refer_ = mysqli_fetch_array($refer_result)){
+									?>
+										<li data-refer-info="<?=$rf?>" data-refer-catev="<?=$refer_[category_navi]?>">
+											<!-- 대표이미지 -->
+											<span class="img" style="background-image:url(/upload/product/<?=$refer_[title_img]?>);"></span>
+											<!-- 상품명 -->
+											<em><i><?=$refer_[product_title]?></i></em>
+											<a href="#" class="button black" data-btn-event="del_refer">삭제</a>
+										</li>
+									<? }
+									} ?>
+									<!-- //반복 -->
+								</ul>
+						<? } else { ?>
+							<p class="no_data">추가 된 상품이 없습니다.</p>
+						<? } ?>
+						<!-- 추가된 상품이 없는경우 -->
+					</div>
+				</div>
+					<!-- //관련상품추가 -->
+			</div>
+			</div>
+
+			<nav class="lnb small" id="pro08">
+				<ul>
+					<li><a href="#pro01">표시설정</a></li>
+					<li><a href="#pro02">기본정보</a></li>
+					<li><a href="#pro03">상품요약정보</a></li>
+					<li><a href="#pro04">판매정보</a></li>
+					<li><a href="#pro05">옵션설정</a></li>
+					<li><a href="#pro06">이미지정보</a></li>
+					<li><a href="#pro07">관련상품정보</a></li>
+					<li><a href="#pro08" class="on">배송정보</a></li>
+				</ul>
+			</nav>
+			<div class="box pd">
+				<h2>배송정보</h2>
+				<table class="bbsView mt20">
+					<caption>배송정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:85%"/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><span class="marking">필수항목</span><label for="">배송유형</label></th>
+							<td>
+								<select name="deli_type" id="deli_type">
+									<option value="default">쇼핑몰기본설정사용</option>
+									<option value="free">무료배송</option>
+									<!-- <option value="def">조건부무료배송</option> -->
+									<option value="fix">유료배송</option>
+								</select>
+							</td>
+						</tr>
+
+						<tr data-deli-type="fix" <? if($row[deli_type] != "fix"){ echo "style='display:none;'"; }?>>
+							<th scope="row"><label for="">기본배송비</label></th>
+							<td>
+								<input type="text" name="deli_price[]" id="deli_price" value="<?=$deli_price_arr[0]?>">원
+								<span class="info red" style="margin-left:20px;">무료배송 이외의 설정에 적용되는 배송비 금액입니다.</span>
+							</td>
+						</tr>
+
+						<tr data-deli-type="def" <? if($row[deli_type] != "def"){ echo "style='display:none;'"; }?>>
+							<th scope="row">
+								구간설정
+								<a href="#" class="button sm gray" id="add_category" data-deli-type="def"  <? if($row[deli_type] != "def"){ ?> style="display:none;" <? } ?>>+ 추가</a>
+							</th>
+							<td>
+								<ul>
+									<li>
+										<input type="text" name="deli_price_type[]" value="<?=$deli_price_type_arr[0]?>" placeholder="상품금액"/>원 이상
+										<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" value="<?=$deli_price_arr[0]?>" placeholder="금액">원
+										<?
+											$count = 0;
+											foreach($deli_price_type_arr as $key => $value){
+												if($count != 0){
+												$del_id = "#deli_price_type_".$count;
+										?>
+												<div id="deli_price_type_<?=$count?>">
+													<input type="text" name="deli_price_type[]" value="<?=$value?>" placeholder="상품금액"/>원 이상
+													<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" id="" value="<?=$deli_price_arr[$key]?>" placeholder="금액">원
+													<a href="#" id="del_price_type_<?=$count?>" class="button white" onclick="$('<?=$del_id?>').remove();">- 삭제</a>
+												</div>
+										<?
+											}
+											$count++;
+										}
+										?>
+									</li>
+								</ul>
+								<? if($mode == "modify"){?>
+								<script type="text/javascript">
+								$("select[name=deli_type] option[value=<?=$row[deli_type]?>]").prop("selected", true);
+								</script>
+								<?} ?>
+								<p class="info red" style="margin-top:5px;">금액을 0원으로 입력하면 무료배송 처리가 됩니다.</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+			<!-- 레이어 일괄설정 -->
+			<div id="popLayer01" style="display:none;">
+			<input type="hidden" id="apply_hidden" value="" />
+				<div class="popBox">
+					<!-- title -->
+					<h2>옵션정보 일괄설정</h2>
+					<!-- scroll -->
+					<div class="scrollbar-inner">
+						<div class="popinBox">
+
+							<table class="table" data-all-applyform>
+								<caption>옵션정보 일괄설정</caption>
+								<colgroup>
+									<col style="width:25%;"/>
+									<col/>
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row">추가금액</th>
+										<td>
+											<select name="" id="" data-detail-input="type">
+												<option value="+">+</option>
+												<option value="-">-</option>
+											</select>
+											<input type="text" name="" id="all_price" value="" data-detail-input="price" class="input100"/>
+											<div class="designCheck"><input type="checkbox" name="price_us" value="Y" id="price_us"/><label for="price_us">적용</label></div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">재고수량</th>
+										<td>
+											<input type="text" name="" id="all_stock" value="" data-detail-input="stock" class="input100"/>
+											<div class="designCheck"><input type="checkbox" name="stock_us" value="Y" id="stock_us"/><label for="stock_us">적용</label></div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">안전재고</th>
+										<td>
+											<input type="text" name="" id="all_safety_stock" data-detail-input="safety_stock" value="" class="input100"/>
+											<div class="designCheck"><input type="checkbox" name="safety_stock_us" value="Y" id="safety_stock_us"/><label for="safety_stock_us">적용</label></div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">품절표시</th>
+										<td><div class="designCheck"><input type="checkbox" name="" value="Y" data-detail-input="use_soldout" id="all_notstock"/><label for="all_notstock">품절사용</label></div>
+
+										<div class="designCheck"><input type="checkbox" name="use_soldout_us" value="Y" id="use_soldout_us"/><label for="use_soldout_us">적용</label></div>
+
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">판매상태</th>
+										<td>
+											<select name="" id="all_state" class="input200" data-detail-input="state">
+												<option value="Y">판매함</option>
+												<option value="N">판매안함</option>
+											</select>
+											<div class="designCheck"><input type="checkbox" name="state_us" value="Y" id="state_us"/><label for="state_us">적용</label></div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<div class="btn_area">
+								<a href="#" class="button lg" data-btn-event="all_apply" id="apply_all_button">일괄설정</a>
+								<a href="#" class="button lg white btn_close">닫기</a>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //레이어 일괄설정 -->
+
+			<!-- 레이어 품절표시문구 -->
+			<div id="popLayer02" style="display:none;">
+				<div class="popBox">
+					<!-- title -->
+					<h2>품절표시문구</h2>
+					<!-- scroll -->
+					<div class="scrollbar-inner">
+						<div class="popinBox">
+
+							<table class="table">
+								<caption>품절표시문구</caption>
+								<colgroup>
+									<col style="width:25%;"/>
+									<col/>
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row">품절문구</th>
+										<td>
+											<input type="text" name="" id="" value="" class="inputFull"/>
+											<p class="info">옵션박스에 표기되는 [품절] 문구를 설정할 수 있습니다.<br/><i style="color:red;">미입력시 '품절'문구가 자동입력됩니다.</i></p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<div class="btn_area">
+								<a href="#" class="button lg btn_close">적용</a>
+								<a href="#" class="button lg white btn_close">닫기</a>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //레이어 품절표시문구 -->
+
+		<!-- //글쓰기 -->
+		<!-- 버튼 -->
+		<div class="btn_area">
+			<input type="submit" class="button lg" value="저장" />
+			<a href="<?=$common_queryString?>" class="button lg gray">취소</a>
+		</div>
+	</form>
+</div>
+
+
+<script type="text/javascript">
+$(document).on("change","[data-set-pcate],[data-set-rcate]",function(){
+	var no = $(this).val();
+	var tmp = $(this);
+	var tmp_type = $(this).data("cate");
+
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/setting/product/product_load_catgegory.php",
+		data : {
+			no : no,
+			tmp_type : tmp_type
+		},
+		success : function(args) {
+			$(tmp).nextAll("select").remove();
+			if(tmp_type == "set-pcate"){
+				$("[data-pcate-area]").append(args);
+			} else {
+				$("[data-rcate-area] input[type=text]").before(args);
+			}
+			if(tmp_type == "set-rcate"){
+				var tm_ = "";
+				var nv = $("#no").val();
+				$("[data-set-rcate]").each(function(){
+					if($(this).val() != "선택해주세요"){
+						tm_ += $(this).val()+"|";
+					}
+				});
+
+				$.ajax({
+					type : "POST",
+					url : "/ko_mall/setting/product/product_load_refer.php",
+					data : {
+						no : tm_,
+						now_no : nv
+					},
+					success : function(args) {
+
+						$("[data-refer-list]").html("");
+						$("[data-refer-list]").append(args);
+						$("[data-refer-area] [data-refer-info]").each(function(){
+							var tmp_ = $(this).data("refer-info");
+							$("[data-refer-list] [data-refer-info]").each(function(){
+								if($(this).data("refer-info") == tmp_){
+									$(this).closest("li").remove();
+								}
+							});
+						});
+					},
+					beforeSend: function () {
+						$("#div_ajax_load_image").show();
+					},
+					complete: function () {
+						$("#div_ajax_load_image").hide();
+					}
+				});
+			}
+		},
+		beforeSend: function () {
+			$("#div_ajax_load_image").show();
+		},
+		complete: function () {
+			$("#div_ajax_load_image").hide();
+		}
+	});
+});
+
+$(document).on("change","[data-pcate-area] select",function(){
+	var tmp_var = "";
+
+	$("[data-pcate-area] select").each(function(){
+		tmp_var += $('option:selected',this).val()+"|";
+	});
+
+	$("input[name=pcate_navication]").val(tmp_var);
+});
+
+$(document).on("change","[data-pcate-area] select",function(){
+	var tmp_var = "";
+
+	$("[data-pcate-area] select").each(function(){
+		if($('option:selected',this).val() != ""){
+			tmp_var += $('option:selected',this).val()+"|";
+		}
+	});
+
+	$("input[name=pcate_navication]").val(tmp_var);
+});
+
+
+$(document).on("keyup","#search_info",function(){
+	var tmp = $(this).val();
+	$("[data-refer-list]").find("li").hide();
+	$("[data-refer-info] em:contains('"+tmp+"')").parent("li").show();
+});
+
+$(document).on("keyup","[data-detail-input=option_id]",function(){
+	$("input[name=hidden_code_detail]").val("false");
+});
+
+$(document).on("keyup","[data-detail-input=add_option_id]",function(){
+	$("input[name=hidden_code_add]").val("false");
+
+});
+
+$(document).on("keyup","input[name=id]",function(){
+	if($("#direct_id").is(":checked")){
+		if("<?=$mode?>" == "modify"){
+			var ridva = "<?=$row[id]?>";
+			if(ridva != $("input[name=id]").val()){
+				$("input[name=hidden_code]").val("false");
+			} else {
+				$("input[name=hidden_code]").val("true");
+			}
+		} else {
+			$("input[name=hidden_code]").val("false");
+		}
+	}
+});
+
+$(document).on("click","[data-btn-event=check_id],[data-btn-event=detail_check_id],[data-btn-event=add_check_id]",function(){
+	var id = "";
+	var data_type = $(this).data("btn-event");
+	var no = "<?=$no?>";
+	var chk = true;
+
+	if(data_type == "check_id"){
+		id = $("input[name=id]").val();
+		if(!id) {
+			alert("상품코드를 입력해주세요");
+			return false;
+		}
+	} else if(data_type == "detail_check_id"){
+
+		$("[data-detail-table]").find("[data-detail-selector]").each(function(){
+
+			if(!$("[data-detail-info="+ $(this).data("detail-selector")+"]").find("[data-detail-input=option_id]").val()){
+				alert("상품코드를 입력해주세요.");
+				chk = false;
+				return false;
+			}
+
+			id += $("[data-detail-info="+ $(this).data("detail-selector")+"]").find("[data-detail-input=option_id]").val()+"|";
+		});
+
+	} else {
+		$("[data-additional-option]").find("[data-additional-selector]").each(function(){
+
+			if(!$("[data-addoption-set="+ $(this).data("additional-selector")+"]").find("[data-detail-input=add_option_id]").val()){
+				alert("추가상품코드를 입력해주세요.");
+				chk = false;
+				return false;
+			}
+
+			id += $("[data-addoption-set="+ $(this).data("additional-selector")+"]").find("[data-detail-input=add_option_id]").val()+"|";
+		});
+	}
+
+	if(!chk) return false;
+
+
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/setting/product/product_id_ajax.php",
+		dataType : "json",
+		data : {
+			id : id,
+			data_type : data_type,
+			mode : "<?=$mode?>",
+			no : "<?=$no?>"
+		},
+		success : function(args) {
+
+			if(data_type == "check_id"){
+
+				if(args.result == "false"){
+					alert("중복된 상품코드입니다.");
+					$("input[name=id]").css("border","solid 1px #c2cbd1");
+					$("input[name=id]").css("border","solid 2px #ff0000");
+					$("input[name=hidden_code]").val("false");
+				} else {
+					$("input[name=id]").css("border","solid 1px #c2cbd1");
+					$("input[name=hidden_code]").val("true");
+				}
+
+			} else if(data_type == "detail_check_id"){
+
+				if(args.result == "false"){
+					alert("중복된 옵션코드가있습니다.");
+					var text = args.result_ids;
+					var arr = text.split("|");
+					$("[data-detail-table]").find("[data-detail-selector]").each(function(){
+
+						var tmp_2 = $(this).data("detail-selector");
+						$("[data-detail-info="+ tmp_2+"]").find("[data-detail-input=option_id]").css("border","solid 1px #c2cbd1");
+
+						var tmp_1 = $("[data-detail-info="+ tmp_2+"]").find("[data-detail-input=option_id]");
+
+						$.each(arr, function(index, item){
+							if(tmp_1.val() == item){
+								tmp_1.css("border","solid 2px #ff0000");
+							}
+						});
+					});
+
+					$("input[name=hidden_code_detail]").val("false");
+
+				} else {
+					alert("중복된 옵션코드가 없습니다.");
+
+					$("[data-detail-table]").find("[data-detail-selector]").each(function(){
+						var tmp_2 = $(this).data("detail-selector");
+						$("[data-detail-info="+ tmp_2+"]").find("[data-detail-input=option_id]").css("border","solid 1px #c2cbd1");
+					});
+
+					$("input[name=hidden_code_detail]").val("true");
+				}
+
+			} else {
+
+				if(args.result == "false"){
+					alert("중복된 추가옵션코드가있습니다.");
+					var text = args.result_ids;
+					var arr = text.split("|");
+
+					$("[data-detail-additional]").find("[data-additional-selector]").each(function(){
+						var tmp_2 = $(this).data("additional-selector");
+						$("[data-addoption-set="+ tmp_2+"]").find("[data-detail-input=add_option_id]").css("border","solid 1px #c2cbd1");
+
+						var tmp_1 = $("[data-addoption-set="+ tmp_2+"]").find("[data-detail-input=add_option_id]");
+						$.each(arr, function(index, item){
+							if(tmp_1.val() == item){
+								tmp_1.css("border","solid 2px #ff0000");
+							}
+						});
+					});
+
+					$("input[name=hidden_code_add]").val("false");
+
+				} else {
+					alert("중복된 추가옵션코드가 없습니다.");
+
+					$("[data-detail-additional]").find("[data-additional-selector]").each(function(){
+						var tmp_2 = $(this).data("additional-selector");
+						$("[data-addoption-set="+ tmp_2+"]").find("[data-detail-input=add_option_id]").css("border","solid 1px #c2cbd1");
+					});
+
+					$("input[name=hidden_code_add]").val("true");
+				}
+
+			}
+		},
+		beforeSend: function () {
+			$("#div_ajax_load_image").show();
+		},
+		complete: function () {
+			$("#div_ajax_load_image").hide();
+		},
+		error:function(request,status,error){
+			console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		}
+	});
+});
+
+
+$('form').submit(function(){
+	var chk = true;
+	var option_check = true;
+	var add_option_check = true;
+
+
+	$("[data-create-value]").each(function(){
+
+		if($(this).attr("data-create-value") != $(this).val()){
+			alert("옵션값 변경후, 품목생성을 진행해주세요.");
+			chk = false;
+		}
+	})
+
+	if(!chk) return false;
+
+	if(!submit_before_option_flag){
+		alert("옵션에 대하여 수정후, 품목생성을 진행해주세요.");
+		chk = false;
+	}
+
+	if(!chk) return false;
+
+
+/*
+	$("[data-detail-table]").find("[data-detail-selector]").each(function(){
+		if($("[data-detail-info="+ $(this).data("detail-selector")+"]").find("[data-detail-input=option_id]").val()){
+			option_check = false;
+		}
+	});
+
+	$("[data-additional-option]").find("[data-additional-selector]").each(function(){
+		if($("[data-addoption-set="+ $(this).data("additional-selector")+"]").find("[data-detail-input=add_option_id]").val()){
+			add_option_check = false;
+		}
+	});
+*/
+
+	if($("#f_category").val() == "선택해주세요"){
+		alert("상품분류를 지정해주세요");
+		return false;
+	}
+
+
+
+	if($("#direct_id").is(":checked")){
+		if($("input[name=hidden_code]").val() == "false"){
+			alert("상품코드 중복확인을 진행해주세요.");
+			$("inpput[name=hidden_code]").focus();
+			return false;
+		}
+	}
+
+	if($("input[name=hidden_code_detail]").val() == "false"){
+		alert("옵션코드 중복확인을 진행해주세요.");
+		$("inpput[name=hidden_code_detail]").focus();
+		return false;
+	}
+
+
+	$("input[name='additional_item_title[]']").each(function(){
+		if(!$(this).val()){
+			alert("추가상품옵션명을 입력해주세요.");
+			chk = false;
+			return false;
+		}
+	});
+
+	if(!chk) return false;
+
+
+	if($("input[name=product_title]").val() == "false"){
+		alert("상품명을 입력해주세요");
+		return false;
+	}
+
+	if($("input[name=price]").val() == "false"){
+		alert("판매가격을 입력해주세요");
+		return false;
+	}
+
+	if($("input[name=stock_count]").val() == "false"){
+		alert("재고수량을 입력해주세요");
+		return false;
+	}
+
+});
+
+</script>
+
+<script type="text/javascript">
+var submit_before_option_flag = true;
+var option_all_title_length = $("[data-create-value]").length;
+	$(document).on("click","#all_selected",function(){
+		if($(this).is(":checked")){
+			$(this).closest("[data-detail-table]").find("input[type=checkbox][name=detail_del]").prop("checked", true);
+		} else {
+			$(this).closest("[data-detail-table]").find("input[type=checkbox][name=detail_del]").prop("checked", false);
+		}
+	});
+
+	$(document).on("click","#all_selected2",function(){
+		if($(this).is(":checked")){
+			$(this).closest("[data-detail-additional]").find("input[type=checkbox][name=additional_checker]").prop("checked", true);
+		} else {
+			$(this).closest("[data-detail-additional]").find("input[type=checkbox][name=additional_checker]").prop("checked", false);
+		}
+	});
+
+	$(document).on("click","#all_deleted",function(){
+		$("[data-detail-table]").find("input[type=checkbox][data-detail-selector]:checked").each(function(){
+			$("[data-detail-info="+$(this).val()+"]").remove();
+		});
+	});
+
+
+	$(document).on("click","#all_deleted2",function(){
+		$("[data-detail-additional]").find("input[type=checkbox][data-additional-selector]:checked").each(function(){
+			$("[data-addoption-set="+$(this).val()+"]").remove();
+		});
+
+		$("tr[data-addoption-set] [data-additional-selector]").each(function(index){
+			//$(this).removeData("option-set");
+			$(this).val(index+1);
+			$(this).attr("data-additional-selector", index+1);
+			$(this).closest("[data-addoption-set]").attr("data-addoption-set", index+1);
+		});
+	});
+
+
+	$(document).on("click","[data-btn-event=add_refer]",function(){
+		var tmp_ = $(this).closest("li").clone();
+		$(tmp_).children("a").attr("data-btn-event", "del_refer");
+		$(tmp_).children("a").find("span").text("제거");
+		$(tmp_).children("a").removeClass("button white");
+		$(tmp_).children("a").addClass("button black");
+
+		//data-refer-area
+		if(!$("[data-refer-area]").find("ul").length){
+			$("[data-refer-area] p.no_data").hide();
+
+			$("[data-refer-area] .scroll-content").append("<ul>");
+			$("[data-refer-area] .scrollbar-content").append("</ul>");
+		}
+		$("[data-refer-area] ul").append(tmp_);
+		$(this).closest("li").remove();
+
+		var refer_product = "";
+		$("[data-refer-area] li").each(function(){
+			refer_product += $(this).data("refer-info")+"|";
+		});
+		$("#refer_product").val(refer_product);
+	});
+
+
+	$(document).on("click","[data-btn-event=del_refer]",function(){
+		var tm_ ="";
+		var tmp_ = $(this).closest("li").clone();
+		$(tmp_).children("a").attr("data-btn-event", "add_refer");
+		$(tmp_).children("a").find("span").text("추가");
+		$(tmp_).children("a").removeClass("button black");
+		$(tmp_).children("a").addClass("button white");
+
+		//data-refer-area
+		if(!$("[data-refer-list]").find("ul").length){
+			$("[data-refer-list]").append("<ul>");
+			$("[data-refer-list]").append("</ul>");
+		}
+
+		$("[data-set-rcate]").each(function(){
+			if($(this).val() != "선택해주세요"){
+				tm_ += $(this).val()+"|";
+			}
+		});
+		var rmtp = $(this).closest("li").data("refer-catev");
+
+		if($(this).closest("li").data("refer-catev")+":contains('"+tm_+"')"){
+			$("[data-refer-list] ul").append(tmp_);
+		}
+
+		$(this).closest("li").remove();
+
+		var refer_product = "";
+		$("[data-refer-area] li").each(function(){
+			refer_product += $(this).data("refer-info")+"|";
+		});
+		$("#refer_product").val(refer_product);
+	});
+
+
+	$(document).on("click","[data-btn-event=all_apply]",function(){
+
+		if($("#apply_hidden").val() == "option"){
+			$("[data-all-applyform]").find("[data-detail-input]").each(function(){
+				var tmp_ele = $(this).data("detail-input");
+				var tmp_var = $(this).val();
+				var tmp = $(this);
+				var tmp_usu = $(this).data("detail-input")+"_us";
+
+				if($("#"+tmp_usu).is(":checked")){
+					if($(this).prop("tagName") == "INPUT"){
+						//타입 한번더 확인
+						if($(this).attr("type") == "text"){
+
+							$("[data-detail-table] [data-detail-selector]:checked").each(function(){
+								var emle = $(this).parents("tr[data-detail-info="+$(this).data("detail-selector")+"]");
+								emle.find("[data-detail-input="+tmp_ele+"]").val(tmp_var);
+							});
+
+						} else if($(this).attr("type") == "checkbox"){
+
+							$("[data-detail-table] [data-detail-selector]:checked").each(function(){
+								var emle = $(this).parents("tr[data-detail-info="+$(this).data("detail-selector")+"]");
+
+								if(tmp.is(":checked")){
+									$("[data-detail-info="+$(this).data("detail-selector")+"] [data-detail-input="+tmp_ele+"][value=\""+tmp_var+"\"]").prop("checked", true);
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"]").prev("[data-detail-soldout]").val("Y");
+
+								} else {
+									$("[data-detail-info="+$(this).data("detail-selector")+"] [data-detail-input="+tmp_ele+"]").prop("checked", false);
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"]").prev("[data-detail-soldout]").val("N");
+								}
+							});
+						}
+					} else if($(this).prop("tagName") == "SELECT"){
+						$("[data-detail-selector]:checked").each(function(){
+							var emle = $(this).parents("tr[data-detail-info="+$(this).data("detail-selector")+"]");
+
+							$("[data-detail-info="+$(this).data("detail-selector")+"] [data-detail-input="+tmp_ele+"] option[value=\""+tmp_var+"\"]").prop("selected", true);
+						});
+					}
+				}
+			});
+		} else {
+			$("[data-all-applyform]").find("[data-detail-input]").each(function(){
+				var tmp_ele = $(this).data("detail-input");
+				var tmp_var = $(this).val();
+				var tmp = $(this);
+				var tmp_usu = $(this).data("detail-input")+"_us";
+
+				if($("#"+tmp_usu).is(":checked")){
+					if($(this).prop("tagName") == "INPUT"){
+						//타입 한번더 확인
+						if($(this).attr("type") == "text"){
+							$("[data-detail-additional] [data-additional-selector]:checked").each(function(){
+								var emle = $(this).parents("[data-addoption-set="+$(this).data("additional-selector")+"]");
+								emle.find("[data-detail-input="+tmp_ele+"]").val(tmp_var);
+							});
+
+						} else if($(this).attr("type") == "checkbox"){
+							$("[data-detail-additional] [data-additional-selector]:checked").each(function(){
+
+								var emle = $(this).parents("tr[data-addoption-set="+$(this).data("additional-selector")+"]");
+
+								if(tmp.is(":checked")){
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"][value=\""+tmp_var+"\"]").prop("checked", true);
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"]").prev("[data-detailvalue-input]").val("Y");
+								} else {
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"]").prop("checked", false);
+									$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"]").prev("[data-detailvalue-input]").val("N");
+								}
+							});
+						}
+					} else if($(this).prop("tagName") == "SELECT"){
+
+						$("[data-detail-additional] [data-additional-selector]:checked").each(function(){
+							var emle = $(this).parents("tr[data-addoption-set="+$(this).data("additional-selector")+"]");
+
+							$("[data-addoption-set="+$(this).data("additional-selector")+"] [data-detail-input="+tmp_ele+"] option[value=\""+tmp_var+"\"]").prop("selected", true);
+						});
+					}
+				}
+			});
+		}
+	});
+
+	$(document).on("click","[data-btn-event=add_ad_optionset]",function(){
+		var idx;
+		var tmp = 0;
+		var str = "";
+		$("[data-addoption-set]").each(function(index, item){
+			if(index+1 >= tmp){
+				tmp = index+1;
+			}
+		});
+
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+
+		idx = tmp+1;
+
+		str += "<tr data-addoption-set=\""+idx+"\">";
+		str += "<td>";
+		str += "<div class=\"designCheck noText\">";
+		str += "<input type=\"checkbox\" name=\"additional_checker\"  id=\"additional_checker_"+idx+"\" value=\""+idx+"\"data-additional-selector=\""+idx+"\"/>";
+		str += "<label for=\"additional_checker_"+idx+"\">선택</label>";
+		str += "</div>";
+		str += "</td>";
+		str += "<td>";
+		str += "<em class=\"icon_drag\">마우스드레그하시면 순서변경이 가능합니다</em>";
+		str += "</td>";
+		str += "<td class=\"tal\">";
+		str += "<div data-review-color=\"3\" style=\"background:\"></div>";
+		str += "<input type=\"text\" name=\"additional_item_title[]\" class=\"inputFull\"/>";
+		str += "</td>";
+		str += "<td><input type=\"text\" name=\"additional_item_id[]\" data-detail-input=\"add_option_id\" value=\"\" class=\"inputFull\"/><input type=\"hidden\" name=\"additional_item_current_id[]\"> </td>";
+		str += "<td>";
+		str += "<select name=\"additional_item_type[]\" data-detail-input=\"type\">";
+		str += "<option value=\"+\">+</option>";
+		str += "<option value=\"-\">-</option>";
+		str += "</select> ";
+		str += "<input type=\"text\" name=\"additional_item_price[]\" class=\"input100\" data-detail-input=\"price\"/>";
+		str += "</td>";
+		str += "<td><input type=\"text\" name=\"additional_item_stock[]\" value=\"\" class=\"inputFull\" data-detail-input=\"stock\"/></td>";
+		str += "<td><input type=\"text\" name=\"additional_item_safe_stock[]\" value=\"\" class=\"inputFull\" data-detail-input=\"safety_stock\"/></td>";
+		str += "<td><div class=\"designCheck noText\"><input type=\"hidden\" name=\"additional_item_soldout_value[]\" value=\"N\" data-detailvalue-input /><input type=\"checkbox\" name=\"additional_item_soldout[]\" id=\"adis_"+idx+"\" value=\"Y\" data-detail-input=\"use_soldout\"/><label for=\"adis_"+idx+"\">품절사용</label></div>";
+		str += "</td>";
+		str += "<td>";
+		str += "<select name=\"additional_item_state[]\" id=\"\" class=\"inputFull\" data-detail-input=\"state\">";
+		str += "<option value=\"Y\">판매함</option>";
+		str += "<option value=\"N\">판매안함</option>";
+		str += "</select>";
+		str += "</td>";
+		str += "</tr>";
+
+		$("[data-additional-option]").append(str);
+	});
+
+
+	$(document).on("click","[data-btn-event=add_option]",function(){
+
+		var idx;
+		var tmp = 0;
+		var this_idx = $(this).attr("data-idx");
+		var str = "";
+
+		$("[data-detail-option]").each(function(index, item){
+			tmp = index+1;
+		});
+
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+
+		idx = tmp+1;
+
+		str += "<dd data-detail-option=\""+idx+"\"> ";
+		if($("[data-option-set="+this_idx+"] [data-option-info=use_color]").is(":checked")){
+			str += "<div class=\"color\">";
+		} else {
+			str += "<div class=\"color hidden\" style=\"display:none;\">";
+		}
+		str += "<div data-review-color=\""+idx+"\"></div> ";
+
+		str += "<input type=\"text\" name=\"option"+this_idx+"_color_value[]\" value=\"\" data-color-value=\""+idx+"\" data-color-picker=\""+idx+"\" data-option-info=\"color\" placeholder=\"색상표 선택\"/> ";
+	//	str += "<a href=\"#\" data-color-picker=\""+idx+"\" class=\"button sm white\">컬러설정</a> ";
+		str += "</div>";
+		str += "<div class=\"setting\"> ";
+		str += "<span><i>옵션값 항목</i><input type=\"text\" value=\"\" name=\"option"+this_idx+"_option_title[]\" data-option-info=\"option_title\" class=\"input400\"/></span> ";
+		str += "<span class=\"btn\">";
+		str += "<div class=\"designCheck\" style=\"display:inline-block;\"> ";
+		str += "<input type=\"hidden\" name=\"option"+this_idx+"_option_state_value[]\" value=\"Y\" data-optionvalue-info />";
+		str += "<input type=\"checkbox\" name=\"option"+this_idx+"_option_state[]\" id=\"stateY_"+this_idx+"_"+idx+"\" value=\"N\" data-option-info=\"checked_state_option\"/><label for=\"stateY_"+this_idx+"_"+idx+"\">사용안함</label> ";
+		str += "</div> ";
+
+		str += "<a href=\"#\" data-option-del=\""+idx+"\" class=\"button sm gray\">삭제</a> ";
+		str += "</span> ";
+		str += "</div>";
+		str += "</dd>";
+
+		$("[data-option-set="+this_idx+"] > dl").append(str);
+
+
+		//옵션값 추가
+		var db_data_length = <?=$option_detail_count-1?>;
+		var c_option_length = $(".product_option dd [name='set_current_id[]']").length;
+		var option_title_length = $("[data-option-info='option_title']").length;
+		var create_value_length = $("[data-create-value]").length;
+
+		submit_before_option_flag = false;
+
+		if(option_title_length == create_value_length){
+			submit_before_option_flag = true;
+		}
+	});
+
+	$(document).on("click","[data-option-info=use_color]",function(){
+		if($(this).is(":checked")){
+			$(this).prev($("[data-usecolor-info=use_color_control]")).val("Y");
+		} else {
+			$(this).prev($("[data-usecolor-info=use_color_control]")).val("N");
+		}
+	});
+
+	$(document).on("click","[data-option-info=checked_state_option]",function(){
+		if($(this).is(":checked")){
+			$(this).prev($("[data-optionvalue-info]")).val("N");
+		} else {
+			$(this).prev($("[data-optionvalue-info]")).val("Y");
+		}
+	});
+
+	$(document).on("click","[data-detail-input=use_soldout]",function(){
+		if($(this).is(":checked")){
+			$(this).prev($("[data-detailvalue-input]")).val("Y");
+		} else {
+			$(this).prev($("[data-detailvalue-input]")).val("N");
+		}
+	});
+
+	$(document).on("click","[data-detail-input=use_soldout]",function(){
+		if($(this).is(":checked")){
+			$(this).prev($("[data-detail-soldout]")).val("Y");
+		} else {
+			$(this).prev($("[data-detail-soldout]")).val("N");
+		}
+	});
+
+	$(document).on("click","[data-btn-event=add_optionset]",function(){
+		var idx;
+		var tmp = 0;
+		var str = "";
+		$("[data-option-set]").each(function(index, item){
+			tmp = index+1;
+		});
+
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+
+		idx = tmp+1;
+		if(idx > 3){
+			alert("3차 옵션까지 설정 할 수 있습니다");
+			return false;
+		}
+
+		str += "<div class=\"product_option\" data-option-set=\""+idx+"\"> ";
+		str += "<dl> ";
+		str += "<dt> ";
+		str += "<span> ";
+		str += "<em class=\"icon_drag\">마우스드레그하시면 순서변경이 가능합니다</em>";
+		str += "</span> ";
+		str += "<span><span class=\"marking\">필수항목</span>옵션명</span> ";
+		str += "<span> ";
+		str += "<div class=\"designCheck\" style=\"display:inline-block;\"> ";
+		str += "<input type=\"hidden\" name=\"parents_use_color_value[]\" data-usecolor-info=\"use_color_control\" value=\"N\" id=\""+idx+"_use_color_control\" />";
+		str += "<input type=\"checkbox\" name=\"parents_use_color[]\" data-option-info=\"use_color\" value=\"Y\" id=\""+idx+"_use_color\"  data-usecolor-info=\"use_color\"/>";
+		str += "<label for=\""+idx+"_use_color\">색상사용</label>";
+		str += "<input type=\"hidden\" name=\"refer_idx[]\" value=\"option"+idx+"\" data-refer-idx=\""+idx+"\"/>";
+		str += "</div> ";
+		str += "</span> ";
+		str += "<span><input type=\"text\" name=\"parents_title[]\" value=\"\"  data-option-info=\"set_title\" class=\"inputFull\"/></span> ";
+		str += "<span> ";
+		str += "<a href=\"javascript:void(0);\" data-btn-event=\"add_option\" class=\"button blue\" data-idx=\""+idx+"\">옵션값 추가</a> ";
+		str += "<a href=\"javascript:void(0);\" data-optionset-del=\""+idx+"\" class=\"button gray\">옵션삭제</a> ";
+		str += "</span> ";
+		str += "</dt> ";
+		str += "</dl> ";
+		str += "</div> ";
+
+		$("#option_set_area").append(str);
+	});
+
+
+	$(document).on("click","[data-option-del]",function(){
+		$("[data-detail-option="+$(this).data("option-del")+"]").remove();
+
+		var db_data_length = <?=$option_detail_count-1?>;
+		var c_option_length = $(".product_option dd [name='set_current_id[]']").length;
+		var option_title_length = $("[data-option-info='option_title']").length;
+		var create_value_length = $("[data-create-value]").length;
+
+		submit_before_option_flag = false;
+
+		if(option_title_length == create_value_length && option_all_title_length == create_value_length){
+			submit_before_option_flag = true;
+		}
+
+		$(".product_option [data-detail-option]").each(function(index){
+			//$(this).removeData("option-set");
+			$(this).find("[data-option-del]").attr("data-option-del", index+1);
+			$(this).attr("data-detail-option", index+1);
+		});
+	});
+
+	$(document).on("click","[data-optionset-del]",function(){
+		$("[data-option-set="+$(this).data("optionset-del")+"]").remove();
+
+		$(".product_option").each(function(index){
+			var indexes = index+1;
+			//$(this).removeData("option-set");
+			$(this).find("[data-idx]").attr("data-idx", index+1);
+			$(this).find("[data-optionset-del]").attr("data-optionset-del", index+1);
+			$(this).find("[data-refer-idx]").attr("data-refer-idx", index+1);
+			$(this).find("[data-refer-idx]").val("option"+indexes);
+			$(this).attr("data-option-set", index+1);
+
+			$(this).find("dd [data-option-info]").each(function(){
+				var before_name = $(this).attr("name");
+				var tmp_name = before_name.split("_");
+				var after_name = before_name.replace(tmp_name[0], "option"+indexes);
+				$(this).attr("name", after_name);
+			});
+		});
+
+		$(".product_option [data-detail-option]").each(function(index){
+			var indexes = index+1;
+			//$(this).removeData("option-set");
+			$(this).find("[data-option-del]").attr("data-option-del", index+1);
+			$(this).attr("data-detail-option", index+1);
+		});
+
+		var db_data_length = <?=$option_set_count-1?>;
+		var p_option_length = $(".product_option dt [name='set_current_id[]']").length;
+		var set_title_length = $("[data-option-info='set_title']").length;
+		var option_title_length = $("[data-option-info='option_title']").length;
+		var create_value_length = $("[data-create-value]").length;
+
+		submit_before_option_flag = false
+		if(option_title_length == create_value_length && option_all_title_length == create_value_length){
+			submit_before_option_flag = true;
+		}
+
+	});
+
+	$(document).on("keyup","[data-option-info=color]",function(){
+		if($(this).val()){
+			$("[data-review-color="+$(this).data("color-value")+"]").css("background",$(this).val());
+		} else {
+			$("[data-review-color="+$(this).data("color-value")+"]").css({"background":"url(/ko_mall/images/content/bg_transparent.gif)"});
+		}
+	});
+
+
+	$(document).on("focus","[data-color-picker]", function(){
+		var idx = $(this).data("color-picker");
+		$("[data-color-picker="+idx+"]").ColorPicker({
+			color: '#0000ff',
+			onShow: function (colpkr) {
+				$(colpkr).fadeIn(500);
+				return false;
+			},
+			onHide: function (colpkr) {
+				$(colpkr).fadeOut(500);
+				return false;
+			},
+			onChange: function (hsb, hex, rgb) {
+				$("[data-color-value="+idx+"]").val("#"+hex);
+				$("[data-review-color="+idx+"]").css("background","#"+hex);
+			}
+		});
+	});
+
+	$(document).on("click","[data-btn-event=option_detail_make]",function(){
+		submit_before_option_flag = true;
+
+		var set_data = "";
+		var set_tmp = "";
+		var array_tmp = new Array;
+		var ob2 = "";
+		var ch = true;
+
+		var title_duplicate = false;
+		$("div[data-option-set]").each(function(index){
+
+			var indexes = index+1;
+		//	alert(index + " - " + $(this).data("option-set"));
+
+			$(this).find("[data-option-info=option_title]").attr("name", "option"+indexes+"_option_title[]");
+			$(this).find("[data-option-info=color]").attr("name", "option"+indexes+"_color_value[]");
+			$(this).find("[data-optionvalue-info]").attr("name", "option"+indexes+"_option_state_value[]");
+			$(this).find("[data-option-info=checked_state_option]").attr("name", "option"+indexes+"_option_state[]");
+			$(this).find("[data-refer-idx]").val("option"+indexes);
+			$(this).find("[data-refer-idx]").attr("data-refer-idx", indexes);
+
+
+
+			var detail_title_col = new Array();
+			$.each($("div[data-option-set='"+indexes+"'] [name='option"+indexes+"_option_title[]']"),function(){
+
+				if($.inArray($(this).val(),detail_title_col) >=0){
+					title_duplicate = true;
+					alert("옵션명 ["+$(this).val()+"] 이 중복되어 입력되어있습니다. 확인해주세요");
+					return false;
+				}else{
+					detail_title_col.push($(this).val());
+				}
+			});
+
+			if(title_duplicate){
+				return false;
+			}
+		});
+
+		if(title_duplicate){
+			return false;
+		}
+
+
+		$("[data-option-info=set_title]").each(function(index){
+
+			//set_tmp = $(this).val();
+			//set_tmp += "|";
+			set_tmp = "";
+			var set_index = $(this).closest("[data-option-set]").data("option-set");
+
+			$("[data-option-set="+set_index+"] dd[data-detail-option]").each(function(index){
+
+				var option_title = $(this).find("[data-option-info=option_title]").val();
+				$(this).find("[data-option-info=option_title]").attr("data-create-value",option_title);
+				var color = $(this).find("[data-option-info=color]").val();
+				var set_state = $(this).find("[data-option-info=checked_state_option]:checkbox:checked").val();
+
+				if(set_state == "undefined"){
+					set_state = "N";
+				}
+
+				if(!color) color = "none";
+				if(!option_title) {
+					alert("옵션명을 입력해주세요");
+					ch = false;
+					return false;
+				}
+				set_tmp += color + "^" + option_title + "^" + set_state;
+				set_tmp += "|";
+			});
+
+			set_tmp = set_tmp.slice(0, -1);
+			array_tmp.push(set_tmp);
+		});
+
+
+		if(array_tmp == "") {
+			alert("옵션을 추가한 후 품목을 생성해주세요");
+			ch = false;
+			return false;
+		}
+
+		if(!ch) {
+			$("#option_detail_area").html("");
+			return false;
+		}
+		var ob2 = JSON.stringify(array_tmp);
+
+		$.ajax({
+			//dataType : "json",
+			type : "POST",
+			url : "/ko_mall/setting/product/product_option_ajax.php",
+			//contentType: "application/json",
+			//dataType: "text",
+			data : {
+				set_data : ob2
+			},
+			success : function(args) {
+				//product_category_list("list", category, no);
+				$("#option_detail_area").html(args);
+
+				option_all_title_length = $("[data-create-value]").length;
+				//console.log(args);
+			},
+			beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+			},
+			error:function(request,status,error){
+				console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+			}
+		});
+	});
+</script>
+
+
+<script type="text/javascript">
+//컨텐츠 드래그앤드랍 순서변경
+$(document).on("mouseover",".product_option .icon_drag",function(){
+	$(this).closest("#option_set_area").sortable({
+
+		disabled: false,
+
+		update: function (event, ui) {
+
+			$("[data-detail-table]").html("");
+
+		}
+
+
+	});
+});
+
+$(document).on("mouseleave",".product_option .icon_drag",function(){
+	$(this).closest("#option_set_area").sortable({ disabled: true });
+});
+
+$(document).on("mouseover","tbody .icon_drag",function(){
+	$(this).closest("tbody").sortable({ disabled: false });
+});
+
+$(document).on("mouseleave","tbody .icon_drag",function(){
+	$(this).closest("tbody").sortable({ disabled: true });
+});
+
+
+$(document).on("click","[data-option-info=use_color]",function(){
+	var idx = $(this).closest("[data-option-set]").data("option-set");
+	if($(this).is(":checked")){
+		$("div[data-option-set="+idx+"] .color").css("display","").removeClass("hidden");
+	} else {
+		$("div[data-option-set="+idx+"] .color [data-option-info=color]").val("");
+		$("div[data-option-set="+idx+"] .color div[data-review-color]").css("background", "");
+		$("div[data-option-set="+idx+"] .color").css("display","none").addClass("hidden");
+	}
+});
+</script>
+
+
+<script type="text/javascript">
+	$(function(){
+		$("#set_type").change(function(){
+			var set_value = $("#set_type").val();
+			//$("[data-load-simpleinfo] tbody").append("/ko_mall/setting/product/ware.html");
+			$.ajax({
+				type : "POST",
+				url : "/ko_mall/setting/product/product_simple_info_ajax.php",
+				data : {
+					category : set_value
+				},
+				success : function(args) {
+					$("[data-load-simpleinfo] tbody").html("");
+					$("[data-load-simpleinfo] tbody").append(args);
+				},
+				beforeSend: function () {
+					$("#div_ajax_load_image").show();
+				},
+				complete: function () {
+					$("#div_ajax_load_image").hide();
+				}
+			});
+		});
+		$("[data-device-select]").click(function(){
+			$("[data-device-select]").removeClass("on");
+			$(this).addClass("on");
+			$("[data-data-type]").hide();
+			$("[data-data-type="+$(this).data("device-select")+"]").show();
+		});
+
+		$("[data-point-type]").change(function(){
+
+			if($(this).data("point-type") == "1"){
+				$("#point_type_show").html("원");
+			} else {
+				$("#point_type_show").html("%");
+			}
+		});
+
+		$("select[name=deli_type]").change(function(){
+			$("[data-deli-type]").hide();
+			$("[data-deli-type="+$("option:selected", this).val()+"]").show();
+		});
+
+		$("#add_category").click(function(){
+			var count = $("tr[data-deli-type=def] > td > ul > li").size() + 1;
+			var del_id = "deli_price_type_"+count;
+
+			$("tr[data-deli-type=def] td ul").append("<li id='deli_price_type_"+count+"'><input type='text' name='deli_price_type[]' value='' placeholder='상품금액'/>원 이상 <span style='margin-left:15px;'>배송비</span> <input type='text' name='deli_price[]' value='' />원  <a href='#' id='del_price_type_"+count+"' class='button white' onclick='$(\"#"+del_id+"\").remove();'> <span>- 삭제</span></a></li>");
+		});
+	});
+</script>
+
+<!-- //버튼 -->

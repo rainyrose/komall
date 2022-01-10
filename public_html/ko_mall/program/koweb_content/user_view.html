@@ -1,0 +1,6 @@
+<?
+$row = fetch_array("SELECT * FROM $program_id WHERE no='{$no}'");
+
+?>
+
+<?=htmlspecialchars_decode($row[contents])?>

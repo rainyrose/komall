@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>tPay 비인증거래용 API 서비스 </title>
+  <script type="text/javascript" src="https://webtx.tpay.co.kr/js/jquery-1.7.2.js"></script>
+  <link rel="stylesheet" href="https://webtx.tpay.co.kr/css/sample.css" type="text/css" media="screen" />
+  <script>
+  $(document).ready(function(){
+	//(1) 결제취소
+	$("#cancelBtn").click(function(){
+		$.ajax({
+			type: "POST",
+			dataType : "json",
+			data : $("#cancelFrm").serialize(),
+			url: 'https://webtx.tpay.co.kr/api/v1/refunds',
+			error: function (xhr, statusText) {
+				console.log(xhr);                    
+			},
+			success: function (data) {
+				console.log(data);
+			}
+		});
+	});
+	//(2) 결제조회
+	$("#paySearchBtn").click(function(){
+		$.ajax({
+			type: "POST",
+			dataType : "json",
+			data : $("#paySearchFrm").serialize(),
+			url: 'https://webtx.tpay.co.kr/api/v1/trans_search',
+			error: function (xhr, statusText) {
+				console.log(xhr);                    
+			},
+			success: function (data) {
+				console.log(data);
+			}
+		});
+	});
+  });
+  </script>
+ </head>
+ <body style="margin: 20px;">
+	<a href="#cancel">(1) 결제취소<a>
+	<a href="#search">(2) 결제조회<a>
+  <hr>
+  
+  <form id="cancelFrm">
+	<table cellspacing="1" border="0" cellpadding="0">
+		<thead>
+			<tr><td colspan="2"><img src="https://webtx.tpay.co.kr/images/bul_arrow02.gif"/>&nbsp;<strong><a name="cancel">(1) 결제취소</a></strong></td></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>상점키(api_key)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="api_key" value="hgEY70BdDgoJYVOwj5CHsRDQt5a6IieQLQv+Q2rA6nnW+wXP57fH2ZkvUBJW0c9/eF1Rp5QRZ+qjzJ+Knc8r1A==">
+				</td>
+			</tr>
+			<tr>
+				<td>상점아이디(mid)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="mid" value="tpaytest1m">
+				</td>
+			</tr>
+			<tr>
+				<td>상점고유의 주문번호(moid)</td>
+				<td>
+					<input type="text" name="moid" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>취소비밀번호(cancel_pw)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="cancel_pw" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>취소금액(cancel_amt)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="cancel_amt" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>부분취소여부(partial_cancel)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="partial_cancel" value="0">
+				</td>
+			</tr>
+			<tr>
+				<td>취소사유(cancel_msg)</td>
+				<td>
+					<input type="text" name="cancel_msg" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>거래TID(tid)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="tid" value="">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" style="text-align:center;">
+					<input type="button" id="cancelBtn" value="취소 요청(btn)" class="button blue medium">
+				</td>
+			</tr>
+		</table>
+		<table width="500px" border="0px" style="line-height:25px;">
+		<tr>
+			<td style="vertical-align:top;">*</td>
+			<td style="vertical-align:top;"><font color="red">(*)</font>표 항목은 반드시 기입해주시기 바랍니다.</td>
+		</tr>
+	</table>
+  </form>
+  <hr>
+  <form id="paySearchFrm">
+	<table cellspacing="1" border="0" cellpadding="0">
+		<thead>
+			<tr><td colspan="2"><img src="https://webtx.tpay.co.kr/images/bul_arrow02.gif"/>&nbsp;<strong><a name="search">(2) 결제조회</a></strong></td></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>상점키(api_key)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="api_key" value="hgEY70BdDgoJYVOwj5CHsRDQt5a6IieQLQv+Q2rA6nnW+wXP57fH2ZkvUBJW0c9/eF1Rp5QRZ+qjzJ+Knc8r1A==">
+				</td>
+			</tr>
+			<tr>
+				<td>상점아이디(mid)<font color="red">(*)</font></td>
+				<td>
+					<input type="text" name="mid" value="tpaytest1m">
+				</td>
+			</tr>
+			<tr>
+				<td>상점고유의 주문번호(moid)</td>
+				<td>
+					<input type="text" name="moid" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>조회 시작날짜(yyyymmdd)</td>
+				<td>
+					<input type="text" name="sch_sdate" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>조회 종료날짜(yyyymmdd)</td>
+				<td>
+					<input type="text" name="sch_edate" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>상점 회원아이디(mall_user_id)</td>
+				<td>
+					<input type="text" name="mall_user_id" value="">
+				</td>
+			</tr>
+			<tr>
+				<td>결제상태(state_cd)</td>
+				<td>
+					<input type="text" name="state_cd" value="0">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" style="text-align:center;">
+					<input type="button" id="paySearchBtn" value="결제 조회(btn)" class="button blue medium">
+				</td>
+			</tr>
+		</table>
+		<table width="500px" border="0px" style="line-height:25px;">
+		<tr>
+			<td style="vertical-align:top;">*</td>
+			<td style="vertical-align:top;"><font color="red">(*)</font>표 항목은 반드시 기입해주시기 바랍니다.</td>
+		</tr>
+	</table>
+  </form>
+  <hr>
+
+ </body>
+</html>

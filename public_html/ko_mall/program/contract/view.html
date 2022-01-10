@@ -1,0 +1,68 @@
+<?
+$query = "SELECT * FROM $program_table WHERE no='$no'";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+?>
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col style="width:20%"/>
+			<col style="width:80%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><label for="contract_no">계약번호</label></th>
+				<td><?=$row[contract_no]?></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="company">기관명</label></th>
+				<td><?=$row[company]?></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="title">계약명</label></th>
+				<td><?=$row[title]?></td>
+			</tr>
+
+			<tr>
+				<th scope="row"><label for="ctype">계약방법</label></th>
+				<td><?=$row[ctype]?></td>
+			</tr>
+
+			<tr>
+				<th scope="row"><label for="target_type">목적물구분</label></th>
+				<td><?=$row[target_type]?>></td>
+			</tr>
+
+			<tr>
+				<th scope="row"><label for="cdate">계약일자</label></th>
+				<td><?=$row[cdate]?></td>
+			</tr>
+
+
+			<tr>
+				<th scope="row">계약기간</th>
+				<td><?=$row[cterm_start]?> ~ <?=$row[cterm_end]?>
+			</tr>
+
+			<tr>
+				<th scope="row"><label for="price">계약금액</label></th>
+				<td><?=$row[price]?></td>
+			</tr>
+
+			<tr>
+				<th scope="row"><label for="target_name">계약상대자명</label></th>
+				<td><?=$row[target_name]?></td>
+			</tr>
+			
+
+		</tbody>
+	</table>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<a href="<?=$common_queryString?>&amp;start=<?=$start?>" class="button gray lg">목록</a>
+	</div>
+</form>

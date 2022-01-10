@@ -1,0 +1,796 @@
+<?
+$query ="SELECT * FROM koweb_cart WHERE member_id = '{$member_id}' order by no DESC";
+$result = mysqli_query($connect,$query);
+if(!$member_id) $result = $_SESSION['s_cart'];
+if(!$return_url) $return_url = "/";
+else $return_url = current(explode("&",$return_url));
+?>
+<form name='order_form' method="POST">
+    <input type='hidden' name='mode' value='order'/>
+    <input type='hidden' name='product_id' value='' />
+    <input type='hidden' name='options' value=''/>
+    <input type='hidden' name='option_flag' value=''/>
+</form>
+<form name='del_form' method="POST">
+    <input type='hidden' name='mode' value='cart_del_proc'/>
+    <input type='hidden' name='no' value=''/>
+    <input type='hidden' name='del_type' value=''/>
+</form>
+<form name='count_form' method="POST">
+    <input type='hidden' name='mode' value='cart_count_proc'/>
+    <input type='hidden' name='no' value=''/>
+    <input type='hidden' name='cart_count' value=''/>
+    <input type='hidden' name='add_option' value=''/>
+    <input type='hidden' name='del_flag' value=''/>
+</form>
+<form name='option_form' method="POST">
+    <input type='hidden' name='mode' value='cart_option_proc'/>
+    <input type='hidden' name='no' value=''/>
+    <input type='hidden' name='option' value=''/>
+</form>
+<form name='all_order_form' method="POST">
+    <input type='hidden' name='mode' value='order'/>
+    <input type='hidden' name='total_data' value=''/>
+</form>
+<script>
+var doc = window.document;
+var soldoutListCol = new Object();
+var stateListCol = new Object();
+function order_form_submit(productId,optionId,productCnt,optionFlag){
+    if(!"<?=$_SESSION['member_id']?>"){
+    window.location = "/<?=$add_folder?>member/member.html?mid=member&mode=login&return_url2="+encodeURI("/<?=$add_folder?>product/product.html?mode=cart&return_url=<?=$return_url?>")+"";
+    return;
+    }
+    var options = productCnt;
+    if(optionFlag == "Y"){
+        options = optionId+"|"+productCnt;
+    }
+    doc.order_form.product_id.value = productId;
+    doc.order_form.options.value = options;
+    doc.order_form.option_flag.value = optionFlag;
+    doc.order_form.submit();
+}
+function del_form_submit(no,type){
+    if(!confirm('정말로 삭제하시겠습니까?')) return;
+    if(type == "checkbox" || type == "all"){
+        if(type == "checkbox"){
+            var checkedTarget = doc.querySelectorAll("[name=check_cart]:checked");
+        }else if(type == "all"){
+            var checkedTarget = doc.querySelectorAll("[name=check_cart]");
+            type = "checkbox";
+        }
+
+        var len = checkedTarget.length;
+        var tempArray = new Array();
+        for(var i = 0; i<len; i++){
+            tempArray.push(checkedTarget[i].value);
+        }
+        no = tempArray.join("|").replace(/ /gi, "");
+    }
+    doc.del_form.no.value = no;
+    doc.del_form.submit();
+
+}
+
+function count_form_submit(no,obj,addOptionId,delFlag){
+    var addOptionId = addOptionId || ""
+    var delFlag = delFlag||"N";
+    if(delFlag == "Y"){
+        var countTd = find_class_in_obj("count",obj.parentElement.parentElement);
+        var divCount = find_class_in_obj("count",countTd);
+    }else{
+        var divCount = find_class_in_obj("count",obj.parentElement);
+    }
+    var inputCount = find_class_in_obj("product_count",divCount);
+    var count = inputCount.value;
+
+    doc.count_form.add_option.value=addOptionId;
+    doc.count_form.del_flag.value=delFlag;
+    doc.count_form.no.value = no;
+    doc.count_form.cart_count.value = count;
+    doc.count_form.submit();
+}
+
+function option_form_submit(no){
+    var valueList = new Array();
+    var searchId = "option_list_"+no;
+    //옵션들 loop돌면서 선택되지않은 옵션이있다면 Stop
+
+    loop_option_list(function(option,type){
+        if(type == "UL"){ //color
+            var target = option.querySelectorAll('.color_choice')[0];
+            if(target.style.display == "none") return;
+            var optionValue = target.innerText;
+        }else{ // other
+            var target = option.querySelectorAll('.option_select')[0];
+            if(target.value == "") return;
+            var optionValue = target.value;
+        }
+        valueList.push(optionValue);
+    },0,searchId);
+
+    var valueTxt = valueList.join("|").replace(/ /gi, "");
+
+    if(optionList.length != valueList.length){
+        alert('옵션을 모두 선택해주세요');
+        return;
+    }
+
+    doc.option_form.no.value = no;
+    doc.option_form.option.value = valueTxt;
+    doc.option_form.submit();
+}
+
+function all_order_form_submit(){
+    if(!"<?=$_SESSION['member_id']?>"){
+    window.location = "/<?=$add_folder?>member/member.html?mid=member&mode=login&return_url2="+encodeURI("/<?=$add_folder?>product/product.html?mode=cart&return_url=<?=$return_url?>")+"";
+    return;
+    }
+    var checkedTarget = doc.querySelectorAll("[name=check_cart]:checked");
+    var len = checkedTarget.length;
+    if(len == 0){
+        alert('주문할수있는 상품이 없습니다.');
+        return;
+    }
+    var result_array = new Array();
+    for(var i = 0; i<len; i++){
+        var trObj = checkedTarget[i].parentElement.parentElement.parentElement;
+        var optionFlag = "Y";
+        if(trObj.dataset.optionId == "0") optionFlag="N";
+        var options = trObj.dataset.optionCnt;
+        if(optionFlag == "Y") options = trObj.dataset.optionId+"|"+options;
+        var obj = {
+            product_id:trObj.dataset.productId,
+            options:options,
+            add_options:trObj.dataset.addOption,
+            option_flag:optionFlag
+        }
+        result_array.push(obj)
+    }
+    var json = JSON.stringify(result_array);
+    doc.all_order_form.total_data.value=encodeURI(json);
+    doc.all_order_form.submit();
+}
+
+function cal_delivery_price(price){
+    <?
+    $default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_pay_config ORDER BY no DESC LIMIT 1"));
+    ?>
+
+    var delivery_price;
+    var result_price = 0;
+    $.each($("[name=check_cart]:checked"),function(){
+        var target_obj= $(this).parent().parent().parent();
+        var deli_type = target_obj.attr("data-product-deli-type");
+        var deli_price = target_obj.attr("data-product-deli-price");
+
+        if(deli_type == "fix"){
+            delivery_price = deli_price;
+        }else if(deli_type == "free"){
+            delivery_price = 0;
+        }else{
+            <?
+            if($default['deli_type'] == "free"){ ?>
+                delivery_price = 0;
+            <? }else if($default['deli_type'] == "fix"){ ?>
+                delivery_price = <?=$default['deli_price']?>;
+            <? }else if($default['deli_type'] == "def"){ ?>
+                var deli_type_str = "<?=$default['deli_price_type']?>";
+                var deli_price_str = "<?=$default['deli_price']?>";
+                var deli_type = deli_type_str.split("|");
+                var deli_price = deli_price_str.split("|");
+                var loop_flag = false;
+                for(var key in deli_type){
+                    var dtype = deli_type[key];
+                    if(price >= dtype){
+                        loop_flag = true;
+                        delivery_price = deli_price[key];
+                    }
+                }
+                if(!loop_flag) delivery_price = 0;
+            <? } ?>
+        }
+
+        if(result_price <= delivery_price) result_price = delivery_price;
+    })
+
+
+    return Number(result_price);
+}
+
+function cal_price(){
+    var checkedTarget = doc.querySelectorAll("[name=check_cart]:checked");
+    var len = checkedTarget.length;
+    var total_price = 0;
+    var delivery_price = 0;
+    for(var i = 0; i<len; i++){
+        total_price += Number(checkedTarget[i].dataset.optionPrice);
+    }
+    delivery_price = cal_delivery_price(total_price);
+
+    doc.getElementById("total_price").innerText = number_format(total_price);
+    doc.getElementById("delivery_price").innerText = number_format(delivery_price);
+    doc.getElementById("sum_price").innerText = number_format(total_price+delivery_price);
+}
+$( document ).ready( function() {
+    $( '#check-all' ).click( function() {
+      $( '[name="check_cart"]' ).prop( 'checked', this.checked );
+      cal_price();
+    } );
+
+    $( '#check-all' ).click();
+} );
+</script>
+
+			<!-- 내용시작 -->
+			<div class="area_shopCart">
+                <table class="table">
+					<caption>장바구니 상품목록</caption>
+					<colgroup>
+						<col style="width:7%"/>
+						<col/>
+						<col style="width:10%"/>
+						<col style="width:12%"/>
+						<col style="width:10%"/>
+						<!-- <col style="width:10%"/> -->
+						<col style="width:10%"/>
+						<col style="width:7%"/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col"><div class="designCheck noText"><input type="checkbox" id="check-all" /><label for="check-all">전체선택</label></div></th>
+							<th scope="col">상품정보</th>
+							<th scope="col">판매가</th>
+							<th scope="col">수량</th>
+							<th scope="col">적립</th>
+							<!-- <th scope="col">배송비</th> -->
+							<th scope="col">합계</th>
+							<th scope="col">선택</th>
+						</tr>
+					</thead>
+					<tbody>
+                        <?
+                        $cart_total_price = 0;
+                        $cart_total_delivery_price = 0;
+                        function func($result){
+                            global $member_id;
+                            if(!$member_id){
+                                global $result;
+                                $product_id = key($result);
+                                $pointer_array = reset($result);
+                                $option_id = key($pointer_array);
+                                $first_value = reset($pointer_array);
+
+                                if(!$result[$product_id][$option_id]){
+                                    unset($result[$product_id]);
+                                    $product_id = key($result);
+                                    $pointer_array = reset($result);
+                                    $option_id = key($pointer_array);
+                                    $first_value = reset($pointer_array);
+                                }
+                                $temp = array("no"=>$product_id."|".$option_id,"product_id"=>$product_id,"option_id"=>$option_id,"product_cnt"=>$first_value['product_cnt'],"add_option"=>$first_value['add_option']);
+
+                                unset($result[$product_id][$option_id]);
+                                if(!$first_value) return false;
+                                return $temp;
+                            }else{
+                                return mysqli_fetch_array($result);
+                            }
+                        }
+                        $product_id_array = array();
+                        while($row = func($result)){
+                            $product = get_product($row['product_id']);
+                            if(!$product){
+                                if($member_id){
+                                    query("delete FROM koweb_cart WHERE no='{$row['no']}'");
+                                }
+                                continue;
+                            }
+                            $product_id_array[] = $row['product_id'];
+                            //갑자기 옵션이 생길수도 있으니 옵션유무를 그때마다 체크
+                            $option_query = "SELECT * FROM koweb_option_detail WHERE ref_product = '{$product['no']}' AND otype = 'detail' AND state !='N' AND id='{$row['option_id']}' ORDER BY no DESC";
+                            $option_result = mysqli_query($connect, $option_query);
+                            $option_num = mysqli_num_rows($option_result);
+
+                            if($row['option_id'] == 0 && $option_num != 0){
+                                if($member_id){
+                                    query("delete FROM koweb_cart WHERE no='{$row['no']}'");
+                                }
+                                continue;
+                            }
+                            else if($row['option_id'] != 0 && $option_num == 0){
+                                if($member_id){
+                                    query("delete FROM koweb_cart WHERE no='{$row['no']}'");
+                                }
+                                continue;
+                            }
+                            $option = mysqli_fetch_array($option_result);
+
+                            //옵션이 없는경우
+                            if($option_num == 0){
+                                $price = $product['price'];
+                            }else{ //옵션이 있는경우
+                                $price = $product['price'];
+                                if($option['price_type'] == "+"){
+                                    $price += $option['price'];
+                                }else{
+                                    $price -= $option['price'];
+                                }
+                            }
+
+                            $item_price = $price * $row['product_cnt'];
+                            $total_price = $item_price;
+                            $add_option_list_cnt = 1;
+                            $add_option_col_list = array();
+                            $add_option_list = array();
+                            $add_option_total_price = 0;
+                            if(!empty($row['add_option'])){
+                                $add_option_col_list = explode("^",$row['add_option']);
+                                foreach ($add_option_col_list as $value) {
+                                    list($add_option_id,$add_option_cnt) = explode("|",$value);
+                                    $add_option_query = "SELECT * FROM koweb_option_detail WHERE id='{$add_option_id}' AND otype='add' AND ref_product='{$product['no']}'";
+                                    $add_option_result = mysqli_query($connect,$add_option_query);
+                                    $add_option_row = mysqli_fetch_array($add_option_result);
+                                    $add_option_row_num = mysqli_num_rows($add_option_result);
+                                    if($add_option_row_num > 0){
+                                        $add_option_row['cnt'] = $add_option_cnt;
+
+
+                                        if($add_option_row['price_type'] == "+"){
+                                            $add_option_price = +$add_option_row['price'];
+                                            $add_option_row['save_point'] = $add_option_row['cnt']*($add_option_row['price'] * ($product['point_detail']/100));
+                                        }else{
+                                            $add_option_price = -$add_option_row['price'];
+                                            $add_option_row['save_point'] = 0;
+                                        }
+
+                                        $add_option_price = $add_option_price * $add_option_cnt;
+                                        $add_option_row['total_price'] = $add_option_price;
+                                        $add_option_total_price += $add_option_price;
+                                        $add_option_list[] = $add_option_row;
+                                    }
+                                }
+                                $add_option_list_cnt = count($add_option_list);
+                                $add_option_list_cnt++;
+                            }
+                            $total_price = $total_price + $add_option_total_price;
+
+
+                            $delivert_price = get_delivery_price($connect,$row['product_id'],$total_price);
+                            $cart_total_price += $total_price;
+                            // $cart_total_delivery_price += $delivert_price;
+
+                            $save_point = $row['product_cnt']*($price * ($product['point_detail']/100));
+
+                            // $total_price += $delivert_price;
+                            if($delivert_price == 0) $delivert_price="무료";
+                        ?>
+						<tr data-product-id="<?=$row['product_id']?>" data-option-id="<?=$row['option_id']?>" data-option-cnt="<?=$row['product_cnt']?>" data-add-option="<?=$row['add_option']?>" data-product-deli-type='<?=$product[deli_type]?>' data-product-deli-price='<?=$product[deli_price]?>'>
+							<td data-cart-table="check" rowspan="<?=$add_option_list_cnt;?>">
+								<div class="designCheck noText"><input data-option-price="<?=$total_price?>" onchange="cal_price()" type="checkbox" name="check_cart" value="<?=$row['no']?>" id="check_cart<?=$row['no']?>" /><label for="check_cart<?=$row['no']?>">선택</label></div>
+							</td>
+							<td data-cart-table="product" class="tal">
+								<div data-cart-option="img">
+									<!-- 상품정보 클릭시 상세이동 -->
+									<a href="/<?=$add_folder?>product/product.html?id=<?=$product['id']?>&mode=view" class="img" target="_blank">
+                                        <img src="/upload/product/<?=$product['title_img']?>" alt=""/>
+                                    </a>
+									<div>
+										<!-- 상품명 -->
+										<em><?=$product['product_title']?></em>
+										<!-- 선택한 옵션 -->
+										<!-- 옵션이 없는 경우 아래내용은 노출안됨 -->
+                                        <? if($option_num != 0){ ?>
+
+                                        <?
+                                        ########## SOLDOUT DATA JS변수에 삽입 ##########
+
+                                        $sold_query = "SELECT type_id FROM koweb_option_detail WHERE ref_product='{$product['no']}' AND soldout='Y'";
+                                        $sold_result = mysqli_query($connect,$sold_query);
+                                        $tmp_type_id_array = array();
+                                        while($sold_option = mysqli_fetch_array($sold_result)){
+                                            if($sold_option['type_id'] != "")
+                                            array_push($tmp_type_id_array,$sold_option['type_id']);
+                                        }
+
+                                        ########## SOLDOUT DATA JS변수에 삽입 끝 ##########
+
+                                        ########## STATE 'N' DATA JS변수에 삽입 ##########
+
+                                        $state_query = "SELECT type_id FROM koweb_option_detail WHERE ref_product='{$product['no']}' AND state !='N' AND otype='detail'";
+                                        $state_result = mysqli_query($connect,$state_query);
+                                        $state_tmp_type_id_array = array();
+                                        while($state_option = mysqli_fetch_array($state_result)){
+                                            if($state_option['type_id'] != "")
+                                            array_push($state_tmp_type_id_array,$state_option['type_id']);
+                                        }
+
+                                        ########## STATE 'N' DATA JS변수에 삽입 끝 ##########
+                                        ?>
+
+                                        <script>
+                                        soldoutListCol["option_list_<?=$row['no']?>"] = new Array("<?=join('","',$tmp_type_id_array)?>");
+                                        stateListCol["option_list_<?=$row['no']?>"] = new Array("<?=join('","',$state_tmp_type_id_array)?>");
+                                        </script>
+										<i>[옵션 : <?=$option['title']?>]</i>
+										<a href="javascript:void(0)" onclick="set_next_option('option_list_<?=$row['no']?>')" data-shop-layer="view" class="button sm white">옵션변경</a>
+
+										<!-- 옵션 변경레이어 -->
+										<div data-shop-layer="pop" data-cart-option="change">
+											<p class="title">옵션변경</p>
+											<!-- 상품명 -->
+											<em><?=$product['product_title']?></em>
+											<!-- 현재 선택된 옵션 -->
+											<i>[옵션 : <?=$option['title']?>]</i>
+
+											<!-- 옵션 -->
+											<!-- 컬러경우 특수한경우이므로 컬러 옵이 사용안되는 경우 숨김 -->
+											<dl id="option_list_<?=$row['no']?>" data-shop-view="option">
+                                                <?
+                                                $options_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$product[no]' AND option_type = 'P' ORDER BY sort ASC";
+                                                $options_result = mysqli_query($connect, $options_query);
+                                                $option_index = 0;
+                                                while($options_ = mysqli_fetch_array($options_result)){
+                                                    if($options_num == ($option_index+1)) $func = "option_add();";
+                                                    else $func = "";
+                                                ?>
+												<dt><?=$options_[title]?></dt>
+												<dd>
+                                                    <span class='none_txt'>상위옵션을 선택해주세요</span>
+                                                <? if($options_['use_color'] == "Y"){ ?>
+                                                    <ul style='display:none;' class="color">
+                										<?
+                											$options_detail_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$product[no]' AND option_type = 'C' AND ref_parents = '$options_[no]' AND option_state != 'N' ORDER BY sort ASC, no ASC";
+                											$options_detail_result = mysqli_query($connect, $options_detail_query);
+
+                											while($options_detail = mysqli_fetch_array($options_detail_result)){
+                										?>
+
+                											<li>
+                												<a href="javascript:void(0)" data-option-index="<?=$option_index?>" onclick="use_color('option_list_<?=$row['no']?>',this);<?=$func?>"><span data-origin-color="<?=$options_detail[color_value]?>" style="background-color:<?=$options_detail[color_value]?>"><?=$options_detail[option_title]?></span></a>
+                											</li>
+                										<? } ?>
+                									</ul>
+                                                    <!-- 컬러 클릭시 노출 처음에 노출안함 -->
+                                                    <p class="color_choice" style="display:none";><span style="background-color:"></span>  </p>
+                                                <? }else{ ?>
+                                                    <select style='display:none;' data-option-index="<?=$option_index?>" class='option_select' onchange="set_next_option('option_list_<?=$row['no']?>',this);<?=$func?>">
+                                                    <option value="">선택해주세요</option>
+                                                    <?
+                                                        $options_detail_query = "SELECT * FROM koweb_option_set WHERE ref_product = '$product[no]' AND option_type = 'C' AND ref_parents = '$options_[no]' AND option_state != 'N' ORDER BY sort ASC, no ASC";
+                                                        $options_detail_result = mysqli_query($connect, $options_detail_query);
+
+                                                        while($options_detail = mysqli_fetch_array($options_detail_result)){
+                                                        ?>
+                                                            <option value="<?=$options_detail[option_title]?>"><?=$options_detail[option_title]?></option>
+                                                        <? } ?>
+                                                    </select>
+                                                <? } ?>
+												</dd>
+                                            <?
+                                            $option_index++;
+                                            }
+                                            ?>
+											</dl>
+											<!-- //옵션 -->
+
+											<div class="btn">
+												<a href="javascript:void(0)" onclick="option_form_submit('<?=$row['no']?>')" class="button white">변경</a>
+											</div>
+
+											<a href="#" class="close">옵션닫기</a>
+										</div>
+                                        <? } ?>
+
+										<!-- //옵션 변경레이어 -->
+
+									</div>
+
+								</div>
+							</td>
+							<td data-cart-table="price"><?=number_format($price);?>원</td>
+							<td data-cart-table="count" class="count">
+								<div class="count">
+									<button type="button" class="minus" onclick="option_minus(this)">빼기</button>
+									<input type="text" readonly class='product_count' name="" id="" value="<?=$row['product_cnt']?>"/>
+									<button type="button" class="plus" onclick="option_plus(this)">더하기</button>
+								</div>
+								<a href="javascript:void(0)" onclick="count_form_submit('<?=$row['no']?>',this,'')" data-cart-option="send">변경</a>
+							</td>
+							<td data-cart-table="point"><?=number_format($save_point)?></td>
+							<!-- <td data-cart-table="deliver"><?=$delivert_price?></td> -->
+							<td data-cart-table="total"><?=number_format($item_price)?>원</td>
+							<!-- <td data-cart-table="set" rowspan="<?=$add_option_list_cnt;?>"> -->
+							<td data-cart-table="set">
+								<a href="javascript:void(0)" onclick="order_form_submit('<?=$product['id']?>','<?=$option['id']?>','<?=$row['product_cnt']?>','<?=$option_num == 0 ? "N" : "Y"?>')" class="button sm">주문하기</a>
+								<a href="javascript:void(0)" onclick="wish_form_submit('<?=$product['id']?>')" class="button sm">관심상품등록</a>
+								<a href="javascript:void(0)" onclick="del_form_submit('<?=$row['no']?>','target')" class="button sm">상품삭제</a>
+							</td>
+						</tr>
+                        <?
+                        foreach ($add_option_list as $add_option) {
+                        ?>
+                        <tr data-cart-table="add_option">
+                            <td data-cart-table="product" class="tal">
+								<div data-cart-option="img">
+									<!-- 상품정보 클릭시 상세이동 -->
+									<a href="/<?=$add_folder?>product/product.html?id=<?=$product['id']?>&mode=view" class="img" target="_blank">
+                                        <img src="/upload/product/<?=$product['title_img']?>" alt=""/>
+                                    </a>
+									<div>
+										<!-- 상품명 -->
+										<em>[추가상품] <?=$add_option['title']?></em>
+									</div>
+
+								</div>
+							</td>
+                            <td data-cart-table="price"><?=$add_option['price_type']?><?=number_format($add_option['price']);?>원</td>
+                            <td data-cart-table="count" class="count">
+								<div class="count">
+									<button type="button" class="minus" onclick="option_minus(this)">빼기</button>
+									<input type="text" readonly class='product_count' name="" id="" value="<?=$add_option['cnt']?>"/>
+									<button type="button" class="plus" onclick="option_plus(this)">더하기</button>
+								</div>
+								<a href="javascript:void(0)" onclick="count_form_submit('<?=$row['no']?>',this,'<?=$add_option['id']?>')" data-cart-option="send">변경</a>
+							</td>
+                            <td data-cart-table="point"><?=number_format($add_option['save_point'])?></td>
+                            <td data-cart-table="total"><?=number_format($add_option['total_price'])?>원</td>
+							<td data-cart-table="set"><a href="javascript:void(0)" onclick="count_form_submit('<?=$row['no']?>',this,'<?=$add_option['id']?>','Y')" class="button sm">추가옵션삭제</a></td>
+                        </tr>
+                        <? } ?>
+
+                        <? } ?>
+					</tbody>
+				</table>
+
+				<div data-cart-option="info">
+					<a href="javascript:void(0)" onclick="del_form_submit('','checkbox')" class="button white">선택상품삭제</a>
+                    <a href="javascript:void(0)" onclick="del_form_submit('','all')" class="button white">장바구니 비우기</a>
+					<p class="icon_shopInfo">할인 적용 금액은 주문서작성의 결제예정금액에서 확인 가능합니다.</p>
+				</div>
+
+				<div data-cart-option="total">
+					<!-- 총 구매금액 -->
+					<div class="price">
+						<em>총 구매금액</em>
+						<span id='total_price'><?=number_format($cart_total_price)?></span>원
+					</div>
+					<span>+</span>
+					<!-- 배송비 -->
+					<div class="deliver">
+						<em>배송비</em>
+                        <?
+                        $cart_total_delivery_price = get_delivery_price($connect,$product_id_array,$cart_total_price);
+                        ?>
+						<span id='delivery_price'><?=number_format($cart_total_delivery_price)?></span>원
+					</div>
+					<span>=</span>
+					<!-- 결제 예정금액 -->
+					<div class="total">
+						<em>결제 예정금액</em>
+						<span id='sum_price'><?=number_format($cart_total_price+$cart_total_delivery_price)?></span>원
+					</div>
+				</div>
+
+				<div class="btn_area">
+					<a href="javascript:void(0)" onclick="all_order_form_submit()" class="button lg">주문하기</a>
+					<a href="<?=$return_url?>" class="button lg white">쇼핑계속하기</a>
+				</div>
+			</div>
+			<!-- //내용시작 -->
+
+
+
+
+
+
+<script>
+    var doc = window.document;
+    var optionList;
+
+    function loop_option_list(callback,startIndex,searchId){
+        optionList = doc.getElementById(searchId).querySelectorAll('dd');
+		var index = startIndex||0;
+		for(var i=index;i<optionList.length;i++){
+			var option = optionList[i];
+			var type = option.children[1].nodeName;
+			var target = option.children[1];
+			if(callback(option,type,target) === false) break;
+		}
+	}
+
+    function check_soldout(searchId){
+        var valueList = new Array();
+
+        //옵션들 loop돌면서 선택되지않은 옵션이있다면 Stop
+
+        loop_option_list(function(option,type){
+            if(type == "UL"){ //color
+                var target = option.querySelectorAll('.color_choice')[0];
+                if(target.style.display == "none") return;
+                var optionValue = target.innerText;
+            }else{ // other
+                var target = option.querySelectorAll('.option_select')[0];
+                if(target.value == "") return;
+                var optionValue = target.value;
+            }
+            valueList.push(optionValue);
+        },0,searchId)
+        var valueTxt = valueList.join("|").replace(/ /gi, "");
+        var banFieldList = check_array_filed(valueTxt,soldoutListCol[searchId]);
+
+        //품절 표시 로직
+		var option = optionList[optionList.length-1];
+		var type = option.children[1].nodeName;
+		target = option.children[1];
+		if(type == "UL"){ //color
+			for(var i = 0; i < target.children.length; i++){
+				var spanObj = target.children[i].children[0].children[0];
+				var aObj = target.children[i].children[0];
+				var eventStart = target.children[i].children[0].getAttribute("onclick").replace("alert('품절');return; ","");
+                var tmpArray = valueList.slice();
+                tmpArray.push(spanObj.innerText);
+                var checkText = tmpArray.join("|").replace(/ /gi, "");
+
+				target.children[i].children[0].setAttribute("onclick",eventStart);
+				aObj.className = aObj.className.replace("sold ","");
+				//품절은 아래 처리
+				if(banFieldList.indexOf(checkText) >= 0){
+					var eventStop = "alert('품절');return; "+target.children[i].children[0].getAttribute("onclick");
+					target.children[i].children[0].setAttribute("onclick",eventStop);
+					aObj.className = "sold "+aObj.className;
+				}
+
+			}
+		}else{ // other
+			for(var i = 0; i < target.children.length; i++){
+                var tmpArray = valueList.slice();
+                tmpArray.push(target.children[i].value);
+                var checkText = tmpArray.join("|").replace(/ /gi, "");
+                if(checkText == "") continue;
+				target.children[i].innerText = target.children[i].innerText.replace(" [품절]","");
+				if(banFieldList.indexOf(checkText) >= 0){
+					target.children[i].setAttribute('disabled','disabled');
+					target.children[i].innerText = target.children[i].innerText+" [품절]";
+				}else{
+					target.children[i].removeAttribute('disabled');
+				}
+			}
+		}
+    }
+
+    function set_next_option(searchId,obj){
+        var changeIndex = 0;
+        var nextIndex = 0;
+        var valueList = new Array();
+
+        //not first check
+        if(typeof obj != "undefined"){
+            //now option index check
+            changeIndex = Number(obj.dataset.optionIndex);
+            nextIndex = Number(obj.dataset.optionIndex)+1;
+        }
+
+        //delete option
+        //전체적인 옵션은 기본적으로 display none처리 되어있고, 상위옵션을 선택해주세요 텍스트가 노출
+        //아래 loop는 현재 선택이 필요한 옵션하위 모두 none 및 텍스트처리(상위옵션~~)
+        loop_option_list(function(option,type,target){
+            if(type == "UL"){ //color
+                //target is Element of color value
+                var target = option.querySelectorAll('.color_choice')[0];
+                target.children[0].innerText="";
+                target.style.display = "none";
+            }else{ // other
+                var target = option.querySelectorAll('.option_select')[0];
+                target.value = ""
+            }
+
+            //현재선택한 옵션의 다음을 제외한 오브젝트 논 처리
+            if(i != nextIndex){
+                //0 of option children is text
+                //1 of option children is optionElement
+                option.children[0].style.display="block";
+                option.children[1].style.display="none";
+                target.style.display = "none";
+            }
+        },nextIndex,searchId);
+
+        //show option
+        for(var i=0;i<=nextIndex;i++){
+            var option = optionList[i];
+            if(option){
+                var type = option.children[1].nodeName;
+                var target = option.children[1];
+                if(type == "UL"){ //color
+                    if(option.querySelectorAll(".color_choice")[0].style.display != "none"){
+                        var optionValue = option.querySelectorAll(".color_choice")[0].innerText;
+                        valueList.push(optionValue);
+                    }
+                }else{ // other
+                    if(target.value != ""){
+                        var optionValue = target.value;
+                        valueList.push(optionValue);
+                    }
+                }
+                option.children[0].style.display="none";
+                target.style.display = "block";
+            }
+        }
+        if( (optionList.length-1) == nextIndex){
+            check_soldout(searchId);
+        }
+        delete_option(nextIndex,valueList,searchId);
+    }
+
+    function delete_option(nextIndex,valueList,searchId){
+        var valueTxt;
+        var nowValueEmpty = false;
+        if(valueList.length == nextIndex) nowValueEmpty = true;
+        valueTxt = valueList.join("|").replace(/ /gi, "");
+
+        loop_option_list(function(option,type){
+            if(type == "UL"){ //color
+                var target = option.querySelectorAll('.color_choice')[0];
+                var targets = target.parentElement.querySelectorAll("ul.color li a span");
+            }else{ // other
+                var target = option.querySelectorAll('.option_select')[0];
+                var targets = target.children;
+            }
+            targetsLen = targets.length;
+            for(var i=0; i< targetsLen; i++){
+                if(targets[i].value != ""){
+
+                    var tmpValueList = new Array();
+                    if(valueTxt != "")
+                    tmpValueList.push(valueTxt);
+                    if(targets[i].nodeName == "OPTION"){
+                        tmpValueList.push(targets[i].value);
+                    }else{
+                        tmpValueList.push(targets[i].innerText);
+                    }
+                    var selectValue = tmpValueList.join("|").replace(/ /gi, "");
+                    var agreeList = stateListCol[searchId].filter(function(v,i){
+                        if(v.indexOf(selectValue) == 0) return stateListCol[searchId][i];
+                    })
+                    if(agreeList.length <= 0){
+                        if(type == "UL"){
+                            targets[i].parentElement.setAttribute('style','display:none !important');
+                        }else{
+                            targets[i].setAttribute('style','display:none !important');
+                        }
+                    }else{
+                        if(type == "UL"){
+                            targets[i].parentElement.setAttribute('style','display:block !important');
+                        }else{
+                            targets[i].setAttribute('style','display:block !important');
+                        }
+                    }
+
+                }
+            }
+
+            return false;
+        },nextIndex,searchId)
+
+
+    }
+
+    //색상 옵션 선택 로직
+    function use_color(searchId,obj){
+        var color = obj.children[0].style.backgroundColor;
+        var color_text = obj.children[0].innerText;
+        var colorChoiceObj = obj.parentNode.parentNode.parentElement.getElementsByClassName('color_choice')[0];
+        colorChoiceObj.style.display="block";
+        colorChoiceObj.children[0].style.backgroundColor=color;
+        colorChoiceObj.children[0].innerText=color_text;
+        set_next_option(searchId,obj);
+    }
+
+    function option_minus(obj){
+        if(obj.parentElement.children[1].value > 1)
+        obj.parentElement.children[1].value--;
+    }
+    function option_plus(obj){
+        obj.parentElement.children[1].value++;
+    }
+</script>

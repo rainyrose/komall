@@ -1,0 +1,8 @@
+<?
+	if(!$_GET['detail']) $_GET['detail'] = "visitor";
+	$common_queryString2 = $common_queryString."&detail=".$_GET['detail'];
+	//$_GET['detail']의 값에 따라 내부 폴더의 파일을 인클루드 한다.
+	$file_server_path = realpath(__FILE__);
+	$server_path = str_replace(basename(__FILE__), "", $file_server_path);
+	include ($server_path.$_GET['detail'].".php");
+?>

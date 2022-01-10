@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<meta name="format-detection" content="telephone=no">
+		<title><?=$site[og_title]?></title>
+		<link rel="stylesheet" type="text/css" href="/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="/js/jquery-ui.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/layout.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/board.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/shop.css"/>
+
+		<? $checked_uri_position = explode("?", $_SERVER[REQUEST_URI]); ?>
+		<? $checked_uri_position[0] = end(explode("/",$checked_uri_position[0]));?>
+		<? if($checked_uri_position[0] == "" || $checked_uri_position[0] == "index.html"){
+			$m_main_ = true;
+		?>
+		    <!-- 메인일때 -->
+		  <!--  <link rel="stylesheet" type="text/css" href="/css/main.css"/>-->
+		<? } else {
+			$m_main_ = false;
+
+		?>
+		    <!-- 아닐경우 -->
+		    <link rel="stylesheet" type="text/css" href="/css/content.css"/>
+		<? } ?>
+
+		<script type="text/javascript" src="/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="/js/jquery-ui.js"></script>
+		<script type="text/javascript" src="/js/jquery.scrollbar.js"></script>
+		<script type="text/javascript" src="/js/jquery.bxslider.js"></script>
+		<script type="text/javascript" src="/js/base.js"></script>
+		<script type="text/javascript" src="/js/module.js"></script>
+		<script type="text/javascript" src="/js/shop_user.js"></script>
+		<script type="text/javascript" src="/js/custom.js"></script>
+		<!-- <script type="text/javascript" src="/js/share.js"></script> -->
+
+		<link rel="shortcut icon" href="/images/favicon.ico"/>
+		<meta property="og:image" content="/images/ogimage.jpg">
+		<link rel="canonical" href="<?=$site[url]?>" />
+		<link rel="alternate" href="<?=$site[url]?>" />
+		<meta property="og:url" content="<?=$site[url]?>" />
+		<meta property="og:title" content="<?=$site[og_title]?>" />
+		<meta name="description"  content="<?=$site[description]?>" />
+		<meta property="og:description" content="<?=$site[og_description]?>" />
+		<meta property="og:site_name" content="<?=$site[og_site_name]?>" />
+		<meta property="naver-site-verification" content="<?=$site[naver_tag]?>" />
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="<?=$img_urls?>" />
+
+		<!--[if lte IE 10]>
+			<script type="text/javascript">
+				 document.write('<div id="update">보고계신 사이트는 <b>익스플로러11에 최적화 된</b> 사이트 입니다. Windows Internet Explorer를 <b>업데이트</b>를 받으세요 <a href="http://windows.microsoft.com/ko-KR/internet-explorer/downloads/ie" target="_blank" title="새창">Internet Explorer 업데이트하기</a></div>');
+			</script>
+		<![endif]-->
+
+	</head>
+	<body>
+	<?
+	if($m_main_){
+
+		$popup = @mysqli_fetch_array(@mysqli_query($connect, "SELECT * FROM koweb_program_config WHERE id='popup'"));
+		if($popup['state'] == "Y"){
+			include $_SERVER['DOCUMENT_ROOT']."/popup/_popup.php";
+			include $_SERVER['DOCUMENT_ROOT']."/popup/layer_popup.php";
+		}
+	}
+
+	?>
+		<div id="wrap">

@@ -1,0 +1,118 @@
+<?
+//페이징 변수
+if (!$start) $start = 0;
+$scale = $board[list_limit]; // 리스트 수
+$page_scale	= 10; // 페이징 수
+
+//Search
+if($keyword){
+	if($search_key == "all"){
+		$WHERE .= " AND title LIKE '%$keyword%' AND name LIKE '%$keyword%'";
+		$PRODUCT_WHERE .= " AND product_title LIKE '%$keyword%'";
+	}else if($search_key == "product"){
+		$PRODUCT_WHERE .= " AND product_title LIKE '%$keyword%'";
+	}else{
+		$WHERE .= " AND $search_key LIKE '%$keyword%'";
+	}
+
+}
+
+//join해서 카테고리로 Product Information 가져와야하는데.. 조인 관리 귀찮아서 상품만 한번에 다 모아서 진행..
+$product_col_query = "SELECT * FROM koweb_product WHERE seller='Y' $PRODUCT_WHERE";
+$product_col_result = mysqli_query($connect,$product_col_query);
+$product_col = array();
+while($product_col_row = mysqli_fetch_array($product_col_result)){
+	$product_col[$product_col_row['no']]['title'] = $product_col_row['product_title'];
+	$product_col[$product_col_row['no']]['id'] = $product_col_row['id'];
+}
+$category_col = array_keys($product_col);
+if($PRODUCT_WHERE) $WHERE .= " AND category IN ('".join("','",$category_col)."')";
+
+//리스트
+$total_query = "SELECT * FROM $board_id WHERE 1=1 $WHERE AND no != '199' ORDER BY notice DESC, reg_date DESC, no DESC";
+$total_result = mysqli_query($connect, $total_query);
+$total = mysqli_num_rows($total_result);
+
+$query = "SELECT * FROM $board_id WHERE 1=1  $WHERE AND no != '199' ORDER BY notice DESC, ref_group DESC, depth ASC, no DESC LIMIT $start, $scale";
+$result = mysqli_query($connect, $query);
+?>
+ENG
+<table class="bbsList">
+<caption>Board list</caption>
+<colgroup>
+	<col data-table="number" style="width:7%"/>
+	<col data-table="category" style="width:10%"/>
+	<col data-table="subject"/>
+	<col data-table="write" style="width:15%"/>
+	<col data-table="date" style="width:15%"/>
+</colgroup>
+<thead>
+	<tr>
+		<th scope="col" data-table="number">No.</th>
+		<th scope="col" data-table="category">product name</th>
+		<th scope="col" data-table="subject">title</th>
+		<th scope="col" data-table="write">Writer</th>
+		<th scope="col" data-table="date">Date Created</th>
+	</tr>
+</thead>
+<tbody>
+		<? if($total > 0) { ?>
+			<? $f_no = $total - $start; ?>
+			<? while($row = mysqli_fetch_array($result)){
+					$date_array = explode("-",  $row[reg_date]);
+					if($row[notice] == "Y") {
+						$no_title = "<em class='notice'>notice</em>";
+						$f_no--;
+					} else {
+						$no_title = $f_no--;
+					}
+					$title_reply = "";
+
+					//현재글
+					if($no == $row[no]){
+						$total_txt = "<img src=\"/img/now_gul.gif\" />";
+					}
+
+					//7일 new 아이콘
+					if ($row[reg_date] >= date("Y-m-d", strtotime("-7 day"))) {
+						 $title_reply = "<em class=\"new\">new</em>";
+					} else unset($title_reply);
+
+					//depth 가 1이상이면 답변 아이콘
+					if($row[depth] > 0){
+						//$padding_style = $row[depth] * 40;
+						$title_reply = "<em class='reply'>answer</em>";
+					}
+
+					$reply_query_count = "SELECT * FROM board_comment WHERE ref_board_no = '$row[no]' AND board_id = '$board_id'";
+					$reply_count_result = mysqli_query($connect, $reply_query_count);
+					$reply_count = mysqli_num_rows($reply_count_result);
+
+					if($reply_count > 0){
+						$reply_query = "SELECT * FROM board_comment  ref_board_no = '$row[no]' AND board_id = '$board_id ORDER BY reg_date DESC";
+						$reply_result = mysqli_query($connect, $reply_query);
+					}
+
+				?>
+				<tr>
+					<td data-table="number"><?=$no_title?></td>
+					<td data-table="category"><a href="/product/product.html?mode=view&id=<?=$product_col[$row['category']]['id']?>"><?=$product_col[$row['category']]['title']?></a></td>
+					<td data-table="subject"><a href="<?=$common_queryString?>&amp;mode=view&amp;no=<?=$row[no]?>"><?=$title_reply?><?=$row[title]?><? if($board[use_comment] == "Y" ) { ?><i>[<?=$reply_count?>]</i><? } ?></a></td>
+					<td data-table="write"><?=$row[name]?></td>
+					<td data-table="date"><?=reset(explode(" ", $row[reg_date]))?></td>
+				</tr>
+			<? } ?>
+		<? } else { ?>
+			<tr>
+				<td colspan="5" class="none">There are no registered post.</td>
+			</tr>
+		<? } ?>
+</tbody>
+</table>
+<!-- Search 및 버튼 -->
+<? include "search.html"; ?>
+<!-- Search 및 버튼 -->
+
+<!-- page -->
+<? include "paging.html"; ?>
+<!-- //page -->

@@ -1,0 +1,427 @@
+<!-- lnb -->
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>" >회원목록</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=config" class="on">회원가입관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=level">회원등급관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=dept">부서관리</a></li>
+	</ul>
+</nav>
+<!-- //lnb -->
+
+<?
+$query = "SELECT * FROM $setting_table ORDER BY no DESC LIMIT 1";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+$row[level] = sprintf('%02d',$row[level]);
+?>
+
+<script type="text/javascript">
+	$(function() {
+		//부서별 권한설정 사용안함 일시 체크 해제
+		$("#no_dept").click(function(){
+			if($(this).is(":checked")){
+				$("[data-dept-list]").attr("checked", false);
+			}
+		});
+		$("input:radio[name='use_member_apply']:radio[value='<?=$row[use_member_apply]?>']").attr("checked",true);
+		$("input:radio[name='use_namecheck']:radio[value='<?=$row[use_namecheck]?>']").attr("checked",true);
+		$("input:radio[name='use_captcha']:radio[value='<?=$row[use_captcha]?>']").attr("checked",true);
+		$("select[name='default_level'] option[value='<?=$row[default_level]?>']").attr("selected", true);
+	});
+</script>
+
+
+
+<div id="div_ajax_load_image" class="area_loding" style="display:none">
+	<img src="/images/content/loading.gif" class="img" alt="loading">
+</div>
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+<input type="hidden" name="no" value="<?=$no?>" />
+<input type="hidden" name="level_auth_person" value="<?=$row[use_level_auth]?>" data-access-person="koweb_member_level" />
+<input type="hidden" name="department_auth_person" value="<?=$row[use_dept_auth]?>" data-access-person="koweb_department" />
+<input type="hidden" name="member_auth_person" value="<?=$row[use_user_auth]?>" data-access-person="koweb_member" />
+
+	<!-- 입력 -->
+	<div class="box pd" style="min-height:inherit;">
+		<h2>회원가입 기본 설정</h2>
+		<table class="bbsView">
+			<caption>회원 선택</caption>
+			<colgroup>
+				<col style="width:15%;"/>
+				<col />
+				<col style="width:15%;"/>
+				<col style="width:35%;"/>
+			</colgroup>
+			<tbody>
+				<tr>
+					<th scope="row">회원가입 승인</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="use_member_apply" id="use_member_applyY" value="Y" /><label for="use_member_applyY">사용</label>
+							<input type="radio" name="use_member_apply" id="use_member_applyN" value="N" /><label for="use_member_applyN">미사용</label>
+						</div>
+					</td>
+					<th scope="row">초기회원레벨</th>
+					<td>
+						<select name="default_level" title="초기회원레벨" id="default_level">
+						<?
+						$level_query = "SELECT * FROM koweb_member_level WHERE level != 1 AND level != 10 ORDER BY level DESC";
+						$level_result = mysqli_query($connect, $level_query);
+						while($level = mysqli_fetch_array($level_result)){
+						?>
+							<option value="<?=$level[level]?>"><?=$level[level_title]?></option>
+						<? } ?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">회원가입 축하포인트</th>
+					<td >
+						<input type="text" name="use_join_point" class="input100" id="use_join_point" value="<?=$row[use_join_point]?>" /> <label for="use_join_point">포인트 지급</label>
+					</td>
+					<th scope="row">자동가입방지(CAPTCHA) 사용</th>
+					<td>
+						<div class="designRadio">
+							<input type="radio" name="use_captcha" id="use_captchaY" value="Y" checked/><label for="use_captchaY">사용</label>
+							<input type="radio" name="use_captcha" id="use_captchaN" value="N" /><label for="use_captchaN">미사용</label>
+						</div>
+					</td>
+				</tr>
+				<!-- <tr>
+					<th scope="row">본인인증 사용</th>
+					<td colspan="3">
+						<div class="designRadio">
+							<input type="radio" name="use_namecheck" id="use_namecheckY" value="Y" /><label for="use_namecheckY">사용</label>
+							<input type="radio" name="use_namecheck" id="use_namecheckN" value="N" checked/><label for="use_namecheckN">미사용</label>
+						</div>
+					</td>
+
+				</tr> -->
+				<!--<tr>
+					<th scope="row">회원정보 부서별 접근권한</th>
+					<td colspan="3">
+						<div class="designCheck">
+							<input type="checkbox" name="use_dept_auth" value="Y" id="use_dept_auth" data-auth="use_dept_auth" /><label for="use_dept_auth" >자세히 보기</label>
+						</div>
+					</td>
+				</tr>
+				<tr data-auth-control="use_dept_auth" style="display:none;">
+					<th scope="row"></th>
+					<td colspan="3">
+						<ul data-auth-info="N" style="float:left; background-color:#ffd4d4;  height:150px; width:40%; padding:10px;">
+							<li><h2>불가</h2></li>
+							<?=denied_auth($connect, "koweb_department", $row[use_dept_auth], false);?>
+						</ul>
+						<ul data-auth-info="Y" style="float:left; background-color:#d4e2ff; height:150px; width:40%; padding:10px;">
+							<li><h2>허용</h2></li>
+							<?=denied_auth($connect, "koweb_department", $row[use_dept_auth], true);?>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">회원정보 등급별 접근권한</th>
+					<td colspan="3">
+						<div class="designCheck">
+							<input type="checkbox" name="use_level_auth" value="Y" id="use_level_auth" data-auth="use_level_auth" /><label for="use_level_auth" >자세히 보기</label>
+						</div>
+					</td>
+				</tr>
+				<tr data-auth-control="use_level_auth" style="display:none;">
+					<th scope="row"></th>
+					<td colspan="3">
+						<ul data-auth-info="N" data-info-type="koweb_member_level" style="float:left; background-color:#ffd4d4;  height:150px; width:40%; padding:10px;">
+							<li><h2>불가</h2></li>
+							<?=denied_auth($connect, "koweb_member_level", $row[use_level_auth], false);?>
+						</ul>
+						<ul data-auth-info="Y" data-info-type="koweb_member_level" style="float:left; background-color:#d4e2ff; height:150px; width:40%; padding:10px;">
+							<li><h2>허용</h2></li>
+							<?=denied_auth($connect, "koweb_member_level", $row[use_level_auth], true);?>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">회원정보 개별 접근권한</th>
+					<td colspan="3">
+						<div class="designCheck">
+							<input type="checkbox" name="use_user_auth" value="Y" id="use_user_auth" data-auth="use_user_auth" /><label for="use_user_auth" >자세히 보기</label>
+						</div>
+					</td>
+				</tr>
+				<tr data-auth-control="use_user_auth" style="display:none;">
+				</tr>
+				-->
+			</tbody>
+		</table>
+		<div class="btn_area">
+			<a href="javascript:void(0);" data-config-process class="button lg">설정저장</a>
+		</div>
+	</div>
+
+	<div class="box pd">
+		<h2>회원가입 항목 설정</h2>
+		<table class="bbsList">
+			<caption>회원가입 항목 설정</caption>
+			<colgroup>
+				<col style="width:30%;"/>
+				<col />
+				<col style="width:30%;"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="row">항목 </th>
+					<th scope="row">사용여부</th>
+					<th scope="row">필수선택</th>
+				</tr>
+			</thead>
+			<tbody data-list-area>
+				<?
+				$item_query = "SELECT * FROM koweb_member_item ORDER BY no ASC";
+				$item_result = mysqli_query($connect, $item_query);
+				while($item = mysqli_fetch_array($item_result)){
+				?>
+
+				<tr data-item-is="<?=$item[item]?>">
+					<td class="tal" style="padding-left:40px;">
+						<span data-text-info="<?=$item[item]?>"><?=$item[item_title]?></span>
+						<? if($item[item] == "private" || $item[item] == "sinfo" || $item[item] == "info_offer" || $item[item] == "agree" || $item[item] == "agree2"){ ?>
+							<a href="javascript:void(0);" onclick="javascript:showPopup(popLayer02);" class="button xs white" data-text="load">작성</a>
+						<? } ?>
+					</td>
+					<td>
+						<div class="designRadio">
+						<?
+						if($item[item] == "name" || $item[item] == "email" || $item[item] == "agree"){
+							$ADD_DISABLED = "checked disabled";
+						} else {
+							unset($ADD_DISABLED);
+						}
+
+						if($item[item_use] != "Y"){
+							$ADD_DISABLED2 = "disabled";
+						} else {
+							unset($ADD_DISABLED2);
+						}
+
+						?>
+						<input type="radio" name="item_use_<?=$item[item]?>" value="Y" id="use_<?=$item[item]?>Y" data-use="<?=$item[no]?>" <?=$ADD_DISABLED?>/><label for="use_<?=$item[item]?>Y">사용</label>
+							<input type="radio" name="item_use_<?=$item[item]?>" value="N" id="use_<?=$item[item]?>N" data-use="<?=$item[no]?>" <?=$ADD_DISABLED?>/><label
+							for="use_<?=$item[item]?>N">미사용</label>
+						</div>
+					</td>
+					<td>
+						<div class="designCheck noText">
+							<input type="checkbox" name="item_requierd_<?=$item[item]?>" value="Y" id="<?=$item[item]?>_requierd" data-requierd="<?=$item[no]?>" <?=$ADD_DISABLED?> <?=$ADD_DISABLED2?> />
+							<label for="<?=$item[item]?>_requierd">선택</label>
+						</div>
+					</td>
+				</tr>
+				<script type="text/javascript">
+					$("input:radio[name='item_use_"+"<?=$item[item]?>"+"']:radio[value='<?=$item[item_use]?>']").attr("checked",true);
+					$(":checkbox[name='item_requierd_"+"<?=$item[item]?>"+"'][value='<?=$item['item_requierd']?>']").prop("checked", true);
+				</script>
+				<? } ?>
+			</tbody>
+		</table>
+		<div class="btn_area">
+			<a href="javascript:void(0);" data-item-process class="button lg">항목저장</a>
+		</div>
+	</div>
+
+	<div id="popLayer02" style="display:none;">
+		<div class="popBox">
+			<!-- title -->
+			<h2 data-text-area></h2>
+			<!-- scroll -->
+			<div class="scrollbar-inner">
+				<div class="popinBox">
+
+					<div style="padding-right:10px">
+						<textarea name="content" id="smart_content"></textarea>
+					</div>
+
+					<div class="btn_area">
+						<a href="#" class="button lg" data-text="write" data-text-item>저장</a>
+						<a href="#" class="button lg white btn_close">닫기</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+	$("[data-use]").change(function(){
+		if($(this).val() != "Y"){
+			$("[data-requierd="+$(this).data("use")+"]").prop("disabled", true);
+		} else {
+			$("[data-requierd="+$(this).data("use")+"]").prop("disabled", false);
+		}
+
+	});
+
+	function process_config_ajax(){
+		$.ajax({
+			type: "POST",
+			url: "/ko_mall/setting/member/member_config_ajax.php",
+			data : {
+				use_member_apply : $("input:radio[name=use_member_apply]:checked").val()
+				,use_namecheck : $("input:radio[name=use_namecheck]:checked").val()
+				,use_captcha : $("input:radio[name=use_captcha]:checked").val()
+				,default_level : $("#default_level").val()
+				,use_level_auth : $("[data-access-person=koweb_member_level]").val()
+				,use_user_auth : $("[data-access-person=koweb_member]").val()
+				,use_dept_auth : $("[data-access-person=koweb_department]").val()
+				,use_join_point : $("#use_join_point").val()
+			},
+			success : function(args) {
+				alert("설정이 완료되었습니다.");
+			},beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+
+			}
+		});
+	}
+
+	function process_item_ajax(){
+
+		var data_temp = new Array();
+		var detail_data = new Array();
+
+		$("[data-item-is]").each(function(){
+			if($(this).find("input:radio[data-use]:checked").attr("disabled")){
+				return true;
+			}
+			var chk_value = $(this).find("input:checkbox[data-requierd]").is(":checked");
+			if(!chk_value) chk_value = "N";
+			else chk_value = "Y";
+
+			if($(this).data("item-is") == "name" || $(this).data("item-is") == "email" || $(this).data("item-is") == "agree"){
+				chk_value = "Y";
+			}
+
+			//alert($(this).data("item-is") + $(this).find("input:radio[data-use]:checked").val());
+			detail_data = $(this).data("item-is");
+			detail_data += "^" + $(this).find("input:radio[data-use]:checked").val();
+			detail_data += "^" + chk_value;
+			data_temp.push(detail_data);
+
+
+		});
+		data_temp = data_temp.join("|");
+
+		$.ajax({
+			type: "POST",
+			url: "/ko_mall/setting/member/member_item_ajax.php",
+			data : {
+				data_ : data_temp
+			},
+			success : function(args) {
+				alert("설정이 완료되었습니다.");
+				//console.log(args);
+			},beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+
+			}
+		});
+
+	}
+
+	$(function(){
+		$("[data-text]").click(function(){
+			$("[data-text-area]").text($(this).prev("span").text());
+			if($(this).data("text") == "load"){
+				var mode = $(this).data("text");
+				//var content = CKEDITOR.instances["smart_content"].getData();
+				var item = $(this).prev("span").data("text-info");
+				$("[data-text-item]").data("text-item", item);
+			} else {
+				var mode = $(this).data("text");
+				var content = CKEDITOR.instances["smart_content"].getData();
+				var item = $(this).data("text-item");
+
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "/ko_mall/setting/member/member_text_ajax.php",
+				data : {
+					mode : mode,
+					content : content,
+					item : item
+				},
+				success : function(args) {
+					CKEDITOR.instances["smart_content"].setData(args);
+					if(mode == "write"){
+						alert("작성이 완료되었습니다.");
+						$("[data-text-area]").text($(this).prev("span").text());
+					}
+					console.log(args);
+				},beforeSend: function () {
+					$("#div_ajax_load_image").show();
+				},
+				complete: function () {
+					$("#div_ajax_load_image").hide();
+				}
+			});
+		});
+
+
+		$("[data-config-process]").click(function(){
+			process_config_ajax();
+		});
+
+
+		$("[data-item-process]").click(function(){
+			process_item_ajax();
+		});
+
+
+		$("[data-auth]").click(function(){
+			if($(this).is(":checked")){
+				$("[data-auth-control="+$(this).data("auth")+"]").show();
+			} else {
+				$("[data-auth-control="+$(this).data("auth")+"]").hide();
+			}
+
+		});
+
+		$("[data-auth-info]" ).droppable({
+			drop: function(e, ui){
+				var target = ui.draggable;
+				var type_item = $(this).data("info-type");
+				var access = new Array();
+				var tmp_access;
+				$(this).append("<li data-info="+target.data("info")+">"+target.text()+"</li>");
+				target.remove();
+
+				$("[data-info-type="+type_item+"][data-auth-info=Y]").children("[data-info]").each(function(){
+					access.push($(this).data("info"));
+				});
+				tmp_access = access.join("|");
+
+				if(tmp_access == "|") {
+					tmp_access = "";
+				}
+
+				$("[data-access-person="+type_item+"]").val(tmp_access);
+			}
+		});
+	});
+
+	$(document).on("mouseover", "[data-info]", function(){
+		$("[data-info]").draggable({
+			start: function(event,ui) {
+			$(this).draggable( "option", "revert", true );
+		}
+	});
+});
+</script>

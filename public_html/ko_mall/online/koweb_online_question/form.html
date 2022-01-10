@@ -1,0 +1,326 @@
+<?
+$mode_title = $online[title]." 등록";
+
+if($mode == "modify"){
+	$query = "SELECT * FROM $online_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $online[title]." 수정";
+	$phone = explode("-", $row[phone]);
+	$email = explode("@", $row[email]);
+
+	//관리자가 아님
+	if(!$is_admin){
+		if($online[use_member] == "10"){
+		//비밀번호가 없음
+			if($password == ""){
+				url("$common_queryString&amp;mode=check&amp;return_mode=$mode&amp;no=$row[no]");
+				exit;
+			}
+			$password = hash("sha256", $password);
+			//비밀번호가 틀림
+			if($row[password] != $password){
+				alert("해당 내역은 작성자 및 관리자만 확인 가능합니다.");
+				url("$common_queryString&amp;mode=check&amp;return_mode=$mode&amp;no=$row[no]");
+				exit;
+			}
+		} else {
+			if($_SESSION[member_id] != $row[id]){
+				error("해당 내역은 작성자 및 관리자만 확인 가능합니다.");
+				exit;
+			}
+		}
+	}
+}
+
+$sort = explode("|",$online[sort]);
+
+//프로그램 변수 선언
+//필수항목
+$required = "";
+if($online[required] == "Y"){
+	$required = "<span class=\"marking\">필수항목</span>";
+}
+
+$temp_use = explode("|",$online['use_email']);
+$online['use_email'] = $temp_use[0];
+$use_email_r = $temp_use[1] ? $temp_use[1] : "";
+
+$temp_use = explode("|",$online['use_phone']);
+$online['use_phone'] = $temp_use[0];
+$use_phone_r = $temp_use[1] ? $temp_use[1] : "";
+
+$temp_use = explode("|",$online['use_addr']);
+$online['use_addr'] = $temp_use[0];
+$use_addr_r = $temp_use[1] ? $temp_use[1] : "";
+
+
+?>
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="online_id" value="<?=$online_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="return_url" value="<?=$common_queryString?>" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<input type="hidden" name="use_private_agree" id="use_private_agree" value="<?=$online[use_private_agree]?>" />
+	<? if($online[use_private_agree] == "Y") { ?>
+		<div class="box_privacy">
+			<textarea name="comments" id="" style="width:100%; height:200px;"  readonly><?=$online[private_text]?></textarea>
+			<div class="designRadio agree">
+				<input type="radio" name="agree" id="agree" value="Y"  title="개인정보 정보제공 동의" data-radio-type="agree"/><label for="agree"><b>동의합니다</b></label>
+				<input type="radio" name="agree" id="noagree" value="N"  title="개인정보 정보제공 동의" data-radio-type="agree"/><label for="noagree">동의하지 않습니다.</label>
+			</div>
+		</div>
+	<? } ?>
+
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<?
+				for($wrap_i = 1; $wrap_i <= 10; $wrap_i++){
+					$i = $sort[$wrap_i-1]; //솔트로 인한 진짜 인덱스
+
+					//프로그램 변수 선언
+					$variable_ = $online["variable_".$i];
+					$field_no = "variable_".$i;
+					$variable_ = explode("|", $variable_);
+					$tmp_name = $variable_[0];
+					$tmp_type = $variable_[1];
+					$tmp_state = $variable_[3];
+					$tmp_id = $variable_[4];
+					$tmp_view = $variable_[5];
+					$tmp_type_option = $variable_[7];
+					if($tmp_state != "Y") continue;
+
+					//필수항목
+					$required = "";
+					$check = "";
+					$tmp_class = "";
+					$tmp_size_class = "input300";
+					$tmp_required = $variable_[2];
+					if($tmp_required == "Y"){
+						$required = "<span class=\"marking\">필수항목</span>";
+						$check = "required";
+						$check_radio = "required_radio";
+					} else {
+						$check_radio = "";
+					}
+
+					if($tmp_type == "cal"){
+						$tmp_type = "text";
+						$tmp_class = "datepicker";
+						$tmp_size_class = "input100";
+					}
+
+					//타입옵션
+					$tmp_type_option_arr = explode("^",$tmp_type_option);
+					if($tmp_type_option_arr[0] == "") $tmp_type_option_arr[0] = "타입세부를 입력해주세요";
+			?>
+				<tr>
+					<th scope="row"><?=$required?><label for="<?=$tmp_id?>"><?=$tmp_name?></label></th>
+					<td>
+					<? if($tmp_type == "textarea"){ ?>
+						<textarea name="variable_<?=$i?>" id="<?=$tmp_id?>" title="<?=$tmp_name?>" style="width:100%;"><?=$row[$field_no]?></textarea>
+					<? } else if($tmp_type == "radio"){ ?>
+						<div id="<?=$tmp_id?>">
+							<? foreach ($tmp_type_option_arr as $type_key => $type_value){ ?>
+								<input <?=$row[$field_no] == $type_value ? "checked" : "" ?> type="<?=$tmp_type?>" name="variable_<?=$i?>" id="<?=$tmp_id?>_<?=$type_key?>" class="<?=$check_radio?> <?=$tmp_class?>" value="<?=$type_value?>" title="<?=$tmp_name?>" /><label for="<?=$tmp_id?>_<?=$type_key?>"><?=$type_value?></label>
+							<? } //foreach END ?>
+						</div>
+					<? } elseif($tmp_type == "select"){ ?>
+						<select name="variable_<?=$i?>" id="<?=$tmp_id?>" title="<?=$tmp_name?>" class="inputFull <?=$tmp_size_class?> <?=$check?> <?=$tmp_class?>">
+							<? foreach ($tmp_type_option_arr as $type_key => $type_value){ ?>
+								<option <?=$row[$field_no] == $type_value ? "selected" : "" ?> value="<?=$type_value?>"><?=$type_value?></option>
+							<? } //foreach END ?>
+						</select>
+					<? } else { ?>
+						<input type="<?=$tmp_type?>" name="variable_<?=$i?>" id="<?=$tmp_id?>" class="inputFull <?=$tmp_size_class?> <?=$check?> <?=$tmp_class?>" value="<?=$row[$field_no]?>" title="<?=$tmp_name?>"/>
+					<? } ?>
+					<input type="hidden" name="variable_type_<?=$i?>" value="<?=$tmp_type?>" />
+					</td>
+				</tr>
+			<? } ?>
+			<? if($online[use_phone] == "Y"){
+				$check = "";
+				$required = "";
+				if($use_phone_r == "R"){
+					$required = "<span class=\"marking\">필수항목</span>";
+					$check = "required";
+				}
+
+			?>
+
+				<tr>
+					<th scope="row"><label for="phone1">연락처</label></th>
+					<td class="tel">
+						<select name="phone1" id="phone1">
+							<option value="010">010</option>
+							<option value="011">011</option>
+							<option value="016">016</option>
+							<option value="017">017</option>
+							<option value="018">018</option>
+							<option value="019">019</option>
+						</select> -
+						<input type="text" name="phone2" id="phone2" class="input100 <?=$check?>" value="<?=$phone[1]?>" title="연락처" /> - <input type="text" name="phone3" id="phone3" class="input100 <?=$check?>" value="<?=$phone[2]?>" title="연락처" />
+					</td>
+				</tr>
+			<? } ?>
+			<? if($online[use_addr] == "Y"){
+				$check = "";
+				$required = "";
+				if($use_addr_r == "R"){
+					$required = "<span class=\"marking\">필수항목</span>";
+					$check = "required";
+				}
+
+			?>
+			<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+				<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+			<? }else{ ?>
+				<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+			<? } ?>
+				<script type="text/javascript">
+					function execDaumPostcode()
+					{
+						new daum.Postcode(
+						{
+							oncomplete: function(data)
+							{
+								// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+								// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+								// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+								var fullAddr  = "";					// 최종 주소 변수
+								var extraAddr = "";					// 조합형 주소 변수
+
+								// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+								if (data.userSelectedType === "R")
+								{
+									// 사용자가 도로명 주소를 선택했을 경우
+									fullAddr = data.roadAddress;
+								}
+								else
+								{
+									// 사용자가 지번 주소를 선택했을 경우(J)
+									fullAddr = data.jibunAddress;
+								}
+
+								// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+								if (data.userSelectedType === "R")
+								{
+									// 법정동명이 있을 경우 추가한다.
+									if (data.bname !== "")
+									{
+										extraAddr += data.bname;
+									}
+
+									// 건물명이 있을 경우 추가한다.
+									if (data.buildingName !== "")
+									{
+										extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+									}
+
+									// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+									fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+								}
+
+								// 우편번호와 주소 정보를 해당 필드에 넣는다.
+								document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+								document.getElementById("address1").value = fullAddr;
+
+								// 커서를 상세주소 필드로 이동한다.
+								document.getElementById("address2").focus();
+							}
+						}).open();
+					}
+					</script>
+					<tr>
+						<th scope="row" rowspan="3"><label for="zip">주소</label></th>
+						<td class="address">
+							<input type="text" class="input200 <?=$check?>"  name="zip" id="zip" value="<?=$row[zip]?>" title="주소"/>
+							<a href="javascript:execDaumPostcode()" class="button white">우편번호검색</a>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" class="input400 <?=$check?>" name="address1" id="address1" value="<?=$row[address1]?>" title="주소"/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" class="input400 <?=$check?>" name="address2" id="address2" value="<?=$row[address2]?>" title="상세 주소"/>
+						</td>
+					</tr>
+				<? } ?>
+				<? if($online[use_email] == "Y"){
+					$check = "";
+					$required = "";
+					if($use_email_r == "R"){
+						$required = "<span class=\"marking\">필수항목</span>";
+						$check = "required";
+					}
+				?>
+					<script type="text/javascript">
+						function mail_check(){
+							if($("#tmp_mail").val() == "other"){
+								$("#email2").val("");
+								$("#email2").prop("disabled", "");
+							} else {
+								$("#email2").val("");
+								$("#email2").val($("#tmp_mail").val());
+								$("#email2").prop("disabled", "disabled");
+							}
+								$("#email3").val($("#email2").val());
+						}
+					</script>
+					<tr>
+						<th scope="row"><label for="email1">이메일</label></th>
+						<td class="mail">
+							<input type="text" name="email1" id="email1" value="<?=$email[0]?>" class="input200 <?=$check?>" title="이메일"/>
+							@
+							<select name="tmp_mail" id="tmp_mail" onchange="javascript:mail_check();">
+								<option value="">선택하세요</option>
+								<option value="naver.com">naver.com</option>
+								<option value="daum.net">daum.net</option>
+								<option value="hanmail.net">hanmail.net</option>
+								<option value="hotmail.com">hotmail.com</option>
+								<option value="gmail.com">gmail.com</option>
+								<option value="other">직접입력</option>
+							</select>
+							<input type="text" name="email2" value="<?=$email[1]?>" id="email2" disabled class="input200 <?=$check?>"  title="이메일"/>
+							<input type="hidden" name="email3" id="email3" value="<?=$email[1]?>" />
+						</td>
+					</tr>
+				<? } ?>
+				<? if($online[use_view] == "Y"){  ?>
+					<? if($mode != "modify"){
+						$requ_txt = "<span class=\"marking\">필수항목</span>";
+						$requ = "required";
+					} else {
+						$requ = "";
+						$requ_txt = "";
+					} ?>
+					<tr>
+						<th scope="row"><label for="use_password"><?=$requ_txt?>비밀번호</label></th>
+						<td class="mail">
+							<input type="password" name="password" id="password" class="input200 <?=$requ?>" title="비밀번호"/>
+							<? if($mode == "modify") echo "비밀번호를 수정할 때만 작성해주세요.";?>
+						</td>
+					</tr>
+				<? } ?>
+		</tbody>
+	</table>
+	<script type="text/javascript">
+		$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true);
+		$("select[name='link_type'] option[value='<?=$row[link_type]?>']").prop("selected", true);
+		$("select[name='tmp_mail'] option[value='<?=$email[1]?>']").prop("selected", true);
+	</script>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button" value="저장" />
+		<a href="<?=$common_queryString?>&amp;no=<?=$row[no]?>" class="button gray">취소</a>
+	</div>
+</form>

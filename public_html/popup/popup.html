@@ -1,0 +1,80 @@
+<? include  "../head.php";
+
+$row = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_popup WHERE no='$no' LIMIT 1"));
+
+$row[img] = rawurlencode($row[img]);
+if(!empty($row[img])){
+	if ($row[link_url] != "#") {
+		if ($row[link_type] == "_self") { // 메인 창에 띄우기
+			$photo = "<a href='#' onclick=\"target_location('$row[link_url]');\"><img src='/upload/program/popup/$row[img]'/></a>";
+		} else {
+			$photo = "<a href='$row[link_url]' target='$row[link_type]'><img src='/upload/program/popup/$row[img]' /></a>";
+		}
+
+		if(empty($row[link_url])){
+
+			$photo = "<a href='javascript:void(0)'><img src='/upload/program/popup/$row[img]' /></a>";
+		}
+	}else {
+		$photo = "<a href='#' onclick='self.close();'><img src='/upload/program/popup/$row[img]' /></a>";
+	}
+}else{
+	$photo = $row[contents];
+}
+
+// 쿠키
+$cookie = "pop_" . $row[no];
+?>
+
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title><?=$row[title]?></title>
+		<link rel="stylesheet" type="text/css" href="/css/base.css" />
+		<link rel="stylesheet" type="text/css" href="/css/common.css" />
+		<script type="text/javascript" src="/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript">
+			function setCookie(name, value, expiredays) {
+				var todayDate = new Date();
+				todayDate.setDate(todayDate.getDate() + expiredays);
+				document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+			}
+
+			function closeWin() {
+				if (document.forms[0].<?=$cookie?>.checked) {
+					setCookie("<?=$cookie?>", "done" , 1);
+				}
+				self.close();
+			}
+
+			function target_location(targeturl) {
+				window.opener.document.location.href = targeturl;
+				self.close();
+			}
+		</script>
+
+		<style type="text/css">
+			html,body,#wrap{height:100%;}
+			#wrap{position:relative;}
+			#wrap .cont{margin-bottom:36px; text-align:center;}
+			#wrap .cont a{display:inline-block;}
+			#wrap .close{position:fixed; bottom:0px; left:0px; z-index:10; width:100%; height:36px; box-sizing:border-box; padding:10px; background:#232934; font-size:11px; color:#fff;}
+			#wrap .close:after{content:''; display:block; clear:both;}
+			#wrap .close a{display:inline-block; float:right; color:#fff;}
+		</style>
+	</head>
+
+	<body>
+		<div id="wrap">
+			<div class="cont"><?=$photo?></div>
+			<form name="form1">
+				<div class="close">
+					<input type="checkbox" name="<?=$cookie?>" id="<?=$cookie?>"><label for="<?=$cookie?>">오늘 하루 띄우지 않음</label>
+					<a href="#" onclick="closeWin();">창닫기</a>
+				</div>
+			</form>
+		</div>
+	</body>
+</html>

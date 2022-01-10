@@ -1,0 +1,4 @@
+<?php
+$me = true;
+$board_id="board_qna".$add_board_id;
+include $_SERVER['DOCUMENT_ROOT']."/board/board.php";

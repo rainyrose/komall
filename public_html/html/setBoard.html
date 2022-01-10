@@ -1,0 +1,91 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="setBoard.html" class="on">게시판 관리</a></li>
+								<li><a href="addBoard.html">게시판 등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<!-- 내용 -->
+
+						<!-- 등록된 게시판이 없는경우만 표시 -->
+						<div class="box no_data" style="display:none">
+							<p>등록된 게시판이 없습니다.<br/>게시판을 먼저 등록하신 후 사용가능합니다.</p>
+							<a href="addBoard.html" class="button lg">게시판 등록</a>
+						</div>
+
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>게시판 관리</h2>
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:15%"/>
+									<col style="width:25%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>									
+										<th scope="col">게시판이름</th>									
+										<th scope="col">아이디</th>
+										<th scope="col">스킨</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>3</td>
+										<td>공지사항</td>
+										<td>board_notice</td>
+										<td>notice
+											<a href="modifyBoard.html" class="button xs">작성</a>
+										</td>
+										<td>
+											<a href="modifyBoard.html" class="button sm gray">수정</a>
+											<a href="#" class="button sm white">삭제</a>
+										</td>
+									</tr>
+									<tr>
+										<td>3</td>
+										<td>공지사항</td>
+										<td>board_notice</td>
+										<td>notice</td>
+										<td>
+											<a href="modifyBoard.html" class="button sm gray">수정</a>
+											<a href="#" class="button sm white">삭제</a>
+										</td>
+									</tr>
+									<tr>
+										<td>3</td>
+										<td>공지사항</td>
+										<td>board_notice</td>
+										<td>notice</td>
+										<td>
+											<a href="modifyBoard.html" class="button sm gray">수정</a>
+											<a href="#" class="button sm white">삭제</a>
+										</td>
+									</tr>									
+								</tbody>
+							</table>
+
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<a href="/contents/addBoard.html" class="button lg">게시판 등록</a>
+							</div>
+							<!-- //버튼 -->
+
+						</div>
+						
+						
+						
+						<!-- //내용 -->
+									
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

@@ -1,0 +1,102 @@
+<? include("../inc/top.html") ?>
+<div id="content">
+
+
+	<!-- 내용 -->
+	<div class="area_shopMypage">			
+		<table class="bbsList">
+			<caption>주문내역</caption>
+			<colgroup>
+				<col/>
+				<col style="width:25%"/>
+				<col style="width:25%"/>
+				<col style="width:20%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">주문번호</th>
+					<th scope="col">주문일자</th>
+					<th scope="col">결제금액</th>
+					<th scope="col">현황</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<!-- 상태값 1주문,2입금,3준비,4배송,5완료,6취소,7반품 class="status01 ~ 순차적으로" -->
+					<td data-shop-order="status"><span class="status01">주문</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status04">배송</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status06">취소</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status07">반품</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status03">준비</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status05">완료</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status03">준비</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status06">취소</span></td>
+				</tr>
+				<tr>
+					<td data-shop-order="number"><a href="#">2019060811172744</a></td>
+					<td data-shop-order="date">2019-06-08(토)</td>
+					<td data-shop-order="price"><a href="#">145,000원</a></td>
+					<td data-shop-order="status"><span class="status02">입금</span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<!-- 페이징 -->
+	<div class="pagination">
+		<a href="#" class="btn_first">맨처음</a>
+		<a href="#" class="btn_prev">이전</a>
+		<!-- 선택된페이지 -->
+		<span>1</span>
+		<!-- //선택된페이지 -->
+		<a href="#">2</a>
+		<a href="#">3</a>
+		<a href="#" class="btn_next">다음</a>
+		<a href="#" class="btn_last">맨마지막</a>
+	</div>
+	<!-- //페이징 -->
+	<!-- //내용 -->
+
+
+
+
+</div>
+<? include("../inc/footer.html") ?>

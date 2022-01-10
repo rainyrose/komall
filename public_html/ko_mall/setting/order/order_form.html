@@ -1,0 +1,1199 @@
+<?
+	$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_order WHERE order_id = '$orderid' AND order_info = 'P' LIMIT 1"));
+
+	$default_total = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(product_price) AS product_price,  SUM(deli_price) AS deli_price, SUM(deli_add_price) AS deli_add_price, SUM(use_point) AS use_point FROM koweb_order WHERE order_id = '$orderid'"));
+
+	$expected =  ($default_total[product_price] + $default_total[deli_price]+ $default_total[deli_add_price]) - $default_total[use_point];
+?>
+	<script type="text/javascript">
+	function change_(url, type, no, id, input){
+		var input_data_ = input;
+		var form = $('<form></form>');
+		form.attr('action', url+"&mode=option_change_number");
+		form.attr('method', 'post');
+		form.appendTo('#order01');
+		var no = $("<input type='hidden' value="+no+" name='no'>");
+		var type = $("<input type='hidden' value="+type+" name='change_type'>");
+		var id = $("<input type='hidden' value="+id+" name='optid'>");
+		var input_data = $("<input type='hidden' value="+input_data_+" name='input_data'>");
+		form.append(no);
+		form.append(type);
+		form.append(id);
+		form.append(input_data);
+		form.submit();
+	}
+
+	function change2_(url, type, no, id, input){
+		var input_data_ = input;
+		var form = $('<form></form>');
+		form.attr('action', url+"&mode=option_refund_number");
+		form.attr('method', 'post');
+		form.appendTo('#order01');
+		var no = $("<input type='hidden' value="+no+" name='no'>");
+		var type = $("<input type='hidden' value="+type+" name='change_type'>");
+		var id = $("<input type='hidden' value="+id+" name='optid'>");
+		var input_data = $("<input type='hidden' value="+input_data_+" name='input_data'>");
+		form.append(no);
+		form.append(type);
+		form.append(id);
+		form.append(input_data);
+		form.submit();
+	}
+	</script>
+	<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+		<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+	<? }else{ ?>
+		<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<? } ?>
+	<script type="text/javascript">
+		function execDaumPostcode(){
+			new daum.Postcode(
+			{
+				oncomplete: function(data)
+				{
+					// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+					// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+					// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+					var fullAddr  = "";					// 최종 주소 변수
+					var extraAddr = "";					// 조합형 주소 변수
+
+					// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+					if (data.userSelectedType === "R")
+					{
+						// 사용자가 도로명 주소를 선택했을 경우
+						fullAddr = data.roadAddress;
+					}
+					else
+					{
+						// 사용자가 지번 주소를 선택했을 경우(J)
+						fullAddr = data.jibunAddress;
+					}
+
+					// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+					if (data.userSelectedType === "R")
+					{
+						// 법정동명이 있을 경우 추가한다.
+						if (data.bname !== "")
+						{
+							extraAddr += data.bname;
+						}
+
+						// 건물명이 있을 경우 추가한다.
+						if (data.buildingName !== "")
+						{
+							extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+						}
+
+						// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+						fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+					}
+
+					// 우편번호와 주소 정보를 해당 필드에 넣는다.
+					document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+					document.getElementById("address1").value = fullAddr;
+
+					// 커서를 상세주소 필드로 이동한다.
+					document.getElementById("address2").focus();
+
+
+					 $.ajax({
+						type : "POST",
+						url : "/ko_mall/product/user/add_delivery_ajax.php",
+						data : {
+							zipcode: data.zonecode
+						},
+						success : function(args) {
+							$("#deli_add_price").val(args);
+						}
+					});
+
+				}
+			}).open();
+		}
+	</script>
+	<form action="<?=$common_queryString?>" method="POST">
+		<input type="hidden" name="mode" value="modify_proc" />
+		<input type="hidden" name="orderid" value="<?=$default[order_id]?>" />
+		<input type="hidden" name="expected" value="<?=$expected?>" data-expected-price />
+
+		<nav class="lnb small">
+			<ul>
+				<li><a href="#order01" class="on">주문기본정보</a></li>
+				<li><a href="#order02">결제정보</a></li>
+				<li><a href="#order03">배송정보</a></li>
+				<li><a href="#order04">기타정보</a></li>
+			</ul>
+		</nav>
+
+
+		<div class="box pd" id="order01" style="min-height:inherit;">
+			<div class="box_title">
+				<span>주문내역 및 상태변경</span>
+				<ul>
+					<li>
+						<em>
+							<a href="#" data-tooltip="explan">안내
+								<div>항목선택시 상태값이 <span class="txt_red">수정반영</span>됩니다.</div>
+							</a>
+							현재 주문상태
+						</em>
+						<span>
+							<? if($default[state] == "취소완료"){ ?>
+								<span>취소완료</span>
+								<input type='hidden' name='state' value='취소완료' />
+							<? } else if($default[state] == "반품완료") {?>
+								<span>반품완료</span>
+								<input type='hidden' name='state' value='반품완료' />
+							<? } else {?>
+								<select name="state" id="state">
+									<option value="입금대기">입금대기</option>
+									<option value="입금확인중">입금확인중</option>
+									<option value="결제완료">결제완료</option>
+									<option value="상품준비중">상품준비중</option>
+									<option value="배송준비">배송준비</option>
+									<option value="배송중">배송중</option>
+									<option value="취소요청">취소요청</option>
+									<option value="취소완료">취소완료</option>
+									<option value="교환요청">교환요청</option>
+									<option value="교환진행중">교환진행중</option>
+									<option value="반품요청">반품요청</option>
+									<option value="반품진행중">반품진행중</option>
+									<option value="반품완료">반품완료</option>
+									<option value="배송완료">배송완료</option>
+								</select>
+								<script type="text/javascript">
+									$("#state option[value='<?=$default[state]?>']").prop("selected", true);
+
+								</script>
+							<? } ?>
+						</span>
+					</li>
+					<li><em>주문시간</em><span><?=$default[reg_date]?></span></li>
+					<li><em>총 결제금액</em><span data-total-pricetxt></span>
+						<script type="text/javascript">
+							$("[data-total-pricetxt]").text("<?=number_format($expected)?>");
+						</script>
+					</li>
+				</ul>
+
+				<a href="javascript:void(0)" onclick="printOrder('<?=$default[order_id]?>')" class="button white print">인쇄</a>
+			</div>
+
+			<table class="bbsList product mt20">
+				<caption>주문내역</caption>
+				<thead>
+					<tr>
+						<th scope="col">상품명</th>
+						<th scope="col">선택옵션</th>
+						<th scope="col">판매가</th>
+						<th scope="col">수량</th>
+						<th scope="col">취소수량</th>
+						<th scope="col">소계
+							<a href="#" data-tooltip="explan" class="right">안내
+								<div>(판매가+옵션가)X수량 합계입니다.</div>
+							</a>
+						</th>
+						<!--<th scope="col">포인트</th>-->
+						<!--<th scope="col">배송비</th>-->
+					</tr>
+				</thead>
+				<tbody>
+					<?
+						$query = "SELECT * FROM koweb_order WHERE order_id = '$orderid' ORDER BY no ASC";
+						$result = mysqli_query($connect, $query);
+						$not_bill = 0;
+						$bill = 0;
+						while($row = mysqli_fetch_array($result)){
+							if(!$row['refund_cnt'])$row['refund_cnt']=0;
+							if(!$row['add_refund_cnt'])$row['add_refund_cnt']=0;
+
+						$options_ = explode("^", $row[options_info]);
+						$add_options_ = explode("^", $row[add_options_info]);
+						$refund_ = explode("^", $row[refund_info]);
+						$add_refund_ = explode("^", $row[add_refund_info]);
+
+						$options_ = array_filter($options_);
+						$add_options_ = array_filter($add_options_);
+						$refund_ = array_filter($refund_);
+						$add_refund_ = array_filter($add_refund_);
+
+						$product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product WHERE id='$row[ref_product]' LIMIT 1"));
+
+
+						foreach($options_ AS $options_index => $o){
+							$options_detail = explode("|", $o);
+							$refund_detail = explode("|", $refund_[$options_index]);
+							if(!$refund_detail[1]) $refund_detail[1] = 0;
+					?>
+					<tr>
+						<td>
+							<!-- 클릭시 해당상품관리자 수정으로 이동 -->
+							<a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=product&search_key=&keyword=&mode=modify&no=<?=$product_[no]?>" class="view">
+								<!-- 이미지 -->
+								<span class="img" style="background-image:url('/upload/product/<?=$product_[title_img]?>');"></span>
+								<!-- 제품명 -->
+								<p><?=$product_[product_title]?></p>
+							</a>
+						</td>
+						<td class="tal">
+							[옵션 : <?=$options_detail[1]?>]
+						</td>
+						<td><?=number_format($options_detail[4])?></td>
+						<td>
+							<!-- <input type="text" name="options_data" id="" value="<?=$options_detail[2]?>" class="input100" data-change-option='<?=$options_detail[0]?>'/>
+							<a href="#" class="button sm blue" data-change="<?=$options_detail[0]?>">수량변경</a>
+							<script type="text/javascript">
+								$("[data-change='"+"<?=$options_detail[0]?>"+"']").click(function(){
+									change_('<?=$common_queryString?>', 'option', '<?=$row[no]?>', '<?=$options_detail[0]?>', $("[data-change-option='<?=$options_detail[0]?>']").val());
+								});
+							</script> -->
+
+							<span><?=$options_detail[2]?></span>
+						</td>
+						<?
+						/*
+						2020-06-12 부분취소 업데이트
+						1. 테이블 컬럼에 취소수량 추가.
+						2. 수량변경 다음에 부분취소 td추가 (추가상품에도 꼭 추가하기) , data-change-option 를 data-change2-option 로 변경
+						3.manager_setting.php 에 option_refund_number 추가
+						4.chage2_ 함수 추가
+						5.order_proc.php 에 change_number 조건에 $mode == "option_refund_number" 를  or로 추가 및 option_refund_number 일때 일부내용 수정
+						6.$target2_tmp 통해서 $target2_ 생성
+						7.$mode == "option_refund_number" 조건들 추가하기
+						8.$data2_ 생성
+						*/
+						?>
+						<td>
+							<? if($default[state] != "취소완료" && $default[state] != "반품완료"){ ?>
+							<input type="text" name="options_data" id="" value="<?=$refund_detail[1]?>" class="input100" data-change2-option='<?=$options_detail[0]?>'/>
+							<a href="#" class="button sm gray" data-change2="<?=$options_detail[0]?>" data-cnt="<?=$options_detail[2]?>">적용</a>
+							<script type="text/javascript">
+								$("[data-change2='"+"<?=$options_detail[0]?>"+"']").click(function(){
+									var order_cnt = Number($(this).data("cnt"));
+									var input_cnt = Number($("[data-change2-option='<?=$options_detail[0]?>']").val());
+									if(input_cnt < 0) {
+										alert("취소 수량은 음수가 될 수 없습니다.");
+										$("[data-change2-option='<?=$options_detail[0]?>']").val(0);
+									} else if(order_cnt < input_cnt) {
+										alert("취소 수량은 주문 수량을 넘을 수 없습니다.");
+										$("[data-change2-option='<?=$options_detail[0]?>']").val(order_cnt);
+									} else if(isNaN(input_cnt)) {
+										alert("숫자만 입력 가능합니다.");
+										$("[data-change2-option='<?=$options_detail[0]?>']").val(0);
+									} else {
+										change2_('<?=$common_queryString?>', 'option', '<?=$row[no]?>', '<?=$options_detail[0]?>', input_cnt);
+									}
+								});
+							</script>
+							<? } else { ?>
+								<span><?=$refund_detail[1]?></span>
+							<? } ?>
+						</td>
+
+						<td><?=number_format($options_detail[5])?></td>
+						<?
+						if($product_['tax_type'] == "2"){
+							$not_bill +=$options_detail[5];
+						}else{
+							$bill +=$options_detail[5];
+						}
+						?>
+						<!--<td>0</td>-->
+						<!--<td>3,000</td>-->
+					</tr>
+					<? }
+					foreach($add_options_ AS $add_options_index => $ao){
+							$add_options_detail = explode("|", $ao);
+							//$add_options_detail = [0]:추가옵션아이디, [1]추가옵션명, [2]수량, [3]적립포인트, [4]개별금액, [5] 총액
+							$add_refund_detail = explode("|", $add_refund_[$add_options_index]);
+							if(!$add_options_detail[0]) $add_options_detail[0] = 0;
+					?>
+					<tr>
+						<td>
+							<!-- 클릭시 해당상품관리자 수정으로 이동 -->
+							<a href="#" class="view">
+								<!-- 이미지 -->
+								<span class="img" style="background-image:url(/upload/product/<?=$product_[title_img]?>);"></span>
+								<!-- 제품명 -->
+								<p><?=$product_[product_title]?></p>
+							</a>
+						</td>
+						<td class="tal">
+							[추가옵션 : <?=$add_options_detail[1]?>]
+						</td>
+						<td><?=number_format($add_options_detail[4])?></td>
+						<td>
+							<!-- <input type="text" name="options_data" id="" value="<?=$add_options_detail[2]?>" class="input100" data-addchange-option='<?=$add_options_detail[0]?>'/>
+							<a href="#" class="button sm blue" data-add-change="<?=$add_options_detail[0]?>">수량변경</a>
+							<script type="text/javascript">
+								$(function(){
+									$("[data-add-change='"+"<?=$add_options_detail[0]?>"+"']").click(function(){
+										change_('<?=$common_queryString?>', 'add', '<?=$row[no]?>', '<?=$add_options_detail[0]?>', $("[data-addchange-option='<?=$add_options_detail[0]?>']").val());
+									});
+								});
+							</script> -->
+							<span><?=$add_options_detail[2]?></span>
+						</td>
+						<td>
+							<? if($default[state] != "취소완료" && $default[state] != "반품완료"){ ?>
+							<input type="text" name="options_data" id="" value="<?=$add_refund_detail[1]?>" class="input100" data-addchange2-option='<?=$add_options_detail[0]?>'/>
+							<a href="#" class="button sm red" data-add-change2="<?=$add_options_detail[0]?>" data-cnt="<?=$add_options_detail[2]?>">적용</a>
+							<script type="text/javascript">
+								$(function(){
+									$("[data-add-change2='"+"<?=$add_options_detail[0]?>"+"']").click(function(){
+										var order_cnt = Number($(this).data("cnt"));
+										var input_cnt = Number($("[data-addchange2-option='<?=$add_options_detail[0]?>']").val());
+										if(input_cnt < 0) {
+											alert("취소 수량은 음수가 될 수 없습니다.");
+											$("[data-addchange2-option='<?=$add_options_detail[0]?>']").val(0);
+										} else if(order_cnt < input_cnt) {
+											alert("취소 수량은 주문 수량을 넘을 수 없습니다.");
+											$("[data-addchange2-option='<?=$add_options_detail[0]?>']").val(order_cnt);
+										} else if(isNaN(input_cnt)) {
+											alert("숫자만 입력 가능합니다.");
+											$("[data-addchange2-option='<?=$add_options_detail[0]?>']").val(0);
+										} else {
+											change2_('<?=$common_queryString?>', 'add', '<?=$row[no]?>', '<?=$add_options_detail[0]?>', input_cnt);
+										}
+									});
+								});
+							</script>
+							<? } else { ?>
+							<span><?=$add_refund_detail[1]?></span>
+							<? } ?>
+						</td>
+
+						<td><?=number_format($add_options_detail[5])?></td>
+						<?
+						if($product_['tax_type'] == "2"){
+							$not_bill +=$add_options_detail[5];
+						}else{
+							$bill +=$add_options_detail[5];
+						}
+						?>
+						<!--<td>0</td>-->
+						<!--<td>3,000</td>-->
+					</tr>
+				<? }
+				}
+				?>
+				</tbody>
+			</table>
+
+			<p class="text_info">
+				주문, 입금, 준비, 배송, 완료는 장바구니와 주문서 상태를 모두 변경하지만, 취소, 반품, 품절은 장바구니의 상태만 변경하며, 주문서 상태는 변경하지 않습니다.<br/>
+				개별적인(이곳에서의) 상태 변경은 모든 작업을 수동으로 처리합니다. 예를 들어 주문에서 입금으로 상태 변경시 입금액(결제금액)을 포함한 모든 정보는 수동 입력으로 처리하셔야 합니다.
+			</p>
+		</div>
+
+
+		<nav class="lnb small">
+			<ul>
+				<li><a href="#order01">주문기본정보</a></li>
+				<li><a href="#order02" class="on">결제정보</a></li>
+				<li><a href="#order03">배송정보</a></li>
+				<li><a href="#order04">기타정보</a></li>
+			</ul>
+		</nav>
+
+		<div class="box pd" id="order02">
+			<h2>주문결제내역</h2>
+			<table class="table">
+				<caption>주문결제내역</caption>
+				<thead>
+					<tr>
+						<th scope="col">주문번호</th>
+						<th scope="col">결제방법</th>
+						<th scope="col">주문총액
+							<a href="#" data-tooltip="explan">안내
+								<div>(판매가+옵션가)X수량 합계입니다.</div>
+							</a>
+						</th>
+						<th scope="col">배송비
+							<a href="#" data-tooltip="explan">안내
+								<div>배송비 + 추가배송비 합계입니다.</div>
+							</a>
+						</th>
+						<th scope="col">포인트</th>
+						<th scope="col">총결제
+							<a href="#" data-tooltip="explan" class="right">안내
+								<div>((판매가+옵션가)X수량) + 배송비 - ⓛ포인트사용<!--  - ③쿠폰사용 --> 합계입니다.</div>
+							</a>
+						</th>
+						<!--<th scope="col">주문취소</th>-->
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><?=$default[order_id]?></td>
+						<td><?=$default[pay_type]?></td>
+
+						<? if($product_[use_telform] != "Y"){ ?>
+
+						<td><?=number_format($default_total[product_price])?></td>
+						<td><?=number_format($default_total[deli_price] + $default_total[deli_add_price])?></td>
+						<td><?=number_format($default_total[use_point])?></td>
+						<td><?=number_format($expected)?></td>
+
+						<? }else{ ?>
+
+						<td><input type="number" onblur="cal_admin_result_price()" id="tel_product_price" name="tel_product_price" value="<?=$default_total[product_price]?>" class="input100"/></td>
+						<td id="tel_deli_price"><?=number_format($default_total[deli_price] + $default_total[deli_add_price])?></td>
+						<td id="tel_use_point"><?=number_format($default_total[use_point])?></td>
+						<td><div id="result_price"></div>
+							<script>
+								$(function(){
+									cal_admin_result_price();
+								})
+
+								function cal_admin_result_price(){
+									var p1 = Number($("#tel_product_price").val())
+									var p2 = Number(removeComma($("#tel_deli_price").text()))
+									var p3 = Number(removeComma($("#tel_use_point").text()))
+									$("#result_price").text(p1+p2+p3)
+								}
+
+								function number_format( number ){
+									number = String(number);
+									number=number.replace(/\,/g,"");
+									nArr = String(number).split('').join(',').split('');
+									for( var i=nArr.length-1, j=1; i>=0; i--, j++)  if( j%6 != 0 && j%2 == 0) nArr[i] = '';
+									return nArr.join('');
+								}
+
+								function removeComma(str){
+									n = parseInt(str.replace(/,/g,""));
+									return n;
+								}
+							</script>
+						</td>
+						<? } ?>
+
+						<!--td>0</td>-->
+					</tr>
+				</tbody>
+			</table>
+
+			<h2>결제상세정보</h2>
+			<div class="box_title">결제정보 수정 후 <i style="color:red">저장버튼을 클릭</i>하셔야 반영됩니다.</div>
+			<table class="bbsView mt20">
+				<caption>결제상세정보</caption>
+				<colgroup>
+					<col style="width:15%"/>
+					<col style="width:30%"/>
+					<col style="width:15%"/>
+					<col/>
+				</colgroup>
+				<tbody>
+					<? switch($default[pay_type]){
+						case "무통장입금" : ?>
+							<!-- 무통장입금 -->
+							<tr>
+								<th scope="row" class="bg_thRed">계좌번호</th>
+								<td>
+									<? $use_direct_list = explode("\n", nl2br($site_pay[use_direct_content])); ?>
+									<span>기존 입금 계좌 : <?=$default[bank_info]?></span>
+									<select name="bank_info" id="bank_info">
+										<option value="">변경시에만 선택해주세요.</option>
+										<? foreach($use_direct_list AS $dl){ ?>
+											<? $dl = str_replace("<br />", "", $dl); ?>
+											<option value="<?=$dl?>"><?=$dl?></option>
+										<? } ?>
+									</select>
+								</td>
+								<th scope="row" class="bg_thRed">무통장 입금액</th>
+								<!-- 입금된 금액을 노출 -->
+								<td>
+									<input type="text" name="pay_price" id="pay_price" value="<?=$default[pay_price]?>" > 원
+									<div class="designCheck" style="display:inline-block; margin-left:10px;">
+										<a href="javascript:void(0);" class="button sm gray" id="auth_insert" data-total-val="<?=$expected?>">결제금액 자동입력</a>
+										<!--<input type="checkbox" name="pay_price_check" id="pay_price_check" ><label for="pay_price_check">결제금액 직접입력</label>-->
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row" class="bg_thRed">입금자</th>
+								<td>
+									<input type="text" name="bank_name" id="bank_name" value="<?=$default[bank_name]?>" readonly="readonly">
+									<div class="designCheck">
+										<input type="checkbox" name="bank_name_check" id="bank_name_check" ><label for="bank_name_check">직접입력</label>
+									</div>
+									<script type="text/javascript">
+										$(function(){
+											$("#bank_name_check").change(function(){
+												if($(this).is(":checked")){
+													$("#bank_name").attr("readonly", false);
+												} else {
+													$("#bank_name").attr("readonly", true);
+												}
+											});
+										});
+									</script>
+								</td>
+								<th scope="row" class="bg_thRed">입금확인일시</th>
+								<!-- 관리자가 직접입력 -->
+								<td>
+									<?
+										$pay_date = explode(" ", $default[pay_date]);
+										$pay_date_detail = explode(":", $pay_date[1]);
+									?>
+
+									<div class="designCheck">
+										<input type="checkbox" name="pay_date_check" id="pay_date_check" ><label for="pay_date_check">현재시간으로 세팅하기</label>
+									</div><br/>
+									<input type="text" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" style="width:110px;">
+									<input type="text" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" class="input70"> 시
+									<input type="text" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" class="input70"> 분
+									<input type="text" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" class="input70"> 초
+
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">현금영수증</th>
+								<!-- 현금영수증 발행이 이미 된경우면 버튼이 현금영수증 확인  으로 변경 -->
+								<td colspan="3">
+									[<?=$default[cash_paper_type]?>] <?=$default[cash_paper_method]?> - <?=$default[cash_paper_data]?>
+									<a href="https://taxadmin.uplus.co.kr:8004/index.jsp" target="_blank" class="button sm gray">현금영수증 발행</a>
+								</td>
+							</tr>
+							<!-- //무통장입금 -->
+					<?
+						break;
+						case "가상계좌" :
+					?>
+							<!-- 가상계좌 -->
+							<tr>
+								<th scope="row" class="bg_thRed">계좌번호</th>
+								<td>신한 X3790127591904 주식회사 케이오웹</td>
+								<th scope="row" class="bg_thRed">가상계좌 입금액</th>
+								<!-- 입금된 금액을 노출 -->
+								<td>
+									<div class="designCheck">
+										<input type="checkbox" name="" id="" ><label for="">결제금액입력</label>
+									</div>
+									<input type="text" name="" id="" value="" readonly="readonly"> 원
+								</td>
+							</tr>
+							<tr>
+								<th scope="row" class="bg_thRed">입금자</th>
+								<td>
+									<div class="designCheck">
+										<input type="checkbox" name="bank_name_check" id="bank_name_check" ><label for="bank_name_check">직접입력</label>
+									</div>
+									<input type="text" name="bank_name" id="bank_name" value="<?=$default[bank_name]?>" readonly="readonly">
+									<script type="text/javascript">
+										$(function(){
+											$("#bank_name_check").change(function(){
+												if($(this).is(":checked")){
+													$("#bank_name").attr("readonly", false);
+												} else {
+													$("#bank_name").attr("readonly", true);
+												}
+											});
+										});
+									</script>
+								</td>
+								<th scope="row" class="bg_thRed">입금확인일시</th>
+								<!-- 관리자가 직접입력 -->
+								<td>
+									<?
+										$pay_date = explode(" ", $default[pay_date]);
+										$pay_date_detail = explode(":", $pay_date[1]);
+									?>
+
+									<div class="designCheck">
+										<input type="checkbox" name="pay_date_check" id="pay_date_check" ><label for="pay_date_check">현재시간으로 세팅하기</label>
+									</div><br/>
+									<input type="text" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" style="width:110px;">
+									<input type="text" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" class="input70"> 시
+									<input type="text" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" class="input70"> 분
+									<input type="text" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" class="input70"> 초
+								</td>
+							</tr>
+					<?
+						break;
+						case "계좌이체" :
+					?>
+						<!-- 계좌이체 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">계좌이체 입금액</th>
+							<td>
+								<input type="text" name="pay_price" id="pay_price" value="<?=$default[pay_price]?>"> 원
+								<a href="javascript:void(0);" id="auth_insert" data-total-val="<?=($default[product_price] + $default[deli_price]+ $default[deli_add_price]) - $default[use_point]?>" class="button sm gray" style="margin-left:10px;">결제금액 자동입력</a>
+							</td>
+							<th scope="row" class="bg_thBlue">입금자</th>
+							<td><input type="text" name="bank_name" id="bank_name" value="<?=$default[bank_name]?>"></td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">입금확인일시</th>
+							<td>
+								<?
+									$pay_date = explode(" ", $default[pay_date]);
+									$pay_date_detail = explode(":", $pay_date[1]);
+								?>
+
+								<div class="designCheck">
+									<input type="checkbox" name="pay_date_check" id="pay_date_check" ><label for="pay_date_check">현재시간으로 세팅하기</label>
+								</div><br/>
+								<input type="text" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" style="width:110px;">
+								<input type="text" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" class="input70"> 시
+								<input type="text" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" class="input70"> 분
+								<input type="text" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" class="input70"> 초
+							</td>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<?if($site_pay[use_uplus] == "Y"){ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? }else{ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? } ?>
+						</tr>
+						<!-- //계좌이체 -->
+					<?
+						break;
+						case "휴대폰결제" :
+					?>
+						<!-- 휴대폰 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">휴대폰번호</th>
+							<td>010-1234-4567</td>
+							<th scope="row" class="bg_thBlue">휴대폰결제액</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" ><label for="">결제금액입력</label>
+								</div>
+								<input type="text" name="" id="" value="50000" readonly="readonly"> 원
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">휴대폰 결제일시</th>
+							<td>
+								<?
+									$pay_date = explode(" ", $default[pay_date]);
+									$pay_date_detail = explode(":", $pay_date[1]);
+								?>
+
+								<div class="designCheck">
+									<input type="checkbox" name="pay_date_check" id="pay_date_check"><label for="pay_date_check">현재시간으로 세팅하기</label>
+								</div><br/>
+								<input type="text" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" style="width:110px;">
+								<input type="text" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" class="input70"> 시
+								<input type="text" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" class="input70"> 분
+								<input type="text" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" class="input70"> 초
+							</td>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<?if($site_pay[use_uplus] == "Y"){ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? }else{ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? } ?>
+						</tr>
+						<!-- //휴대폰 -->
+					<?
+						break;
+						case "신용카드" :
+					?>
+						<!-- 신용카드 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">신용카드 결제금액</th>
+							<td>
+								<!-- <div class="designCheck">
+									<input type="checkbox" name="" id="pay_price_check"><label for="pay_price_check">결제금액입력</label>
+								</div>
+								<input type="text" name="pay_price" id="pay_price" value="<?=$default[pay_price]?>" > 원 -->
+								<input type="hidden" name="pay_price" id="pay_price" value="<?=$default[pay_price]?>" >
+								<?=number_format($default[pay_price])?> 원
+							</td>
+							<th scope="row" class="bg_thBlue">카드승인일시</th>
+							<td>
+								<?
+									$pay_date = explode(" ", $default[pay_date]);
+									$pay_date_detail = explode(":", $pay_date[1]);
+								?>
+
+								<!-- <div class="designCheck">
+									<input type="checkbox" name="pay_date_check" id="pay_date_check" ><label for="pay_date_check">현재시간으로 세팅하기</label>
+								</div><br/>
+								<input type="text" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" class="input100">
+								<input type="text" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" class="input70"> 시
+								<input type="text" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" class="input70"> 분
+								<input type="text" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" class="input70"> 초 -->
+								<?=$pay_date[0]?> <?=$pay_date_detail[0]?> 시 <?=$pay_date_detail[1]?> 분 <?=$pay_date_detail[2]?> 초
+								<input type="hidden" name="pay_date_1" id="pay_date_1" value="<?=$pay_date[0]?>" >
+								<input type="hidden" name="pay_date_2" id="pay_date_2" value="<?=$pay_date_detail[0]?>" >
+								<input type="hidden" name="pay_date_3" id="pay_date_3" value="<?=$pay_date_detail[1]?>" >
+								<input type="hidden" name="pay_date_4" id="pay_date_4" value="<?=$pay_date_detail[2]?>" >
+							</td>
+						</tr>
+
+
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<?if($site_pay[use_uplus] == "Y"){ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? }else{ ?>
+							<td colspan="3"><a href="https://pgweb.uplus.co.kr/ms/mertpotal/retrieveMertAdminLoginPage.do" target="_blank" class="button sm gray">LG유플러스 바로가기</a></td>
+							<? } ?>
+						</tr>
+						<!-- //신용카드 -->
+					<?
+						break;
+						case "PG간편결제" :
+					?>
+						<!-- PG간편결제 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">KPAY 결제금액</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" ><label for="">결제금액입력</label>
+								</div>
+								<input type="text" name="" id="" value="36000" readonly="readonly"> 원
+							</td>
+							<th scope="row" class="bg_thBlue">KPAY 승인일시</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label>
+								</div><br/>
+								<input type="text" name="start_date" value="" data-form-type="datepicker" id="" style="width:110px;">
+								<input type="text" name="" id="" class="input70"> 시
+								<input type="text" name="" id="" class="input70"> 분
+								<input type="text" name="" id="" class="input70"> 초
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td colspan="3"><a href="https://iniweb.inicis.com/security/login.do" target="_blank" class="button sm gray">KG이니시스바로가기</a></td>
+						</tr>
+						<!-- //PG간편결제 -->
+					<?
+						break;
+						case "카카오페이" :
+					?>
+						<!-- 카카오페이 -->
+						<tr>
+							<th scope="row" class="bg_thBlue">카카오페이 결제금액</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" ><label for="">결제금액입력</label>
+								</div>
+								<input type="text" name="" id="" value="36000" readonly="readonly"> 원
+							</td>
+							<th scope="row" class="bg_thBlue">카카오페이 승인일시</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id="" ><label for="">현재시간으로 세팅하기</label>
+								</div>
+								<input type="text" name="start_date" value="" data-form-type="datepicker" id="" style="width:110px;">
+								<input type="text" name="" id="" class="input70"> 시
+								<input type="text" name="" id="" class="input70"> 분
+								<input type="text" name="" id="" class="input70"> 초
+							</td>
+						</tr>
+						<tr>
+							<th scope="row" class="bg_thBlue">결제대행사</th>
+							<td colspan="3"><a href="https://mms.cnspay.co.kr/" target="_blank" class="button sm gray">KAKAOPAY바로가기</a></td>
+						</tr>
+						<!-- //카카오페이 -->
+					<? } ?>
+					<!-- 공통 -->
+					<?
+					// $bill = (($default_total[product_price] + $default_total[deli_price]+ $default_total[deli_add_price]) - $default_total[use_point]) / 1.1;
+					?>
+					<tr>
+						<th scope="row">공급가액</th>
+						<td><?=number_format($bill + $not_bill)?>원</td>
+						<th scope="row">과세부가세액</th>
+						<td><?=number_format(($bill/1.1)*0.1)?>원</td>
+					</tr>
+					<!--
+					<tr>
+						<th scope="row">비과세공급가액</th>
+						<td>0원</td>
+						<th scope="row">주문금액할인</th>
+						<td>0원</td>
+					</tr>
+					-->
+					<tr>
+						<th scope="row">포인트 결제액</th>
+						<td><input type="text" name="use_point" id="use_point" class="input100" value="<?=$default[use_point]?>"/>점</td>
+						<th scope="row">결제취소/환불액</th>
+						<td>
+							<div class="designCheck">
+								<input type="checkbox" name="return_price_check" id="return_price_check" data-total-price="<?=$expected?>"><label for="return_price_check">결제금액입력</label>
+							</div>
+							<input type="text" name="return_price" id="return_price" class="input100" value="<?=$default[return_price]?>"/> 원
+							<script type="text/javascript">
+							$(function(){
+								$("#return_price_check").change(function(){
+									if($(this).is(":checked")){
+										$("#return_price").val($(this).data("total-price"));
+									} else {
+										$("#return_price").val("");
+									}
+								});
+							});
+							</script>
+						</td>
+					</tr>
+
+					<? if($product_[use_telform] == "Y"){ ?>
+					<tr>
+						<th scope="row">포인트 결제액</th>
+						<td colspan="3"><input type="text" name="tel_add_point" id="teLadd_point" class="input100" value="<?=$default[add_point]?>"/>점</td>
+					</tr>
+					<? } ?>
+					<!-- //공통 -->
+
+					<!-- //현금영수증 -->
+				</tbody>
+			</table>
+
+			<script type="text/javascript">
+				$(function(){
+					$("#pay_price_check").change(function(){
+						if($(this).is(":checked")){
+							$("#pay_price").attr("readonly", false);
+						} else {
+							$("#pay_price").attr("readonly", true);
+						}
+					});
+
+					$("#auth_insert").click(function(){
+							$("#pay_price").val($(this).data("total-val"));
+					});
+
+					$("#pay_date_check").change(function(){
+
+						if($(this).is(":checked")){
+							var now = new Date();
+
+							var nowtime_ymd = now.getFullYear();
+							nowtime_ymd += '-' + ("0" + parseInt(now.getMonth() + 1)).slice(-2);
+							nowtime_ymd += '-' + ("0" + now.getDate()).slice(-2);
+							$("#pay_date_1").val(nowtime_ymd);
+							$("#pay_date_2").val(("0" + now.getHours()).slice(-2));
+							$("#pay_date_3").val(("0" + now.getMinutes()).slice(-2));
+							$("#pay_date_4").val(("0" + now.getSeconds()).slice(-2));
+						}
+					});
+
+				});
+			</script>
+
+
+			<h2>부분환불</h2>
+			<div class="box_title">결제정보 수정 후 <i style="color:red">저장버튼을 클릭</i>하셔야 반영됩니다.</div>
+			<table class="bbsView mt20">
+				<caption>결제상세정보</caption>
+				<colgroup>
+					<col style="width:30%"/>
+					<col style="width:70%"/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<th class="bg_thBlue">부분환불 금액</th>
+						<td><input type="text" name="partial_cancle" id="partial_cancle" class="input100" value="0"/>원</td>
+					</tr>
+					<tr>
+						<th class="bg_thBlue">부분환불 이력</th>
+						<td>
+							<?
+							$refund_query = "SELECT * FROM koweb_refund WHERE order_id = '{$orderid}'";
+							$refund_result = mysqli_query($connect,$refund_query);
+							$refund_num_rows = mysqli_num_rows($refund_result);
+							if($refund_num_rows){ ?>
+								<ul>
+								<? while($refund_row = mysqli_fetch_array($refund_result)){ ?>
+									<li>[<?=number_format($refund_row[refund_price])?>원] <?=$refund_row[reg_date]?></li>
+								<? } ?>
+								</ul>
+							<? }else{ ?>
+								이력이 없습니다.
+							<? } ?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+
+
+		<nav class="lnb small">
+			<ul>
+				<li><a href="#order01">주문기본정보</a></li>
+				<li><a href="#order02">결제정보</a></li>
+				<li><a href="#order03" class="on">배송정보</a></li>
+				<li><a href="#order04">기타정보</a></li>
+			</ul>
+		</nav>
+
+		<div class="box pd" id="order03">
+			<h2>배송정보</h2>
+			<div class="box_title">
+				<!-- 추후 배송정보 운송장 추가로 기입할 경우 주석풀고 개발
+				<a href="javascript:void(0);" class="button blue">+ 배송추가</a>
+				<i style="margin-left:15px; color:red;">버튼을 클릭하면 배송정보를 추가로 입력가능합니다.</i> 배송이 추가로 있는 경우 작성하세요.
+				 -->
+				<div class="title_conts spanList">
+					<p class="txt_red">배송추적 서비스가 가능한 택배사 목록 ( 택배사이름을 정확하게 입력해주세요 )</p>
+
+					<span>경동택배</span>
+					<span>대신택배</span>
+					<span>동부택배</span>
+					<span>로젠택배</span>
+					<span>우체국</span>
+					<span>이노지스택배</span>
+					<span>한진택배</span>
+					<span>CJ대한통운</span>
+					<span>CVSnet편의점택배</span>
+					<span>KG옐로우캡택배</span>
+					<span>KGB택배</span>
+					<span>KG로지스</span>
+					<span>건영택배</span>
+					<span>호남택배</span>
+				</div>
+			</div>
+
+			<table class="bbsList mt20">
+				<caption>배송정보</caption>
+				<colgroup>
+					<!--<col style="width:7%"/>-->
+					<col style="width:27%"/>
+					<col style="width:15%"/>
+					<col style="width:10%"/>
+					<col/>
+				</colgroup>
+				<thead>
+					<tr>
+						<!--
+						<th scope="col">관리</th>
+						-->
+						<th scope="col">배송사</th>
+						<th scope="col">운송장번호</th>
+						<th scope="col">배송비
+							<a href="#" data-tooltip="explan">안내
+								<div>입력창 두개중 하위 입력창은 <span class="txt_red">추가배송비</span> 입력란입니다.</div>
+							</a>
+						</th>
+						<th scope="col">배송일시</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- 배송추가시 반복 -->
+					<tr>
+						<!--
+						<td><a href="#" class="button sm white">삭제</a></td>
+						-->
+						<td>
+							<input type="text" name="deli_company" id="deli_company" value="<?=$default[deli_company]?>"/>
+							<div class="designCheck">
+								<input type="checkbox" name="deli_comp_check" id="deli_comp_check"><label for="deli_comp_check">기본배송회사로 설정</label>
+							</div>
+							<script type="text/javascript">
+								$(function(){
+									$("#deli_comp_check").change(function(){
+
+										if($(this).is(":checked")){
+											$("#deli_company").val("<?=$site_pay[deli_company]?>");
+										}
+									});
+								});
+							</script>
+						</td>
+						<td>
+							<input type="text" name="deli_code" id="deli_code" value="<?=$default[deli_code]?>" class="inputFull"/>
+						</td>
+						<td>
+							<input type="text" name="deli_price" id="deli_price" title="배송비입력" placeholder="배송비" class="inputFull" value="<?=$default[deli_price]?>"/>
+							<input type="text" name="deli_add_price" id="deli_add_price" title="추가배송비입력" placeholder="추가배송비" class="inputFull" value="<?=$default[deli_add_price]?>"/>
+						</td>
+						<td>
+							<?
+								$deli_date = explode(" ", $default[deli_date]);
+								$deli_date_detail = explode(":", $deli_date[1]);
+							?>
+							<div class="designCheck">
+								<input type="checkbox" name="deli_date_check" id="deli_date_check" ><label for="deli_date_check">현재시간으로 세팅하기</label>
+							</div>
+							<input type="text" name="deli_date1" value="<?=$deli_date[0]?>" id="deli_date1" style="width:110px;">
+							<input type="text" name="deli_date2" id="deli_date2" class="input70" value="<?=$deli_date_detail[0]?>"> 시
+							<input type="text" name="deli_date3" id="deli_date3" class="input70" value="<?=$deli_date_detail[1]?>"> 분
+							<input type="text" name="deli_date4" id="deli_date4" class="input70" value="<?=$deli_date_detail[2]?>"> 초
+
+							<script type="text/javascript">
+								$(function(){
+									$("#deli_date_check").change(function(){
+										if($(this).is(":checked")){
+											var now = new Date();
+											var nowtime_ymd = now.getFullYear();
+											nowtime_ymd += '-' + ("0" + parseInt(now.getMonth() + 1)).slice(-2);
+											nowtime_ymd += '-' + ("0" + now.getDate()).slice(-2);
+											$("#deli_date1").val(nowtime_ymd);
+											$("#deli_date2").val(("0" + now.getHours()).slice(-2));
+											$("#deli_date3").val(("0" + now.getMinutes()).slice(-2));
+											$("#deli_date4").val(("0" + now.getSeconds()).slice(-2));
+										}
+									});
+								});
+							</script>
+						</td>
+					</tr>
+					<!-- //배송추가시 반복 -->
+				</tbody>
+			</table>
+
+			<h2 class="mt20">배송지정보</h2>
+			<table class="bbsView">
+				<caption>배송지정보</caption>
+				<colgroup>
+					<col style="width:15%"/>
+					<col style="width:35%"/>
+					<col style="width:15%"/>
+					<col/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<th scope="row">배송받는 분</th>
+						<td><input type="text" name="name" id="name" value="<?=$default[name]?>"/></td>
+						<th scope="row">핸드폰</th>
+						<td>
+							<? $phone = explode("-", $default[phone]); ?>
+							<input type="text" name="phone1" id="phone1" class="input100" value="<?=$phone[0]?>"/>
+							-
+							<input type="text" name="phone2" id="phone2" class="input100" value="<?=$phone[1]?>"/>
+							-
+							<input type="text" name="phone3" id="phone3" class="input100" value="<?=$phone[2]?>"/>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">주소</th>
+						<td colspan="3">
+							<input type="text" class="input200" name="zip" id="zip" value="<?=$default[zip]?>">
+							<a href="#" class="button white" onclick="javascript:execDaumPostcode();"><span>우편번호검색</span></a>
+							<input type="text" class="inputFull" name="address1" id="address1" value="<?=$default[address1]?>" readonly="readonly">
+							<input type="text" class="inputFull" name="address2" id="address2" value="<?=$default[address2]?>" placeholder="상세주소">
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">배송메세지</th>
+						<td colspan="3">
+							<?=nl2br($default[memo])?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<nav class="lnb small">
+			<ul>
+				<li><a href="#order01">주문기본정보</a></li>
+				<li><a href="#order02">결제정보</a></li>
+				<li><a href="#order03">배송정보</a></li>
+				<li><a href="#order04" class="on">기타정보</a></li>
+			</ul>
+		</nav>
+
+		<div class="box pd" id="order04">
+
+			<h2 class="mt20">교환/반품 정보</h2>
+			<table class="bbsView product">
+				<caption>교환/반품 정보</caption>
+				<colgroup>
+					<col style="width:10%"/>
+					<col style="width:30%"/>
+					<col style="width:10%"/>
+					<col/>
+				</colgroup>
+				<tbody>
+					<?
+					$request_query = "SELECT * FROM koweb_order_request WHERE orderid='{$orderid}' order by no DESC";
+					$request_result = mysqli_query($connect,$request_query);
+					$request_num = mysqli_num_rows($request_result);
+					$request_num_title = $request_num;
+					while($request_row = mysqli_fetch_array($request_result)){
+						$request_title = "반품";
+						if($request_row[type] == "trade")$request_title = "교환";
+					?>
+					<tr>
+						<th scope="col" colspan="4" class="bg_yellow"><?=$request_num_title--?>번째 요청</th>
+					</tr>
+					<tr>
+						<th scope="row"><?=$request_title?>할 상품명</th>
+						<td>
+							<div class="view">
+								<!-- 이미지 -->
+								<span class="img" style="background-image:url('/upload/product/<?=$product_[title_img]?>');"></span>
+								<p><?=$request_row[title]?></p>
+							</div>
+						</td>
+						<th scope="row"> <?=$request_title?>사유</th>
+						<td><?=nl2br($request_row[contents])?></td>
+					</tr>
+					<tr>
+						<th scope="row">교환/반품 비고</th>
+						<td colspan="3">
+							<input type="hidden" name='order_request_[<?=$request_num_title?>][no]' value="<?=$request_row['no']?>"/>
+							<textarea name='order_request_[<?=$request_num_title?>][comments]' class="inputFull"><?=$request_row['comments']?></textarea>
+						</td>
+					</tr>
+					<? } ?>
+					<? if($request_num <= 0){ ?>
+					<tr>
+						<td colspan="4" class="none_data">교환/반품 내역이 없습니다.</td>
+					</tr>
+					<? } ?>
+				</tbody>
+			</table>
+
+
+			<h2>기타정보</h2>
+			<table class="bbsView">
+				<caption>기타정보</caption>
+				<colgroup>
+					<col style="width:15%"/>
+					<col style="width:35%"/>
+					<col style="width:15%"/>
+					<col/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<th scope="row">주문자</th>
+						<td><?=$default[name]?></td>
+						<th scope="row">핸드폰</th>
+						<td><?=$default[phone]?></td>
+					</tr>
+					<tr>
+						<th scope="row">이메일</th>
+						<td><?=$default[email]?></td>
+						<th scope="row">주소</th>
+						<td><?=$default[zip]?> <?=$default[address1]?> <?=$default[address2]?></td>
+					</tr>
+					<tr>
+						<th scope="row">상점메모</th>
+						<td colspan="3">
+							<textarea name="admin_memo" id="" class="inputFull"><?=$default[admin_memo]?></textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="btn_area">
+			<input type="submit" class="button lg" value="저장" />
+			<a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=order" class="button lg gray">취소</a>
+		</div>
+
+	</form>
+	<script>
+	$("[data-addchange2-option]").on("keyup keypress",function(event){
+		if (event.keyCode === 10 || event.keyCode === 13) {
+	        event.preventDefault();
+			$(this).next().click()
+	    }
+	})
+	$("[data-change2-option]").on("keyup keypress",function(event){
+		if (event.keyCode === 10 || event.keyCode === 13) {
+			event.preventDefault();
+			$(this).next().click()
+		}
+	})
+	</script>

@@ -1,0 +1,144 @@
+<?
+    $config_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_config"));
+    $agree_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'agree'"));
+    $private_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'private'"));
+    $sinfo_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'sinfo'"));
+    $info_offer_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'info_offer'"));
+    $agree2_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'agree2'"));
+
+    $info_offer_r = ($info_offer_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+    $sinfo_r = ($sinfo_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+    $private_r = ($private_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+    $agree_r = ($agree_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+    $agree2_r = ($agree2_[item_requierd] == "Y") ? "data-requierd-agree" : "";
+?>
+<form action="<?=$common_querySyring?>" name="join_form" method="post" id="agree_form">
+<input type="hidden" name="step" value="2" />
+<input type="hidden" name="mode" value="join" />
+    <div class="join_area">
+        <!--<h2><i>Sign Up</i></h2>-->
+        <p>In order to register, you must agree to the Terms of Use and Privacy Policy.</p>
+
+        <? if($agree_[item_use] == "Y"){ ?>
+        <div class="box">
+            <h3>Membership Agreement</h3>
+            <!-- 약관내용 -->
+<textarea readonly>
+<?=strip_tags(htmlspecialchars_decode($agree_[contents]))?>
+</textarea>
+            <!-- //약관내용 -->
+            <!-- 동의 -->
+            <div class="check">
+                <div class="designCheck">
+                    <input type="checkbox" name="agree01" id="agree01" value="Y"  title="Membership Agreement" <?=$agree_r?>/><label for="agree01">I agree to the Terms of Membership.</label>
+                </div>
+            </div>
+            <!-- //동의 -->
+        </div>
+        <? } ?>
+
+        <? if($private_[item_use] == "Y"){ ?>
+        <div class="box">
+            <h3>Consent to Collection and Use of Personal Information</h3>
+            <!-- 약관내용 -->
+<textarea readonly>
+<?=strip_tags(htmlspecialchars_decode($private_[contents]))?>
+</textarea>
+            <!-- //약관내용 -->
+            <!-- 동의 -->
+            <div class="check">
+                <div class="designCheck">
+                    <input type="checkbox" name="agree02" id="agree02" value="Y" title="Consent to Collection and Use of Personal Information" <?=$private_r?> /><label for="agree02">I agree to the collection and use of personal information.</label>
+                </div>
+            </div>
+            <!-- //동의 -->
+        </div>
+        <? } ?>
+
+        <? if($info_offer_[item_use] == "Y"){ ?>
+        <div class="box">
+            <h3>Consent to Collection of Personal Information</h3>
+            <!-- 약관내용 -->
+<textarea readonly>
+<?=strip_tags(htmlspecialchars_decode($info_offer_[contents]))?>
+</textarea>
+            <!-- //약관내용 -->
+            <!-- 동의 -->
+            <div class="check">
+                <div class="designCheck">
+                    <input type="checkbox" name="agree03" id="agree03" value="Y" title="개인정보수집 이용동의" <?=$info_offer_r?>/><label for="agree03">I agree to the use of personal information collection.</label>
+                </div>
+            </div>
+            <!-- //동의 -->
+        </div>
+        <? } ?>
+
+        <? if($sinfo_[item_use] == "Y"){ ?>
+        <div class="box">
+            <h3>Shopping Mall Terms of Use</h3>
+            <!-- 약관내용 -->
+<textarea readonly>
+<?=strip_tags(htmlspecialchars_decode($sinfo_[contents]))?>
+</textarea>
+            <!-- //약관내용 -->
+            <!-- 동의 -->
+            <div class="check">
+                <div class="designCheck">
+                    <input type="checkbox" name="agree05" id="agree05" value="Y" title="Consent to Shopping Mall Terms of Use" <?=$sinfo_r?>/><label for="agree05">I agree to the mall terms and conditions.</label>
+                </div>
+            </div>
+            <!-- //동의 -->
+        </div>
+        <? } ?>
+
+
+<? if($agree2_[item_use] == "Y"){ ?>
+        <div class="box">
+            <h3>Agree to receive shopping information</h3>
+            <!-- 약관내용 -->
+<textarea readonly>
+<?=strip_tags(htmlspecialchars_decode($agree2_[contents]))?>
+</textarea>
+            <!-- //약관내용 -->
+            <!-- 동의 -->
+            <div class="check">
+                <div class="designCheck">
+                    <input type="checkbox" name="agree06" id="agree06" value="Y" title="Agree to receive shopping information" <?=$agree2_r?>/><label for="agree06">I agree to receive shopping information.</label>
+                </div>
+            </div>
+            <!-- //동의 -->
+        </div>
+        <? } ?>
+        <div class="check">
+            <div class="designCheck">
+                <input type="checkbox" id="agree_all" value="Y"  title="회원가입약관" <?=$agree_r?>/><label for="agree_all">I agree with everyone.</label>
+            </div>
+        </div>
+    <div class="btn_area">
+        <input type="submit" class="button black" value="Agreement" />
+        <a href="<?=$site[site_url]?>" class="button gray">To main</a>
+    </div>
+    <!-- //버튼 -->
+</div>
+</form>
+<script type="text/javascript">
+$(function(){
+    $("#agree_all").on("change",function(){
+        $("[name^=agree]").prop("checked",$(this).is(":checked"));
+    })
+    $("#agree_form").submit(function(){
+        var chk = true;
+
+        $("[data-requierd-agree]").each(function(){
+            if(!$(this).is(":checked")){
+                alert("You must agree to the " + $(this).attr("title") + "before you can register.");
+                $(this).focus;
+                chk = false;
+                return false;
+            }
+        });
+
+        if(!chk) return false;
+    });
+});
+</script>

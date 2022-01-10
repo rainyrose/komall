@@ -1,0 +1,106 @@
+
+	<!-- 내용 -->
+	<div class="area_shopLogin">
+		<p class="title">회원정보입력 ENG</p>
+		<form method="post" action="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="mem_form">
+			<input type="hidden" name="mode" value="login_proc">
+			<input type="hidden" name="return_url" value="<?=$return_url?>">
+			<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+			<ul>
+				<li data-shop-login="id">
+					<label for="id">회원아이디</label>
+					<input type="text" id="id" name="id" class="inputFull" title="아이디" />
+				</li>
+				<li data-shop-login="pw">
+					<label for="password">비밀번호</label>
+					<input type="password" id="password" name="password" class="inputFull" title="비밀번호" />
+				</li>
+			</ul>
+			<input type="submit" class="btn_submit" value="Login" title="회원로그인">
+		</form>
+		<!-- 버튼 -->
+		<div class="btn_area">
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=agree" class="button">회원가입</a>
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=find_id" class="button white">아이디 찾기</a>
+			<a href="/<?=$add_folder?>member/member.html?amp;start=&amp;category=&amp;search_key=&amp;keyword=&amp;mode=find_pw" class="button white">비밀번호 찾기</a>
+		</div>
+		<!-- //버튼 -->
+
+		<!-- 비회원 -->
+		<p class="title">비회원 주문조회</p>
+		<form method="post" action="/<?=$add_folder?>member/member.html?start=&amp;category=&amp;search_key=&amp;keyword=" enctype="multipart/form-data" id="gform">
+		<input type="hidden" name="mode" value="guest_login_proc" />
+		<input type="hidden" name="return_url" value="<?=rawurldecode($return_url)?>">
+		<input type="hidden" name="return_url2" value="<?=$return_url2?>">
+			<ul>
+				<li data-shop-login="id">
+					<label for="">주문자 아이디</label>
+					<input type="text" id="guest_id" name="guest_id" class="inputFull" title="주문자이름" />
+				</li>
+				<li data-shop-login="pw">
+					<label for="">주문조회 비밀번호</label>
+					<input type="password" id="guest_password" name="guest_password" class="inputFull" title="비회원주문조회 비밀번호입력" />
+				</li>
+			</ul>
+			<div class="col02">
+				<input type="button" class="btn_submit" value="Search" data-btn-event="search" title="주문조회">
+				<button type="submit" class="btn_submit none">비회원구매</button>
+			</div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+	$(function(){
+		$("[data-btn-event]").click(function(){
+			if(!$("#guest_id").val()){
+				$("#guest_id").focus();
+				alert("주문자 아이디를 입력하세요");
+				return false;
+			}
+
+			if(!$("#guest_password").val()){
+				$("#guest_password").focus();
+				alert("주문조회 비밀번호를 입력하세요");
+				return false;
+			}
+
+			var form = $('<form></form>');
+			form.attr('action', '/<?=$add_folder?>member/member.html');
+			form.attr('method', 'post');
+			form.appendTo('body');
+
+			var mode = $("<input type='hidden' value='guest_search_proc' name='mode'>");
+			var guest_id = $("<input type='hidden' value='"+$("#guest_id").val()+"' name='guest_id'>");
+			var guest_password = $("<input type='hidden' value='"+$("#guest_password").val()+"' name='guest_password'>");
+			form.append(mode);
+			form.append(guest_id);
+			form.append(guest_password);
+			form.submit();
+		});
+
+		$("#mem_form").submit(function(){
+
+			if(!$("#id").val()){
+				$("#id").focus();
+				alert("회원아이디를 입력하세요");
+				return false;
+			}
+
+			if(!$("#password").val()){
+				$("#password").focus();
+				alert("회원비밀번호를 입력하세요");
+				return false;
+			}
+		});
+
+
+		$("#gform").submit(function(){
+
+
+		});
+
+
+	});
+	</script>
+
+	<!-- //내용 -->

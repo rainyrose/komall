@@ -1,0 +1,30 @@
+	<!-- lnb -->
+	<nav class="lnb">
+	</nav>
+	<!-- //lnb -->
+
+
+	<?
+	$basename = basename($_SERVER['PHP_SELF']);
+	$file_ = explode(".", $basename);
+	$common_ = substr($file_[0], 0, 5);
+	?>
+	<script type="text/javascript">
+		$(function(){
+			$(".gnb > li > a").removeClass("on");
+			$(".board").addClass("on");
+			$(".board_"+"<?=$file_[0]?>").addClass("on");
+			$(".board_"+"<?=$common_?>").addClass("on");
+
+			if("<?=$board_id?>"){
+			//게시판일경우
+				$("."+"<?=$board_id?>").addClass("on");
+
+				$(".board_title").text($("."+"<?=$board_id?>").text());
+			}else{
+				$(".board_"+"<?=$common_?>").addClass("on");
+			}
+
+
+		});
+	</script>

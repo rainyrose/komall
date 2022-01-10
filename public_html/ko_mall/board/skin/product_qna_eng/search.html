@@ -1,0 +1,23 @@
+<form action="<?=$_SERVER['PHP_SELF']?>" method="GET">
+<div class="search_bbs">
+	<? GETmake_form_action($common_actionString);?>
+	<!-- Search -->
+	<div class="search">
+		<select name="search_key" id="searchType">
+			<option value="all">all</option>
+			<option value="title"> title</option>
+			<option value="name">Writer</option>
+			<option value="product">product name</option>
+		</select>
+		<input type="text" id="keyword" name="keyword" value="<?=$keyword?>">
+		<input type="submit" class="button" value="Search">
+	</div>
+	<!-- //Search -->
+</form>
+
+	<!-- //버튼 -->
+</div>
+<script type="text/javascript">
+	$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+	$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+</script>

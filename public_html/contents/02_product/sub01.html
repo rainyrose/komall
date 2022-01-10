@@ -1,0 +1,395 @@
+<? include $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/top.html"; ?>
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/header.html"; ?>
+
+
+			<div id="container">
+				<!-- 본문 -->
+				<div id="content">
+					
+					<div class="inr">
+						
+						<!-- 타이틀 -->
+						<h2>제품구매</h2>
+
+						
+						<!-- 내용 -->
+						<div class="area_shopList">
+							
+							<!-- 카테고리 노출 -->
+							
+							<!-- location형식 -->
+							<ul data-category-location="list">
+								<li>홈</li>
+								<!-- 해당카테고리가 없으면 li부터 표시 안함 -->
+								<li>1차카테고리 <a href="#" data-category-location="view">1차카테고리보기</a>
+									<ul>
+										<li><a href="#">1차형제</a></li>
+										<li><a href="#">1차형제</a></li>
+										<li><a href="#">1차형제</a></li>
+										<li><a href="#">1차형제</a></li>
+										<li><a href="#">1차형제</a></li>
+									</ul>
+								</li>
+								<li>선택된2차카테고리 <a href="#" data-category-location="view">2차카테고리보기</a>
+									<ul>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+									</ul>
+								</li>
+								<li>선택된3차카테고리 <a href="#" data-category-location="view">2차카테고리보기</a>
+									<ul>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+										<li><a href="#">2차형제</a></li>
+									</ul>
+								</li>
+							</ul>
+							<!-- //location형식 -->
+											
+							<!-- 카테고리 -->
+							<!-- 1차 카테고리 접근이 되면 1차의 형제와 1차의 자식2차 / 자식3차 까지 노출
+								 2차 카테고리가 접근이 되면 2차의 형제와 2차의 자식3차까지 노출 -->
+							<div data-category-location="tab">
+								<!-- pc category -->
+								<ul class="web">
+									<li><a href="#">식품</a>
+										<ul>
+											<li><a href="#">쌀ㆍ잡곡</a></li>
+											<li><a href="#">축산</a>
+												<ul>
+													<li><a href="#">한우</a></li>
+													<li><a href="#">수입소고기</a></li>
+													<li><a href="#">돼지고기(국산)</a></li>
+													<li><a href="#">돼지고기(수입)</a></li>
+													<li><a href="#">닭고기ㆍ계란</a></li>
+													<li><a href="#">닭가슴살</a></li>
+													<li><a href="#">오리ㆍ기타</a></li>
+													<li><a href="#">양념육ㆍ가공육</a></li>
+												</ul>
+											</li>
+											<li><a href="#">수산</a></li>
+											<li><a href="#">과일ㆍ견과</a></li>
+										</ul>
+									</li>
+									<li><a href="#">1차카테고리</a>
+										<!-- 자식이 없는경우 ul까지 전부다 노출금지 -->
+										<ul>
+											<li><a href="#">2차자식카테고리</a>
+												<ul>
+													<li><a href="#">3차자식카테고리</a></li>
+													<li><a href="#">3차자식카테고리</a></li>
+													<li><a href="#">3차자식카테고리</a></li>
+												</ul>
+											</li>
+											<li><a href="#">2차자식카테고리</a></li>
+											<li><a href="#">2차자식카테고리</a></li>
+										</ul>
+									</li>
+									<li><a href="#">1차카테고리</a></li>
+								</ul>
+								<!-- //pc category -->
+								
+								<!-- mob category -->
+								<div class="mob">
+									<!-- 클릭된 카테고리 타이틀 -->
+									<p class="title"><a href="#">이전카테고리</a>식품</p>
+									<!-- 클릭된 카테고리의 형제만 노출 1차카테고리면 해당 1차의 2차 자식 / 2차 카테고리면 3차 형제 -->
+									<ul>
+										<li><a href="#">쌀ㆍ잡곡</a></li>
+										<li><a href="#">축산</a></li>
+										<li><a href="#">수산</a></li>
+										<li><a href="#">과일ㆍ견과</a></li>
+									</ul>
+								</div>
+								<!-- //mob category -->
+								
+							</div>
+							<!-- //카테고리 -->
+							
+							<!-- //카테고리 노출 -->
+							
+							
+							<!-- 상품기본목록 -->
+							<div class="default">
+								<!-- total, 정렬 -->
+								<div class="total">
+									<p>총 <i>30</i>개의 상품이 있습니다.</p>
+									<!-- sort검색시 a태그에 class on 추가 -->
+									<ul class="sort">
+										<li><a href="#">신상품</a></li>
+										<li><a href="#">상품명</a></li>
+										<li><a href="#" class="on">낮은가격</a></li>
+										<li><a href="#">높은가격</a></li>
+										<li><a href="#">사용후기</a></li>
+									</ul>
+								</div>
+								<!-- //total, 정렬 -->
+								
+								<!-- 목록 -->
+								<!-- 12개 노출 -->
+								<ul data-shop-list="default">
+									<!-- 반복 -->
+									<li>
+										<a href="#">
+											<!-- 이미지  -->
+											<span class="img">
+												<!-- 대표이미지 -->
+												<i><img src="/images/main/img_sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+												<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+												<i><img src="/images/sample.jpg" alt=""/></i>
+											</span>
+											<!-- 상품명 -->
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<!-- 간략설명 -->
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<!-- 판매가격 / 시중가격 -->
+											<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+											<span class="percent"><i>DC</i>50%</span>
+											<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+											<span data-shop-icon="icon">
+												<!-- best -->
+												<i data-shop-icon="best">BEST</i>
+												<!-- new -->
+												<i data-shop-icon="new">NEW</i>
+											</span>
+										</a>
+										<!-- 장바구니/관심상품/상세보기 -->
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<!-- //반복 -->
+			
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/main/img_sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+												<i><img src="/images/sample.jpg" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="sold">품절</span>
+											<span data-shop-icon="icon">
+												<i data-shop-icon="best">BEST</i>
+												<i data-shop-icon="new">NEW</i>
+											</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="sold">품절</span>
+											<span data-shop-icon="icon">
+												<i data-shop-icon="new">NEW</i>
+											</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+												<i><img src="/images/sample.jpg" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<span class="percent"><i>DC</i>50%</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+												<i><img src="/images/sample.jpg" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>150,000</i></span>
+											<span data-shop-icon="icon">
+												<i data-shop-icon="best">BEST</i>
+											</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>150,000</i></span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/main/img_sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<span class="percent"><i>DC</i>50%</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<span class="percent"><i>DC</i>50%</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+												<i><img src="/images/sample.jpg" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>150,000</i></span>
+											<span data-shop-icon="icon">
+												<i data-shop-icon="best">BEST</i>
+											</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>150,000</i></span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<span class="percent"><i>DC</i>50%</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+									<li>
+										<a href="#">
+											<span class="img">
+												<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+											</span>
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+											<span class="price"><i>100,000</i><i>50,000</i></span>
+											<span class="percent"><i>DC</i>50%</span>
+										</a>
+										<div data-shop-list="util">
+											<a href="#" class="basket">장바구니</a>
+											<a href="#" class="interest">관심상품</a>
+											<a href="#" class="view">새창으로 자세히보기</a>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<!-- //상품기본목록 -->
+							
+							<!-- 페이징 -->
+							<div class="pagination">
+								<a href="#" class="btn_first">맨처음</a>
+								<a href="#" class="btn_prev">이전</a>
+								<!-- 선택된페이지 -->
+								<span>1</span>
+								<!-- //선택된페이지 -->
+								<a href="#">2</a>
+								<a href="#">3</a>
+								<a href="#">4</a>
+								<a href="#">5</a>
+								<a href="#">6</a>
+								<a href="#">7</a>
+								<a href="#">8</a>
+								<a href="#">9</a>
+								<a href="#">10</a>
+								<a href="#" class="btn_next">다음</a>
+								<a href="#" class="btn_last">맨마지막</a>
+							</div>
+							<!-- //페이징 -->
+						
+					</div>
+					
+				</div>
+				<!-- //본문 -->
+			</div>
+
+
+<? include $_SERVER['DOCUMENT_ROOT'] . "/inc/footer.html"; ?>

@@ -1,0 +1,177 @@
+<? include("../inc/top_cms.html") ?>
+<? include("../inc/header_cms.html") ?>
+
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="menuList.html">메뉴관리</a></li>
+								<li><a href="menuAdd.html" class="on">메뉴등록</a></li>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+						
+						<!-- 내용 -->
+						
+						<!-- 로딩 -->
+						<div id="div_ajax_load_image" class="area_loding" style="display:none">
+							<img src="/images/content/loading.gif" class="img" alt="loading">
+						</div>
+						<!-- //로딩 -->
+						
+						<div class="box pd">
+							<h2>메뉴등록</h2>
+							<table class="table hover">
+								<caption>메뉴등록</caption>
+								<colgroup>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:30%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">메뉴명</th>									
+										<th scope="col">순서변경</th>									
+										<th scope="col">하위등록</th>									
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td data-add-menu="name">회사소개</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									<!-- 하위등록을 할경우 -->
+									<tr data-add-menu="depth01">
+										<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>인사말</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									<tr data-add-menu="depth01">
+										<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>비전</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									<!-- 하위의 하위를 등록을 할경우 -->
+									<tr data-add-menu="depth02">
+										<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>우리가 걸어온길</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									<tr data-add-menu="depth02">
+										<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>우리는 이렇게 합니다.</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									<tr data-add-menu="depth01">
+										<td data-add-menu="name"><i class="depth"><img src="../images/content/icon_depth.png"/></i>찾아오시는 길</td>
+										<td>
+											<a href="#" class="btn_up">순서위로</a>
+											<a href="#" class="btn_down">순서아래로</a>
+										</td>
+										<td><a href="javascript:;" onclick="javascript:showPopup(popLayer01);" class="button blue">하위등록</a></td>
+									</tr>
+									
+									<!-- 메뉴가없는경우 -->
+									<tr>
+										<td colspan="3">등록 된 메뉴가 없습니다.</td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button lg">최상위메뉴 등록</a>
+							</div>
+							<!-- //버튼 -->
+						</div>
+						
+						<!-- 레이어 하위등록 -->
+						<div id="popLayer01" style="display:none;">
+							<div class="popBox mini">
+								<!-- title -->
+								<h2>하위메뉴등록</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+									
+										<table class="table">
+											<caption>하위메뉴등록</caption>
+											<colgroup>
+												<col style="width:25%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row">상위메뉴명</th>
+													<td><strong>회사소개</strong></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="">메뉴명</label></th>
+													<td><input type="text" name="" id=""></td>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="btn_area">
+											<a href="#" class="button lg btn_close">저장</a>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 하위등록 -->
+						
+						<!-- 레이어 최상위등록 -->
+						<div id="popLayer02" style="display:none;">
+							<div class="popBox mini">
+								<!-- title -->
+								<h2>최상위메뉴 등록</h2>
+								<!-- scroll -->
+								<div class="scrollbar-inner">
+									<div class="popinBox">
+									
+										<table class="table">
+											<caption>최상위메뉴등록</caption>
+											<colgroup>
+												<col style="width:25%;"/>
+												<col/>
+											</colgroup>
+											<tbody>
+												<tr>
+													<th scope="row"><label for="">메뉴명</label></th>
+													<td><input type="text" name="" id=""></td>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="btn_area">
+											<a href="#" class="button lg btn_close">저장</a>
+											<a href="#" class="button lg white btn_close">닫기</a>
+										</div>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- //레이어 최상위등록 -->
+							
+						<!-- //내용 -->		
+<? include("../inc/footer.html") ?>

@@ -1,0 +1,144 @@
+<?
+$query = "SELECT * FROM koweb_mall_config WHERE lang='default' ORDER BY no DESC";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+?>
+
+<nav class="lnb small" id="pro01">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site">사이트설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=mall" class="on">사업자정보 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=pay">구매설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=info">이용안내설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=private">개인정보처리방침설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=agreement">이용약관설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=sms">SMS문구 설정</a></li>
+	</ul>
+</nav>
+
+
+<div class="box pd">
+<h2>사업자정보</h2>
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="write_proc" />
+<input type="hidden" name="tmode" value="<?=$mode?>" />
+<input type="hidden" name="no" value="<?=$no?>" />
+	<table class="bbsView">
+		<caption>사업자정보</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr id="category_">
+				<th scope="row"><label for="category_tmp">사이트 카테고리</label></th>
+				<td id="category_area" class="category" colspan="3">
+					<div class="select_menu">
+						<select name="category" id="category_selected">
+						<?
+						$category_checker = mysqli_query($connect, "SELECT * FROM koweb_product_category WHERE state='Y' ORDER BY no ASC");
+						while($category_ = mysqli_fetch_array($category_checker)){
+						?>
+							<option value="<?=$category_[category]?>"><?=$category_[title]?></option>
+						<? } ?>
+						</select>
+					</div>
+					<script type="text/javascript">
+						$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+					</script>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">회사명</th>
+				<td colspan="3"><input type="text" id="company" name="company" value="<?=$row[company]?>" /></td>
+			</tr>
+			<tr>
+				<th scope="row">사업자등록번호</th>
+				<td><input type="text" id="company_regist_no" name="company_regist_no" value="<?=$row[company_regist_no]?>" /></td>
+				<th scope="row">대표자명</th>
+				<td><input type="text" id="ceo_name" name="ceo_name" value="<?=$row[ceo_name]?>" /></td>
+			</tr>
+			<tr>
+				<th scope="row">대표전화번호</th>
+				<td><input type="text" id="company_phone" name="company_phone" value="<?=$row[company_phone]?>" /></td>
+				<th scope="row">팩스번호</th>
+				<td><input type="text" id="fax_no" name="fax_no" value="<?=$row[fax_no]?>" /></td>
+			</tr>
+			<tr>
+				<th scope="row">통신판매업 신고번호</th>
+				<td><input type="text" id="t_no" name="t_no" value="<?=$row[t_no]?>" class="input300"/></td>
+				<th scope="row">부가통신 사업자번호</th>
+				<td><input type="text" id="b_no" name="b_no" value="<?=$row[b_no]?>" class="input300"/></td>
+			</tr>
+			<tr>
+				<th scope="row">사업장 주소</th>
+				<td colspan="3"><input type="text" id="company_zip" name="company_zip" value="<?=$row[company_zip]?>" placeholder="우편번호" class="input100"/> <input type="text" id="company_address" name="company_address" value="<?=$row[company_address]?>" class="input400" placeholder="상세주소"/></td>
+			</tr>
+			<tr>
+				<th scope="row">정보관리책임자명</th>
+				<td><input type="text" id="it_name" name="it_name" value="<?=$row[it_name]?>" /></td>
+				<th scope="row">정보책임자 email</th>
+				<td><input type="text" id="it_mail" name="it_mail" value="<?=$row[it_mail]?>" class="input300"/></td>
+			</tr>
+			<tr>
+				<th scope="row">노출계좌</th>
+				<td colspan="3"><textarea id="company_bank" name="company_bank" rows="8" cols="80"><?=$row['company_bank']?></textarea></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="설정 저장">
+	</div>
+</form>
+<script type="text/javascript">
+	$(function() {
+		$("select[name='member_level'] option[value='<?=$row[member_level]?>']").prop("selected", true);
+		$("input:radio[name='use_member_okey']:radio[value='<?=$row[use_member_okey]?>']").prop("checked",true);
+		$("input:radio[name='use_namecheck']:radio[value='<?=$row[use_namecheck]?>']").prop("checked",true);
+		$("input:radio[name='use_member']:radio[value='<?=$row[use_member]?>']").prop("checked",true);
+		$("input:radio[name='use_point']:radio[value='<?=$row[use_point]?>']").prop("checked",true);
+		$("input:radio[name='use_sms']:radio[value='<?=$row[use_sms]?>']").prop("checked",true);
+		$(":checkbox[name='sms_alert'][value='<?=$row['sms_alert']?>']").prop("checked", true);
+	});
+</script>
+<script type="text/javascript">
+$(function(){
+	$("#category_selected").change(function(){
+		var val_ = $(this).val();
+
+		$.ajax({
+			type : "POST",
+			dataType : "json",
+			url : "/ko_mall/setting/site/site_mall_ajax.php",
+			data : {
+				lang : val_
+			},
+			success : function(args) {
+				console.log(args);
+				$("#company").val(args.company);
+				$("#company_regist_no").val(args.company_regist_no);
+				$("#ceo_name").val(args.ceo_name);
+				$("#company_phone").val(args.company_phone);
+				$("#fax_no").val(args.fax_no);
+				$("#t_no").val(args.t_no);
+				$("#b_no").val(args.b_no);
+				$("#company_zip").val(args.company_zip);
+				$("#company_address").val(args.company_address);
+				$("#it_name").val(args.it_name);
+				$("#it_mail").val(args.it_mail);
+				$("#company_bank").val(args.company_bank);
+			},
+			beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+			}
+		});
+	});
+});
+</script>

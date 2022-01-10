@@ -1,0 +1,243 @@
+<? //include("../inc/top.html") ?>
+<?
+
+//print_r($_SESSION);
+if($_SESSION[order_type] != "member"){
+	if(!$_SESSION[dcode] || !$_SESSION[pcode]){
+		error("비정상적인 접근입니다.");
+		exit;
+	}
+
+	$member_id = $_SESSION[dcode];
+	$passinfo = $_SESSION[pcode];
+
+	$add_query = "AND member='$member_id' AND password='$passinfo'";
+	$cancel_mode = "guest_order_cancel";
+
+} else {
+	$member_id = $_SESSION[member_id];
+	$cancel_mode = "order_cancel";
+}
+
+
+$query = "SELECT *  FROM koweb_order WHERE order_id = '$orderid' $add_query ORDER BY order_info DESC, no ASC";
+$result = mysqli_query($connect, $query);
+
+//기본정보 한번 더 로드
+$query2 = "SELECT *,
+					(SELECT SUM(product_price) AS total FROM koweb_order WHERE order_id= '$orderid' $add_query) AS product_total_price,
+					(SELECT SUM(add_point) AS add_point FROM koweb_order WHERE order_id= '$orderid' $add_query) AS add_point
+		   FROM koweb_order WHERE order_id = '$orderid' AND order_info = 'P' $add_query";
+$result2 = mysqli_query($connect, $query2);
+$info = mysqli_fetch_array($result2);
+
+if(!$info[0]){
+	error("비정상적인 접근입니다.");
+	exit;
+}
+
+if($mode=="trade_request"){
+	$target_title = "교환";
+}else{
+	$target_title = "반품";
+}
+?>
+			<!-- 내용시작 -->
+			<div class="area_shopCart">
+				<!-- 주문번호 -->
+				<div class="area_shopNumber">
+					<em>주문번호</em> <i><?=$info[order_id]?></i>
+				</div>
+				<!-- //주문번호 -->
+
+				<!-- 모바일 사용 -->
+				<!-- 상품갯수표시 -->
+				<script>
+				$(function(){
+					var total_cnt = 0;
+					$.each($("[data-cart-table='count']"),function(i,v){
+						total_cnt += 1;
+					})
+					$("#mo_total_cnt").text("("+total_cnt+"개)");
+				})
+				</script>
+				<a href="#" data-shop-view="addcordion">주문상품 <em id='mo_total_cnt'>(개)</em></a>
+				<!-- //모바일 사용 -->
+				<div data-shop-view="addcordion_conts">
+					<table class="table">
+						<caption>상품목록</caption>
+						<colgroup>
+							<col/>
+							<col style="width:10%"/>
+							<col style="width:12%"/>
+							<col style="width:10%"/>
+							<!--<col style="width:10%"/>-->
+							<col style="width:10%"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">상품정보</th>
+								<th scope="col">판매가</th>
+								<th scope="col">수량</th>
+								<? if($_SESSION[order_type] != "guest"){?>
+								<th scope="col">포인트</th>
+								<? } ?>
+							<!--	<th scope="col">배송비</th> -->
+								<th scope="col">합계</th>
+							</tr>
+						</thead>
+						<tbody>
+						<?
+							while($row = mysqli_fetch_array($result)){
+
+								if($row[member] != $member_id){
+									error("비정상적인 접근입니다.");
+									exit;
+								}
+
+
+								$option_tmp = explode("^", $row[options_info]);
+								$option_tmp = array_filter($option_tmp);
+
+								$refund_tmp = explode("^", $row[refund_info]);
+								$refund_tmp = array_filter($refund_tmp);
+
+								$add_option_tmp = explode("^", $row[add_options_info]);
+								$add_option_tmp = array_filter($add_option_tmp);
+
+								$add_refund_tmp = explode("^", $row[add_refund_info]);
+								$add_refund_tmp = array_filter($add_refund_tmp);
+
+								$point_ = 0;
+								foreach($option_tmp AS $option_tmp_index => $odata){
+									$detail_tmp = explode("|", $odata);
+									//옵션아이디 / 옵션명 / 수량 / 포인트 / 개별금액 / 토탈금액
+									$new_state = "";
+									$return_cnt = explode("|",$refund_tmp[$option_tmp_index])[1];
+									if($return_cnt > 0){
+										$new_state = " [부분취소({$return_cnt}개)]";
+									}
+
+									if($row[option_flag] == "Y"){
+										$detail_option = $product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE id='$detail_tmp[0]' LIMIT 1"));
+										$product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product WHERE no='$detail_option[ref_product]' LIMIT 1"));
+									} else {
+										$product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product WHERE id='$detail_tmp[0]' LIMIT 1"));
+									}
+							?>
+									<tr>
+										<td data-cart-table="product" class="tal">
+											<div data-cart-option="img">
+												<!-- 상품정보 클릭시 상세이동 -->
+												<a href="/<?=$add_folder?>product/product.html?mode=view&id=<?=$product_[id]?>" class="img"><img src="/upload/product/<?=$product_[title_img]?>" onError="this.src='/images/board/no_image.gif';" alt=""/></a>
+												<div>
+													<!-- 배송상태 -->
+													<!-- 상품명 -->
+													<em><?=$product_[product_title]?></em>
+													<!-- 선택한 옵션 -->
+													<!-- 옵션이 없는 경우 아래내용은 노출안됨 -->
+													<? if($row[option_flag] == "Y"){ ?><i>[옵션 : <?=$detail_tmp[1]?>]</i><? } ?>
+													<!-- 클릭시 상품정보와 함께 사용후기글쓰기로 이동 -->
+													<!-- 이미 사용후기가 작성된 경우에는 클릭시 나의 사용후기 목록으로 이동한다. -->
+												</div>
+											</div>
+										</td>
+										<? if($product_[use_telform] != 'Y'){ ?>
+										<td data-cart-table="price"><?=number_format($detail_tmp[4])?>원</td>
+										<td data-cart-table="count"><?=$detail_tmp[2]?>개</td>
+										<? if($_SESSION[order_type] != "guest"){?>
+										<td data-cart-table="point"><?=number_format($detail_tmp[3])?> 점</td>
+										<? } ?>
+										<!--<td data-cart-table="deliver"><?=number_format($row[deli_price])?>원</td>-->
+										<td data-cart-table="total"><?=number_format($detail_tmp[5])?>원</td>
+										<? }else{ ?>
+										<td colspan="4">
+											전화문의<BR>
+											문의 후 금액은 하단 총 구매액 참고 바랍니다.
+										</td>
+										<? } ?>
+									</tr>
+							<?
+								$point_ += $detail_tmp[3]; }
+							?>
+
+								<?
+
+								foreach($add_option_tmp AS $add_option_tmp_index => $adata){
+									$add_detail_tmp = explode("|", $adata);
+									//옵션아이디 / 옵션명 / 수량 / 포인트 / 개별금액 / 토탈금액
+									$new_state = "";
+									$add_refund_cnt = explode("|",$add_refund_tmp[$add_option_tmp_index])[1];
+									if($add_refund_cnt > 0){
+										$new_state = " [부분취소({$add_refund_cnt}개)]";
+									}
+
+									$add_detail_option = $product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE id='$add_detail_tmp[0]' LIMIT 1"));
+									$product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product WHERE no='$add_detail_option[ref_product]' LIMIT 1"));
+
+							?>
+									<tr>
+										<td data-cart-table="product" class="tal">
+											<div data-cart-option="img">
+												<!-- 상품정보 클릭시 상세이동 -->
+												<a href="/<?=$add_folder?>product/product.html?mode=view&id=<?=$product_[id]?>" class="img"><img src="/upload/product/<?=$product_[title_img]?>" alt=""/></a>
+												<div>
+													<!-- 배송상태 -->
+													<!-- 상품명 -->
+													<em><?=$product_[product_title]?></em>
+													<!-- 선택한 옵션 -->
+													<!-- 옵션이 없는 경우 아래내용은 노출안됨 -->
+													<i>[추가 옵션 : <?=$add_detail_tmp[1]?>]</i>
+													<!-- 클릭시 상품정보와 함께 사용후기글쓰기로 이동 -->
+													<!-- 이미 사용후기가 작성된 경우에는 클릭시 나의 사용후기 목록으로 이동한다. -->
+												</div>
+											</div>
+										</td>
+										<td data-cart-table="price"><?=number_format($add_detail_tmp[4])?>원</td>
+										<td data-cart-table="count"><?=$add_detail_tmp[2]?>개</td>
+										<? if($_SESSION[order_type] != "guest"){?>
+										<td data-cart-table="point"><?=number_format($add_detail_tmp[3])?> P</td>
+										<? } ?>
+										<!--<td data-cart-table="deliver"><?=number_format($row[deli_price])?>원</td>-->
+										<td data-cart-table="total"><?=number_format($add_detail_tmp[5])?>원</td>
+									</tr>
+							<?
+								$point_ += $add_detail_tmp[3]; }
+							}
+							?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<form action="<?=$common_actionString?>" method="POST" >
+			<input type='hidden' name='mode' value="<?=$mode?>_proc" />
+			<input type='hidden' name='orderid' value="<?=$orderid?>" />
+			<div class="area_shopPay">
+				<p class="title"><?=$target_title?> 상품 및 사유</p>
+				<div data-shop-view="point">
+					<table class="bbsView">
+						<caption><?=$target_title?> 상품 및 사유</caption>
+						<colgroup>
+							<col data-write="th" style="width:15%"/>
+							<col data-write="td" style="width:85%"/>
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><?=$target_title?>할 상품명</th>
+								<td class="tel"><input type="text" name="title" class="inputFull"/></td>
+							</tr>
+							<tr>
+								<th scope="row"><?=$target_title?>사유</th>
+								<td class="mail"><textarea name="contents" class="inputFull"></textarea></td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="btn_area">
+				<input type="submit" class="button lg" value="신청하기" data-payment-proc="">
+			</div>
+			</form>

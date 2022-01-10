@@ -1,0 +1,37 @@
+<? $site_language = "eng"; ?>
+		<div id="wrap">
+			<header id="header">
+				<div class="inr">
+					<a href="/">
+						<h1>KOMALL <em>사용자 가이드</em></h1>
+					</a>
+					<a href="/ko_mall/login.html" target="_blank" style="position:absolute; top:20px; right:20px;">관리자바로가기</a>
+				</div>
+
+				<nav>
+					<ul class="gnb">
+						<li><a href="/">메인</a></li>
+						<?
+							//pc일경우 pc, 숫자2는 1차부터 2차까지 뿌리겠다는 의미
+							//load_menu($connect, "pc", "2");
+							//load_menu($connect, $site_language, "pc", "3");
+						?>
+					</ul>
+					<ul class="gnb">
+						<li><a href="/eng/product/product.html">상품</a></li>
+						<li><a href="/eng/member/member.html">회원</a></li>
+						<li><a href="/eng/member/member.html?mode=logout">로그아웃</a></li>
+					</ul>
+
+				</nav>
+
+				<!-- 모바일 gnb -->
+				<div class="nav_mob">
+					<ul>
+						<li><a href="#"></a></li>
+						<?
+							//load_menu($connect, $site_language, "4");
+						?>
+					</ul>
+				</div>
+			</header>

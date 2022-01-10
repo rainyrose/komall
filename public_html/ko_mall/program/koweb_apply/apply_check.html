@@ -1,0 +1,58 @@
+<div class="title">
+		<h3>무료관람신청확인</h3>
+		<span>Free viewing confirmation</span>
+	</div>
+	<div class="area_free">
+		<div class="area_confirm">
+			<h3>무료관람신청확인</h3>	
+			<form>
+				<ul>
+					<li>
+						<input class="inputFull" type="text" name="name" id="name" placeholder="이름"/>
+					</li>
+					<li class="box_phone">
+						<input class="box01" type="text" name="phone1" id="phone1" placeholder="연락처"/>  
+						<span>-</span>
+						<input class="box01" type="text" name="phone2" id="phone2">  
+						<span>-</span>
+						<input class="box01" type="text" name="phone3" id="phone3">
+					</li>
+				</ul>
+				<input class="inputFull trigger" type="submit" value="확인하기" data-ajax-go>
+			</form>
+		</div>
+		<p>
+			※ 무료관람신청 등록 시 작성하셨던 신청자 성명과 핸드폰번호를 입력하여 주세요.<br>
+			※ 등록신청 여부 확인 후 무료관람신청을 해 주시기 바랍니다.
+		</p>
+	</div>
+	<div class="auth_tables"></div>
+
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$("[data-ajax-go]").click(function(){
+		var name = $("#name").val();
+		var phone1 = $("#phone1").val();
+		var phone2 = $("#phone2").val();
+		var phone3 = $("#phone3").val();
+
+		$.ajax({
+			type : "POST",
+			url : "/ko_admin/program/koweb_event_info/apply_check_ajax.php",
+			data : {
+				name : name,
+				phone1 : phone1,
+				phone2 : phone2,
+				phone3 : phone3
+			},
+			success : function(args) {
+				$(".auth_tables").html(args);
+			}
+		});
+	});
+});
+
+$("#apply_check").addClass("active");
+</script>

@@ -1,0 +1,44 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/auth_manager.php";
+
+$mode_title = $site[title]." 등록";
+
+if($mode == "modify"){ 
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $site[title]." 수정";
+} 
+?>
+<form action="<?=$common_queryString?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="program_id" value="<?=$program_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="return_url" value="<?=$url?>" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="question">Q</label></th>
+				<td><textarea name="question" cols="70"><?=$row[question]?></textarea></td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="answer">A</label></th>
+				<td><textarea name="answer" cols="70"><?=$row[answer]?></textarea></td>
+			</tr>
+		</tbody>
+	</table>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="저장" />
+		<a href="<?=$common_queryString?>" class="button lg gray">취소</a>
+	</div>
+</form>
+<script type="text/javascript">
+	$("select[name='category'] option[value='<?=$row[category]?>']").attr("selected", true);
+</script>

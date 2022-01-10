@@ -1,0 +1,129 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+			<nav class="lnb small">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="/html/orderList.html">전체주문내역</a></li>
+					<li><a href="/html/returnList.html">반품내역</a></li>
+					<li><a href="/html/payList.html" class="on">입금확인요청</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd">
+				<h2>입금확인요청</h2>
+				<div class="search_bbs">
+					<form action="" id="" method="">
+						<select name="keyword" id="keyword">
+							<option value="total">전체(ID + 이름)</option>
+							<option value="name">이름</option>
+							<option value="id">ID</option>
+						</select> 
+			
+						<input type="text" name="key" id="key" value="">
+						<input type="submit" value="검색" class="button sm gray">
+						<a href="#" class="button sm white">검색초기화</a>
+					</form>
+				</div>
+				<table class="bbsList">
+					<caption>입금확인 요청내역</caption>
+					<colgroup>
+						<col>
+						<col style="width:15%;">
+						<col style="width:15%;">
+						<col style="width:10%;">
+						<col style="width:15%;">
+						<col style="width:15%;">
+						<col style="width:10%;">
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">주문번호</th>
+							<th scope="col">상태
+								<a href="#" data-tooltip="explan">안내
+									<div>항목선택시 상태값이 <span class="txt_red">수정반영</span>됩니다.</div>
+								</a>
+							</th>
+							<th scope="col">회원ID</th>
+							<th scope="col">배송받는분</th>
+							<th scope="col">총결제금액</th>
+							<th scope="col">휴대폰</th>
+							<th scope="col">관리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>youngcart5</td>
+							<td>홍길동</td>
+							<td>124,000</td>
+							<td>010-1234-4567</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>youngcart5</td>
+							<td>홍길동</td>
+							<td>124,000</td>
+							<td>010-1234-4567</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>youngcart5</td>
+							<td>홍길동</td>
+							<td>124,000</td>
+							<td>010-1234-4567</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="7">요청받은 내역이 없습니다.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

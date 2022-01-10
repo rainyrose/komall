@@ -1,0 +1,242 @@
+<!-- lnb -->
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>" class="on">회원목록</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=config">회원가입관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=level">회원등급관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=dept">부서관리</a></li>
+	</ul>
+</nav>
+<!-- //lnb -->
+
+<?
+//회원설정 불러오기
+$data_result2 = mysqli_query($connect, "SELECT * FROM koweb_member_config");
+$member_config_ = mysqli_fetch_array($data_result2);
+?>
+
+<div class="box pd">
+	<h2>회원목록</h2>
+
+	<!--검색-->
+	<div class="search_bbs">
+		<form action="<?=$common_queryString?>" id="search" method="POST">
+			<select name="dept_key" id="dept_key">
+				<option value="">부서전체</option>
+				<?
+				$dept_query = "SELECT * FROM koweb_dept WHERE state = 'Y' ORDER BY ref_group ASC,  ref_no ASC, ref_group ASC, depth ASC";
+				$dept_result = mysqli_query($connect, $dept_query);
+				while($dept = mysqli_fetch_array($dept_result)){
+					echo "<option value=\"$dept[no]\">$dept[dept]</option>";
+				}
+				?>
+			</select>
+
+			<select name="level_key" id="level_key">
+				<option value="">회원등급전체</option>
+				<?
+				$level_result = mysqli_query($connect, "SELECT * FROM koweb_member_level WHERE 1=1 AND level != '10' $ADD_LEVEL ORDER BY level DESC");
+				while($level = mysqli_fetch_array($level_result)){
+				?>
+					<option value="<?=$level[level]?>"><?=$level[level_title]?></option>
+				<? } ?>
+			</select>
+
+			<select name="keyword" id="keyword">
+				<option value="total">전체 (ID + 이름)</option>
+				<option value="name">이름</option>
+				<option value="id">ID</option>
+			</select>
+
+			<input type="text" name="key" id="key" value="<?=$key?>" />
+			<input type="submit" value="검색" class="button sm gray" />
+			<a href="<?=$common_queryString?>" class="button sm white">검색초기화</a>
+		</form>
+	</div>
+	<!-- //검색 -->
+
+
+	<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="apply_proc" />
+	<input type="hidden" name="start" value="<?=$_GET[start]?>" />
+	<table class="bbsList">
+		<caption>히스토리 선택</caption>
+		<colgroup>
+		<? if($member_config_[use_member_apply] == "Y"){ ?>
+			<col style="width:5%"/>
+		<? } ?>
+			<col style="width:5%"/>
+			<col style="width:10%"/>
+			<col />
+			<col style="width:15%"/>
+			<col style="width:15%"/>
+			<col style="width:7%"/>
+			<col style="width:10%"/>
+			<col style="width:25%"/>
+		</colgroup>
+		<thead>
+			<tr>
+			<? if($member_config_[use_member_apply] == "Y"){ ?>
+				<th scope="col"><div class="designCheck noText"><input type="checkbox" name="all_checked" id="all_check"><label for="all_check">전체선택</label></div></th>
+			<? } ?>
+				<th scope="col">No.</th>
+				<th scope="col">아이디</th>
+				<th scope="col">이름</th>
+				<th scope="col">부서</th>
+				<th scope="col">회원등급</th>
+				<th scope="col">포인트</th>
+				<th scope="col">회원상태</th>
+				<th scope="col">관리</th>
+			</tr>
+		</thead>
+		<tbody>
+		<?
+			//페이징 변수
+			if (!$start) $start = 0;
+			$scale = 30; // 리스트 수
+			$page_scale	= 10; // 페이징 수
+
+			if($dept_key){
+				$WHERE = " AND dept = '$dept_key'";
+			}
+			if($level_key){
+				$WHERE .= " AND auth_level = '$level_key'";
+			}
+			if($keyword && $key){
+				if($keyword == "total"){
+					$WHERE .= " AND (id LIKE '%$key%' OR name LIKE '%$key%')";
+				} else {
+					$WHERE .= " AND $keyword LIKE '%$key%'";
+				}
+			}
+
+			if($_SESSION[member_id] != "koweb") $ADD_KOWEB = "AND (id != 'koweb' AND id !='koweb_pm')";
+			else unset($ADD_KOWEB);
+
+			$query = "SELECT *  FROM koweb_member WHERE 1=1 $WHERE $ADD_KOWEB ORDER BY no DESC LIMIT $start, $scale";
+			$total_query = "SELECT *  FROM koweb_member WHERE 1=1 $WHERE $ADD_KOWEB";
+			$result = mysqli_query($connect, $query);
+			$total_result = mysqli_query($connect, $total_query);
+			$total = mysqli_num_rows($total_result);
+
+			$f_no = $total - $start;
+
+			while($row = mysqli_fetch_array($result)){ ?>
+			<?
+				switch($row[state]){
+					case "Y" :
+						$state_txt = "사용";
+						break;
+
+					case "N" :
+						$state_txt = "미사용";
+						break;
+				}
+				$point_ = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(point) AS total FROM koweb_point WHERE member='$row[id]'"));
+
+				$dept_query = "SELECT * FROM koweb_dept WHERE no = '$row[dept]'";
+				$dept_result = mysqli_query($connect, $dept_query);
+				$dept_ = mysqli_fetch_array($dept_result);
+
+				$level_query = "SELECT * FROM koweb_member_level WHERE level = '$row[auth_level]'";
+				$level_result = mysqli_query($connect, $level_query);
+				$level_ = mysqli_fetch_array($level_result);
+				if($level_[level] == 9) $apply_member = "<div class=\"designCheck noText\"><input type=\"checkbox\" name=\"check_apply[]\" class=\"apply_check\" id=\"apply_check_$row[no]\" value=\"".$row[no]."\"/><label for=\"apply_check_$row[no]\">선택하세요</label></div>";
+				else unset($apply_member);
+			?>
+			<tr>
+			<? if($member_config_[use_member_apply] == "Y"){ ?>
+				<td><?=$apply_member?></td>
+			<? } ?>
+				<td><?=$f_no--?></td>
+				<td><?=$row[id]?></td>
+				<td><?=$row[name]?></td>
+				<td><?=$dept_[dept]?></td>
+				<td><?=$level_[level_title]?></td>
+				<td><?=number_format($point_[total])?></td>
+				<td><?=$state_txt?></td>
+				<td>
+					<a href="<?=$request_uri?>&amp;mode=view&amp;no=<?=$row[no]?>" class="button sm gray">보기</a> <a href="<?=$request_uri?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button sm white">수정</a> <a href="<?=$request_uri?>&amp;mode=delete&amp;no=<?=$row[no]?>" class="button sm" onclick="return confirm('삭제하면 모든 데이터는 복구할수 없습니다. 삭제하시겠습니까?');">삭제
+				</a>
+				</td>
+			</tr>
+		<? } ?>
+		</tbody>
+	</table>
+
+	<div class="btn_area">
+	<? if($member_config_[use_member_apply] == "Y"){ ?>
+		<input type="submit" class="button lg gray" value="일괄 승인" />
+	<? } ?>
+		<a href="<?=$request_uri?>&mode=write" class="button lg"/>회원 등록</a>
+	</div>
+	</form>
+
+
+
+	<div class="pagination">
+	<?
+
+		/*----------------------------------------------------------------------------*/
+		// 페이지 표시
+		/*----------------------------------------------------------------------------*/
+
+		if ($total == 0) $total = 1;
+
+		$page_url = $PHP_SELF."?type=setting&core=manager_setting&manager_type=member&amp;key=$key&amp;keyword=$keyword&level_key=$level_key&dept_key=$dept_key";
+
+		// 처음
+		echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+		$page = floor($start / ($scale * $page_scale));
+
+		if ($start + $scale >  $scale * $page_scale) {
+			$pre_start = $start - $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+		}
+
+		for ($vj = 0; $vj < $page_scale ; $vj++) {
+			$ln = ($page * $page_scale + $vj) * $scale;
+			$vk = $page * $page_scale + $vj + 1 ;
+			if ($ln < $total) {
+				if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+				else echo "<span>$vk</span>";
+			}
+		}
+
+		// 마지막
+		$end_page = floor($total - $scale) + 1;
+		if ($end_page <= 0)	$end_page = 0;
+
+		if ($total > (($page + 1) * $scale * $page_scale)) {
+			$n_start = ($page + 1) * $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+		}
+
+		$end_page = ceil($total / $scale);
+		if ($total) $end_start = ($end_page -1) * $scale;
+		else $end_start = $end_page;
+
+		echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+	?>
+	</div>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$("#all_check").click(function(){
+			if($("#all_check").prop("checked")){
+				//input태그의 class 가 apply_check인 태그들을 찾아서 checked옵션을 true로 정의
+				$(".apply_check").prop("checked",true);
+				//클릭이 안되있으면
+			} else {
+				$(".apply_check").prop("checked",false);
+			}
+		});
+			$("select[name='level_key'] option[value='<?=$level_key?>']").prop("selected", true);
+			$("select[name='dept_key'] option[value='<?=$dept_key?>']").prop("selected", true);
+			$("select[name='keyword'] option[value='<?=$keyword?>']").prop("selected", true);
+	});
+	</script>
+
+</div>

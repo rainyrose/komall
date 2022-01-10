@@ -1,0 +1,223 @@
+<!-- lnb -->
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>" >회원목록</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=config">회원가입관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=level">회원등급관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=dept" class="on">부서관리</a></li>
+	</ul>
+</nav>
+<!-- lnb -->
+<!-- 로딩 -->
+<div id="div_ajax_load_image" class="area_loding" style="display:none">
+	<img src="/ko_mall/images/content/loading.gif" class="img" alt="loading">
+</div>
+<!-- //로딩 -->
+
+<div class="box pd">
+	<h2>부서관리</h2>
+	<table class="table hover">
+		<caption>부서관리</caption>
+		<colgroup>
+			<col/>
+			<col style="width:35%"/>
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col">부서명</th>									
+				<th scope="col">하위부서 등록</th>									
+			</tr>
+		</thead>
+		<tbody data-list-view>
+			<?
+				$setting_table = "koweb_dept";
+				$query = "SELECT * FROM koweb_dept WHERE state = 'Y' AND depth = '1' ORDER BY sort ASC, ref_group ASC, depth ASC, ref_no ASC";
+				$result = mysqli_query($connect, $query);
+				$total = mysqli_num_rows($result);
+
+				if($total > 0){ ?>
+				<?
+					$result = mysqli_query($connect, $query);
+					while($data = mysqli_fetch_array($result)){
+						print_dept($connect, "koweb_dept", $data[ref_group], $data[ref_no]);
+					}
+				?>
+			<? } else { ?>
+				<tr>
+					<td colspan="2">등록 된 부서가 없습니다.</td>
+				</tr>
+			<? } ?>
+		</tbody>
+	</table>
+	
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<a href="javascript:;" onclick="javascript:showPopup(popLayer02);" class="button lg">최상위부서 등록</a>
+	</div>
+	<!-- //버튼 -->
+</div>
+
+<!-- 레이어 하위등록 -->
+<div id="popLayer01" style="display:none;">
+	<div class="popBox mini">
+		<!-- title -->
+		<h2>하위부서등록</h2>
+		<!-- scroll -->
+		<div class="scrollbar-inner">
+			<div class="popinBox">
+			
+				<table class="table">
+					<caption>하위부서등록</caption>
+					<colgroup>
+						<col style="width:25%;"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">상위부서명</th>
+							<td><strong data-ref-title></strong></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="">부서명</label></th>
+							<td>
+								<input type="text" name="bottom_dept" id="bottom_dept" />
+								<input type="hidden" name="target_no" id="target_no" data-dept-setting="ref_no" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<div class="btn_area">
+					<input type="submit" class="button lg" value="저장" data-dept-proc="bottom" />
+					<a href="#" class="button lg white btn_close">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //레이어 하위등록 -->
+
+<!-- 레이어 최상위등록 -->
+<div id="popLayer02" style="display:none;">
+	<div class="popBox mini">
+		<!-- title -->
+		<h2>최상위부서 등록</h2>
+		<!-- scroll -->
+		<div class="scrollbar-inner">
+			<div class="popinBox">
+				<table class="table">
+					<caption>최상위부서등록</caption>
+					<colgroup>
+						<col style="width:25%;"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><label for="">부서명</label></th>
+							<td><input type="text" name="top_dept" id="top_dept"></td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<div class="btn_area">
+					<input type="submit" class="button lg" value="저장" data-dept-proc="top"/>
+					<a href="#" class="button lg white btn_close">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+	//하위 부서등록
+	function dept_and_setup(el,  ref_no, ref_group, title){
+		var $el = $(el);
+		$el.fadeIn();
+		$el.children('div').layerCenter();
+		$('body').addClass('active');
+		setTimeout(function(){
+			$el.addClass('active');
+		}, 100);
+		
+		$("[data-ref-title]").text(title);
+		$("[data-dept-setting=ref_no]").val(ref_no);
+		return false;
+	}
+	
+	function process_dept_ajax( mode, ref_no, depth, dept ){
+		$.ajax({
+			type: "POST",
+			url: "/ko_mall/setting/member/member_dept_ajax.php",
+			data : {
+				mode : mode,
+				depth : depth,
+				prev_ : ref_no,
+				dept : dept
+			},
+			success : function(args) {
+				//$("[data-list-area]").html(args);
+				alert(args);
+			},beforeSend: function () {
+				$("#popLayer02").css("display","none");
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+				location.reload();
+			}
+		});
+	}
+
+	$("[data-dept-proc]").click(function(){
+		if($(this).data("dept-proc") == "top") {
+			var depth = 1;	
+			var dept = $("#top_dept").val();
+		} else if($(this).data("dept-proc") == "bottom") {
+			var depth = 2;
+			var dept = $("#bottom_dept").val();
+			var ref_no = $("[data-dept-setting=ref_no]").val();
+		} 
+		process_dept_ajax( "write_proc", ref_no, depth, dept );
+	});
+
+
+	$(document).on("click", "[data-dept-button]", function(){
+		var changed;
+		var dept = $(this).parents("td").data("button-area");
+		var info = $("[data-dept-info="+dept+"]");
+		var origin_title = $("[data-dept-info="+dept+"]").children("span");
+		var btn_area = $("[data-button-area="+dept+"]");
+
+		var input_ = "<input type=\"text\" name=\"dept_title\" value=\"" + origin_title.text() + "\" class=\"input200\" data-new-title=\""+dept+"\" id=\"new_dept_title\"/>";
+
+		if($(this).data("dept-button") == "modify"){
+			changed = "<a href=\"#\" class=\"button sm \" data-dept-button=\"save\">저장</a> ";
+			changed += "<a href=\"#\" class=\"button sm white\" data-dept-button=\"cancle\">취소</a>";
+			info.append(input_);
+			origin_title.css("display","none");
+			btn_area.html(changed);
+
+		} else if($(this).data("dept-button") == "cancle"){
+			$("[data-new-title="+dept+"]").remove();
+			
+			origin_title.css("display","");
+			changed = "<a href=\"javascript:;\" onclick=\"javascript:dept_and_setup(popLayer01, "+dept+", '<?=$data[ref_group]?>', '"+origin_title.text()+"');\" class=\"button sm blue\">하위부서등록</a> ";
+			changed += "<a href=\"#\" class=\"button sm gray\" data-dept-button=\"modify\">수정</a> ";
+			changed += "<a href=\"#\" class=\"button sm white\" data-dept-button=\"delete\">삭제</a>";
+
+			btn_area.html(changed);
+		}  else if($(this).data("dept-button") == "delete"){
+			if(confirm("삭제된 데이터는 복구하실 수 없습니다.\r\n정말로 삭제하시겠습니까?")){	
+				process_dept_ajax("delete", info.data("dept-info"));
+			}
+		} else if($(this).data("dept-button") == "save"){
+			process_dept_ajax("modify_proc", info.data("dept-info"), dept, $("[data-new-title="+dept+"]").val());
+			
+		} 
+	});
+</script>
+
+<!-- //레이어 최상위등록 -->

@@ -1,0 +1,29 @@
+<form action="<?=$_SERVER['PHP_SELF']?>" method="GET">
+<div class="search_bbs">
+	<? GETmake_form_action($common_actionString);?>
+	<!-- 검색 -->
+	<div class="search">
+		<select name="search_key" id="searchType">
+			<option value="all">전체</option>
+			<option value="title"> 제목</option>
+			<option value="name">작성자</option>
+			<option value="product">상품명</option>
+		</select>
+		<input type="text" id="keyword" name="keyword" value="<?=$keyword?>">
+		<input type="submit" class="button" value="검색">
+	</div>
+	<!-- //검색 -->
+</form>
+
+<? if($is_admin_list){ ?>
+<div class="btn">
+	<a href="<?=$common_queryString?>&amp;mode=write" class="button">글쓰기</a>
+</div>
+<? } ?>
+
+	<!-- //버튼 -->
+</div>
+<script type="text/javascript">
+	$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+	$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+</script>

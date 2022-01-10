@@ -1,0 +1,374 @@
+<nav class="lnb small">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=order" data-order-state="">전체주문내역</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=order&search_key=&keyword=&start=&order_state=반품진행중" data-order-state="반품진행중">반품내역</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=order&search_key=&keyword=&start=&order_state=입금확인중"  data-order-state="입금확인중">입금확인요청</a></li>
+	</ul>
+</nav>
+<?
+	//페이징 변수
+	if (!$start) $start = 0;
+	$scale = 15; // 리스트 수
+	$page_scale	= 20; // 페이징 수
+
+	if($search_key && $keyword){
+		$WHERE .= " AND $search_key LIKE '%$keyword%'";
+	}
+
+	if($start_date){
+		$start_date_tmp = $start_date . " 00:00:00";
+		$WHERE .= " AND reg_date >= '$start_date_tmp'";
+	}
+
+	if($end_date){
+		$end_date_tmp = $end_date . " 23:59:59";
+		$WHERE .= " AND reg_date <= '$end_date_tmp'";
+	}
+
+	if($pay_type) {
+		$WHERE .= " AND pay_type = '$pay_type'";
+	}
+
+	if($order_state){
+		$WHERE .= " AND state = '$order_state'";
+	}
+
+
+
+	$total_query = "SELECT * FROM koweb_order WHERE order_info = 'P' $WHERE";
+	$total_result = mysqli_query($connect, $total_query);
+	$total = mysqli_num_rows($total_result);
+
+	$query = "SELECT * FROM koweb_order WHERE 1=1 AND order_info = 'P' $WHERE ORDER BY reg_date DESC, no DESC LIMIT $start, $scale";
+	$result = mysqli_query($connect, $query);
+
+	$total_show_query = "SELECT
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '입금대기') AS a1,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '입금확인중') AS a11,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '결제완료') AS a2,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '상품준비중') AS a3,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '배송준비') AS a4,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '배송중') AS a41,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '취소요청') AS a5,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '취소완료') AS a51,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '교환요청') AS a6,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '교환진행중') AS a61,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '반품요청') AS a7,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '반품진행중') AS a71,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND state = '반품완료') AS a72,
+						(SELECT count(distinct(order_id)) FROM koweb_order WHERE order_info='P' AND (state = '주문완료' OR state = '배송완료')) AS a10 FROM koweb_order";
+
+	$total_show = mysqli_fetch_array(mysqli_query($connect, $total_show_query));
+
+
+?>
+
+
+<div class="box pd" style="min-height:inherit;">
+	<!-- 주문현황 -->
+	<div class="box_title">
+		<span>주문현황</span>
+		<!-- 선택시 a에 class on 추가 -->
+		<ul>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>" data-order-state=""><em>전체</em><i><?=array_sum($total_show)/2?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=입금대기" data-order-state="입금대기"><em>입금대기</em><i><?=$total_show[a1]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=입금확인중" data-order-state="입금확인중"><em>입금확인중</em><i><?=$total_show[a11]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=결제완료" data-order-state="결제완료"><em>결제완료</em><i><?=$total_show[a2]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=상품준비중" data-order-state="상품준비중"><em>상품준비중</em><i><?=$total_show[a3]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=배송준비" data-order-state="배송준비"><em>배송준비</em><i><?=$total_show[a4]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=배송중" data-order-state="배송중"><em>배송중</em><i><?=$total_show[a41]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=취소요청" data-order-state="취소요청"><em>취소요청</em><i><?=$total_show[a5]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=취소완료" data-order-state="취소완료"><em>취소완료</em><i><?=$total_show[a51]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=교환요청" data-order-state="교환요청"><em>교환요청</em><i><?=$total_show[a6]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=교환진행중" data-order-state="교환진행중"><em>교환진행중</em><i><?=$total_show[a61]?></i></a></li>
+		</ul>
+		<ul>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=반품요청" data-order-state="반품요청"><em>반품요청</em><i><?=$total_show[a7]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=반품진행중" data-order-state="반품진행중"><em>반품진행중</em><i><?=$total_show[a71]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=반품완료" data-order-state="반품완료"><em>반품완료</em><i><?=$total_show[a72]?></i></a></li>
+			<li><a href="<?=$common_queryString?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=배송완료" data-order-state="배송완료"><em>배송완료</em><i><?=$total_show[a10]?></i></a></li>
+		</ul>
+		<script type="text/javascript">
+			$("[data-order-state='"+"<?=$order_state?>"+"']").addClass("on");
+		</script>
+	</div>
+	<!-- //주문현황 -->
+
+	<h2>상세검색</h2>
+	<form action="<?=$PHP_SELF?>" method="GET">
+	<? GETmake_form_action($common_queryString); ?>
+	<input type="hidden" name="order_state" value="<?=$order_state?>" />
+	<table class="table">
+		<caption>상세검색</caption>
+		<colgroup>
+			<col style="width:15%;">
+			<col style="width:35%;">
+			<col style="width:15%;">
+			<col>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><label for="">키워드검색</label></th>
+				<td>
+					<select name="search_key" id="search_key">
+						<option value="order_id">주문번호</option>
+						<option value="member">회원ID</option>
+					</select>
+					<input type="text" name="keyword" id="keyword" value="<?=$keyword?>" class="input300"/>
+				</td>
+				<script type="text/javascript">
+					$("select[name=search_key] option[value='<?=$search_key?>']").prop("selected", true);
+				</script>
+				<th scope="row">주문일자</th>
+				<td>
+					<input type="text" name="start_date" value="<?=$start_date?>" title="시작일" class="input150 datepicker" placeholder="예) 2019-06-13" data-form-type="datepicker" id="dp1560406375418">
+					~
+					<input type="text" name="end_date" value="<?=$end_date?>" title="종료일" class="input150 datepicker" placeholder="예) 2019-06-13" data-form-type="datepicker" id="dp1560406375419">
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">결제수단</th>
+				<td colspan="3">
+					<div class="designRadio">
+						<input type="radio" name="pay_type" id="pay_type1" value="" checked/><label for="pay_type1">전체</label>
+						<input type="radio" name="pay_type" id="pay_type2" value="무통장입금"/><label for="pay_type2">무통장입금</label>
+						<input type="radio" name="pay_type" id="pay_type3" value="가상계좌"/><label for="pay_type3">가상계좌</label>
+						<input type="radio" name="pay_type" id="pay_type4" value="계좌이체"/><label for="pay_type4">계좌이체</label>
+						<input type="radio" name="pay_type" id="pay_type5" value="휴대폰"/><label for="pay_type5">휴대폰</label>
+						<input type="radio" name="pay_type" id="pay_type6" value="신용카드"/><label for="pay_type6">신용카드</label>
+						<input type="radio" name="pay_type" id="pay_type7" value="paypal"/><label for="pay_type7">PAYPAL</label>
+						<!--<input type="radio" name="" id=""/><label for="">PG간편결제</label>-->
+					</div>
+					<script type="text/javascript">
+						$("input[type=radio][name=pay_type][value='<?=$pay_type?>']").prop("checked", true);
+					</script>
+				</td>
+			<!--	<th scope="row">기타선택</th>
+				<td>
+					<div class="designCheck">
+					<!--	<input type="checkbox" name="" id=""/><label for="">미수금</label> --//>
+						<input type="checkbox" name="order_state1" id="order_state1" value="반품"/><label for="order_state1">반품</label>
+						<input type="checkbox" name="order_state2" id="order_state2" value="품절"/><label for="order_state2">품절</label>
+						<input type="checkbox" name="order_state3" id="order_state3" value="환불"/><label for="order_state3">환불</label>
+					<!--	<input type="checkbox" name="" id=""/><label for="">포인트주문</label> --//>
+					</div>
+				</td>
+			</tr>-->
+		</tbody>
+	</table>
+	<div class="tac" style="padding-top:10px;">
+		<input type="submit" class="button lg" value="검색">
+		<a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=order" type="button" class="button lg white">초기화</a>
+	</div>
+	</form>
+</div>
+
+<div class="box pd">
+	<div class="box_title_btn">
+	<h2>전체주문내역</h2>
+	<div class="btn">
+		<a href="/ko_mall/setting/order/excel.php?search_key=<?=$search_key?>&keyword=<?=$keyword?>&start_date=<?=$start_date?>&end_date=<?=$end_date?>&pay_type=<?=$pay_type?>&order_state=<?=$order_state?>" class="button sm white">엑셀다운로드</a>
+	</div>
+	</div>
+	<table class="bbsList">
+		<caption>전체주문내역</caption>
+		<thead>
+			<tr>
+				<th scope="col">주문일자</th>
+				<th scope="col">주문번호</th>
+				<th scope="col">상태
+					<a href="#" data-tooltip="explan">안내
+						<div>항목선택시 상태값이 <span class="txt_red">수정반영</span>됩니다.</div>
+					</a>
+				</th>
+				<th scope="col">결제수단</th>
+				<th scope="col">회원ID</th>
+				<th scope="col">연락처</th>
+				<th scope="col">배송받는분</th>
+				<th scope="col">주문상품수</th>
+				<th scope="col">총결제금액</th>
+				<th scope="col">포인트사용</th>
+				<!--<th scope="col">미수금</th>-->
+				<th scope="col">배송정보</th>
+				<th scope="col">관리</th>
+			</tr>
+		</thead>
+		<tbody>
+		<? if($total <= 0){ ?>
+			<tr>
+				<td colspan="12">검색된 결과가 없습니다.</td>
+			</tr>
+		<? } else { ?>
+			<? while($row = mysqli_fetch_array($result)){ ?>
+			<? $rcount = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM koweb_order WHERE order_id = '$row[order_id]'"));?>
+			<? $price_count = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(product_price) AS total FROM koweb_order WHERE order_id = '$row[order_id]'"));?>
+			<? $total_price = ($price_count[total] + $row[deli_price] + $row[deli_add_price]) - $row[use_point];?>
+			<?
+			$tr_style = "";
+			$today = date("Y-m-d");
+			if(explode(" ",$row['reg_date'])[0] == $today){
+				$tr_style = "background-color:#f3fff2";
+			}
+			?>
+				<tr style="<?=$tr_style?>">
+					<td><?=$row[reg_date]?></td>
+					<td><?=$row[order_id]?></td>
+					<td data-area-state="<?=$row[order_id]?>">
+						<? if($row[state] == "취소완료"){ ?>
+							<span>취소완료</span>
+						<? } else if($row[state] == "반품완료") {?>
+							<span>반품완료</span>
+						<? } else {?>
+							<select name="state[]" id="state[]" data-change-state="<?=$row[order_id]?>">
+								<option value="입금대기">입금대기</option>
+								<option value="입금확인중">입금확인중</option>
+								<option value="결제완료">결제완료</option>
+								<option value="상품준비중">상품준비중</option>
+								<option value="배송준비">배송준비</option>
+								<option value="배송중">배송중</option>
+								<option value="취소요청">취소요청</option>
+								<option value="취소완료">취소완료</option>
+								<option value="교환요청">교환요청</option>
+								<option value="교환진행중">교환진행중</option>
+								<option value="반품요청">반품요청</option>
+								<option value="반품진행중">반품진행중</option>
+								<option value="반품완료">반품완료</option>
+								<option value="배송완료">배송완료</option>
+							</select>
+							<script type="text/javascript">
+								$("[data-change-state=<?=$row[order_id]?>] option[value='<?=$row[state]?>']").prop("selected", true);
+							</script>
+						<? } ?>
+					</td>
+					<td><?=$row[pay_type]?></td>
+					<td><?=$row[member]?></td>
+					<td><?=$row[phone]?></td>
+					<td><?=$row[name]?></td>
+					<td><?=$rcount?>건</td>
+				<!--<td>66,000</td>-->
+					<td><?=number_format($total_price)?></td>
+					<td class="txt_red"><?=number_format($row[use_point])?></td>
+					<td>
+						<!-- 배송정보가 입력이 안되어있으면 미표시 -->
+						<div class="area_view_pop">
+							<a href="#" class="button sm white view">정보보기</a>
+							<div class="info">
+								<!-- 송장번호가 여러개있는경우 반복표시 -->
+								<? if($row[deli_code]){?>
+								<ul>
+									<li><em><?=$row[deli_company]?></em><span><?=$row[deli_code]?></span>
+									<? if($site_pay[$row[deli_company]]){ ?>
+										<a href="<?=$site_pay[$row[deli_company]]?><?=$row[deli_code]?>" class="button sm gray" target="_blank">배송추적</a>
+									<? } ?>
+									</li>
+								</ul>
+								<? } else { ?>
+								<ul>
+									<li>등록된 정보가 없습니다.</li>
+								</ul>
+								<? } ?>
+							</div>
+						</div>
+					</td>
+					<td>
+						<? if($row[pay_type] != "paypal"){ ?>
+						<a href="<?=$common_queryString?>&mode=order_view&orderid=<?=$row[order_id]?>" class="button sm gray">관리</a>
+						<? } else { ?>
+							<a href="https://www.sandbox.paypal.com/myaccount/transactions/details/<?=$row[order_id]?>" class="button sm red" target="_blank">PAYPAL</a>
+						<? } ?>
+						<a href="javascript:void(0)" onclick="printOrder('<?=$row[order_id]?>')" class="button sm white print">인쇄</a>
+					</td>
+				</tr>
+			<? } ?>
+		<? } ?>
+		</tbody>
+	</table>
+</div>
+<div class="pagination">
+	<?
+		/*----------------------------------------------------------------------------*/
+		// 페이지 표시
+		/*----------------------------------------------------------------------------*/
+
+		if ($total == 0) $total = 1;
+
+		$page_url = $common_queryString."&start_date={$start_date}&end_date={$end_date}&pay_type={$pay_type}&order_state={$order_state}";
+
+		// 처음
+		echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+		$page = floor($start / ($scale * $page_scale));
+
+		if ($start + $scale >  $scale * $page_scale) {
+			$pre_start = $start - $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+		}
+
+		for ($vj = 0; $vj < $page_scale ; $vj++) {
+			$ln = ($page * $page_scale + $vj) * $scale;
+			$vk = $page * $page_scale + $vj + 1 ;
+
+			if ($ln < $total) {
+				if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+				else echo "<span>$vk</span>";
+			}
+		}
+
+		// 마지막
+		$end_page = floor($total - $scale) + 1;
+		if ($end_page <= 0)	$end_page = 0;
+
+		if ($total > (($page + 1) * $scale * $page_scale)) {
+			$n_start = ($page + 1) * $scale * $page_scale ;
+			echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+		}
+
+		$end_page = ceil($total / $scale);
+		if ($total) $end_start = ($end_page -1) * $scale;
+		else $end_start = $end_page;
+
+		echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+	?>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$("[data-change-state]").change(function(){
+			var data = $(this).val();
+			var target = $(this).data("change-state");
+			if(data == "취소완료" || data == "반품완료"){
+				if(!confirm("정말 상태를 " + data + " 로 변경하시겠습니까?")){
+					return false;
+				}
+			}
+
+			$.ajax({
+				type : "POST",
+				url : "/ko_mall/setting/order/change_state_order.php",
+				data : {
+					data : data,
+					target : target
+				},
+				success : function(args) {
+					//$("#option_detail_area").html(args);
+					alert(args);
+					if(data == "취소완료"){
+						$("[data-area-state="+target+"]").html("<span>취소완료</span>");
+					} else if(data == "반품완료"){
+						$("[data-area-state="+target+"]").html("<span>반품완료</span>");
+					}
+
+				},
+				beforeSend: function () {
+					$("#div_ajax_load_image").show();
+				},
+				complete: function () {
+					$("#div_ajax_load_image").hide();
+				},
+				error:function(request,status,error){
+					console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+				}
+			});
+		});
+	});
+</script>

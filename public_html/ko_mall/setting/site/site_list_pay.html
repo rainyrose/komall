@@ -1,0 +1,650 @@
+<?
+$query = "SELECT * FROM koweb_pay_config ORDER BY no DESC";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+$deli_price_type = explode("|", $row[deli_price_type]);
+$deli_price = explode("|", $row[deli_price]);
+?>
+
+<!-- lnb -->
+
+
+<nav class="lnb small" id="pro01">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site">사이트설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=mall">사업자정보 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=pay" class="on">구매설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=info">이용안내설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=private">개인정보처리방침설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=agreement">이용약관설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=sms">SMS문구 설정</a></li>
+	</ul>
+</nav>
+
+<div class="box pd">
+	<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="write_proc" />
+	<input type="hidden" name="no" value="<?=$no?>" />
+	<input type="hidden" name="tmode" value="<?=$mode?>" />
+
+	<h2>결제정보</h2>
+	<table class="bbsView">
+		<caption>결제정보</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">무통장입금
+					<a href="#" data-tooltip="explan">안내
+						<div>무통장입금은 기본적으로 사용이 가능하며, 입력된 항목이 그대로 노출되오니 입력시 참고바랍니다.</div>
+					</a>
+				</th>
+				<td>
+					<!--<div class="designRadio">
+						<input type="radio" name="use_direct" value="Y" id="use_directY" /><label for="use_directY">사용</label>
+						<input type="radio" name="use_direct" value="N" id="use_directN" /><label for="use_directN">미사용</label>
+					</div>-->
+					<div data-content-type="use_direct" <? if($row[use_direct] != "Y"){ ?> style="display:none;" <? } ?>>
+						<p class="info red" style="margin-top:5px">계좌번호를 입력해주세요. 입력된 항목이 그대로 노출됩니다.</p>
+						<textarea name="use_direct_content" class="inputFull"><?=$row[use_direct_content]?></textarea>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">LG U+ 전자결제
+					<a href="#" data-tooltip="explan">안내
+						<div><span class="txt_red">기본 사용 결제</span><br />1.신용카드 결제<br />2.계좌이체<br /><span class="txt_red">추가계약 후 사용가능 결제</span><br />1.신용카드 결제<br />2.휴대폰 결제<br />2.문화상품권 결제<br />3.유선전화 결제<br /></div>
+					</a>
+				</th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" name="use_uplus" value="Y" id="use_uplusY" /><label for="use_uplusY">사용</label>
+						<input type="radio" name="use_uplus" value="N" id="use_uplusN" /><label for="use_uplusN">미사용</label>
+					</div>
+
+					<div class="designCheck" data-content-type="use_uplus" <? if($row[use_uplus] != "Y"){ ?> style="display:none;" <? } ?>>
+						<label for="uplus_shopid">상점아이디</label> : <input type="text" name="uplus_shopid" id="uplus_shopid" value="<?=$row[uplus_shopid]?>" class="input100"/>
+						<input type="checkbox" name="uplus_type" id="uplus_type" value="test"><label for="uplus_type">테스트</label>
+						<label for="uplus_mertkey" style="margin-left:30px;">유플러스 MERT KEY</label> : <input type="text" name="uplus_mertkey" id="uplus_mertkey" value="<?=$row[uplus_mertkey]?>" />
+						<span class="info red">상점아이디와 MERT KEY를 모두 입력 하여야합니다.</span>
+					</div>
+
+				</td>
+			</tr>
+			<tr data-content-type="use_uplus" <? if($row[use_uplus] != "Y"){ ?> style="display:none;" <? } ?>>
+				<th scope="row">휴대폰 결제
+					<a href="#" data-tooltip="explan">안내
+						<div>휴대폰 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+					</a>
+				</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="use_phone_pay" value="Y" id="use_phone_payY" /><label for="use_phone_payY">사용</label>
+					<input type="radio" name="use_phone_pay" value="N" id="use_phone_payN" /><label for="use_phone_payN">미사용</label>
+				</div>
+				</td>
+			</tr>
+			<tr data-content-type="use_uplus" <? if($row[use_uplus] != "Y"){ ?> style="display:none;" <? } ?>>
+				<th scope="row">문화상품권 결제
+					<a href="#" data-tooltip="explan">안내
+						<div>문화상품권 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+					</a>
+				</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="use_culture_pay" value="Y" id="use_culture_payY" /><label for="use_culture_payY">사용</label>
+					<input type="radio" name="use_culture_pay" value="N" id="use_culture_payN" /><label for="use_culture_payN">미사용</label>
+				</div>
+				</td>
+			</tr>
+			<tr data-content-type="use_uplus" <? if($row[use_uplus] != "Y"){ ?> style="display:none;" <? } ?>>
+				<th scope="row">유선전화 결제
+					<a href="#" data-tooltip="explan">안내
+						<div>유선전화 결제사용시 LG U+ 전자결제와 계약이 되어있어야 사용가능합니다.</div>
+					</a>
+				</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="use_tel_pay" value="Y" id="use_tel_payY" /><label for="use_tel_payY">사용</label>
+					<input type="radio" name="use_tel_pay" value="N" id="use_tel_payN" /><label for="use_tel_payN">미사용</label>
+				</div>
+				</td>
+				<script type="text/javascript">
+					$("input[type=radio][name=use_uplus][value='"+"<?=$row[use_uplus]?>"+"']").prop("checked", true);
+					$("input[type=radio][name=use_phone_pay][value='"+"<?=$row[use_phone_pay]?>"+"']").prop("checked", true);
+					$("input[type=radio][name=use_culture_pay][value='"+"<?=$row[use_culture_pay]?>"+"']").prop("checked", true);
+					$("input[type=radio][name=use_tel_pay][value='"+"<?=$row[use_tel_pay]?>"+"']").prop("checked", true);
+					$("input[type=checkbox][name=uplus_type][value='"+"<?=$row[uplus_type]?>"+"']").prop("checked", true);
+
+
+					$(function(){
+						$("input[name=use_uplus]").change(function(){
+							if($(this).val() == "Y"){
+								$("[data-content-type=use_uplus]").css("display","none");
+							} else {
+								$("[data-content-type=use_uplus]").css("display","");
+							}
+						});
+
+					});
+				</script>
+			</tr>
+
+
+			<!--<tr>
+				<th scope="row">포인트 사용여부</th>
+				<td>
+					<div class="designRadio">
+						<input type="radio" class="inputFull" name="use_point" id="use_pointY" value="Y" /><label for="use_pointY">사용</label>
+						<input type="radio" class="inputFull" name="use_point" id="use_pointN" value="N" /><label for="use_pointN">미사용</label>
+					</div>
+				</td>
+			</tr>
+			-->
+
+		</tbody>
+	</table>
+
+
+	<h2>환율설정</h2>
+	<table class="bbsView">
+		<caption>환율설정</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">환율설정
+					<a href="#" data-tooltip="explan">안내
+						<div><span class="txt_red">환율</span>설정시 제품의 결제금액은 해당환율에 따라 USD로 변경되어 결제됩니다 (PAYPAL 전용)</div>
+					</a>
+				</th>
+				<td>
+					<input type="text" name="transfer" value="<?=$row[transfer]?>" /> (결제화폐 USD)
+					<a href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query=%ED%99%98%EC%9C%A8" target="_blank" class="button gray" style="margin-left:20px;">네이버환율 바로가기</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<h2>배송정보 설정</h2>
+	<table class="bbsView">
+		<caption>배송정보 관리</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row"><label for="deli_company">배송업체</label></th>
+				<td>
+					<select name="deli_company" id="deli_company">
+						<option value="">없음</option>
+						<option value="자체배송">자체배송</option>
+						<option value="경동택배">경동택배</option>
+						<option value="대신택배">대신택배</option>
+						<option value="동부택배">동부택배</option>
+						<option value="로젠택배">로젠택배</option>
+						<option value="우체국">우체국</option>
+						<option value="이노지스택배">이노지스택배</option>
+						<option value="한진택배">한진택배</option>
+						<option value="롯데택배">롯데택배</option>
+						<option value="CJ대한통운">CJ대한통운</option>
+						<option value="CVSnet편의점택배">CVSnet편의점택배</option>
+						<option value="KG옐로우캡택배">KG옐로우캡택배</option>
+						<option value="KGB택배">KGB택배</option>
+						<option value="KG로지스">KG로지스</option>
+						<option value="건영택배">건영택배</option>
+						<option value="호남택배">호남택배</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">배송비
+					<a href="#" data-tooltip="explan">안내
+						<div>쇼핑몰의 기본 배송비 설정방법을 지정하는 방법이며 상품별로 지정이 되었을경우 상품별이 우선순위로 적용됩니다.</div>
+					</a>
+				</th>
+				<td>
+					<select name="deli_type" id="deli_type">
+						<option value="free">무료배송</option>
+						<option value="fix">유료배송</option>
+						<option value="def">조건부무료배송</option>
+					</select>
+					<a href="#" class="button sm gray" id="add_category" data-deli-type="def"  <? if($row[deli_type] != "def"){ ?> style="display:none;" <? } ?>>+ 추가</a>
+					<span data-deli-type="fix" <? if($row[deli_type] != "fix"){ ?>style="display:none;"<? } ?>>
+						<input type="text" name="deli_price[]" value="<?=$deli_price[0]?>" placeholder="금액입력" <? if($row[deli_type] != "fix"){ ?>disabled<? } ?>/> 원
+					</span>
+
+					<div data-deli-type="def" <? if($row[deli_type] != "def"){ ?> style="display:none;" <? } ?>>
+						<input type="text" name="deli_price_type[]" value="<?=$deli_price_type[0]?>" placeholder="상품금액"/>원 이상
+						<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" value="<?=$deli_price[0]?>" placeholder="금액">원
+						<?
+							$count = 0;
+							foreach($deli_price_type as $key => $value){
+								if($count != 0){
+								$del_id = "#deli_price_type_".$count;
+						?>
+								<div id="deli_price_type_<?=$count?>">
+									<input type="text" name="deli_price_type[]" value="<?=$value?>" placeholder="상품금액"/>원 이상
+									<span style="margin-left:15px;">배송비</span> <input type="text" name="deli_price[]" id="" value="<?=$deli_price[$key]?>" placeholder="금액">원
+									<a href="#" id="del_price_type_<?=$count?>" class="button white" onclick="$('<?=$del_id?>').remove();">- 삭제</a>
+								</div>
+						<?
+							}
+							$count++;
+						}
+						?>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">추가배송비관리
+					<a href="#" data-tooltip="explan">안내
+						<div>제주도 및 도서산간 지역 등 직접 우편번호로 설정하여 추가배송비를 관리가 가능합니다.</div>
+					</a>
+				</th>
+				<td class="inputTable">
+					<div class="input">
+						<p>추가배송비 입력</p>
+						<ul>
+							<li>
+								<span>지역명</span>
+								<span><input type="text" name="title" id="title" value=""></span>
+							</li>
+							<li>
+								<span>우편번호시작</span>
+								<span><input type="text" name="start_zip" id="start_zip" value=""></span>
+							</li>
+							<li>
+								<span>우편번호끝</span>
+								<span><input type="text" name="end_zip" id="end_zip" value=""></span>
+							</li>
+							<li>
+								<span>추가배송비</span>
+								<span><input type="text" name="price" id="price"></span>
+							</li>
+						</ul>
+					</div>
+
+					<div class="table" data-area-addprice>
+						<p>
+							<span style="margin-right:15px">추가배송비 내역</span>
+							<input type="text" name="add_price_deli" id="add_price_deli" class="input100" placeholder="추가배송비"/> 
+							<a href="#" class="button sm" data-btn-deli-modify>일괄수정</a>
+						</p>						
+						<div class="btn" style="top:2px;">							
+							<a href="#" class="button sm gray" data-btn-deli="add">추가</a>
+							<a href="#" class="button sm white" data-btn-deli="del">선택삭제</a>
+						</div>
+						<div class="scrollbar-dynamic">
+							<table class="bbsList">
+								<caption>추가배송비 내역</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:25%;"/>
+									<col style="width:20%;"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col"><div class="designCheck noText"><input type="checkbox" name="1" id="this_all" /><label for="this_all">전체선택</label></div></th>
+										<th scope="col">지역명</th>
+										<th scope="col">우편번호</th>
+										<th scope="col">추가배송비</th>
+									</tr>
+								</thead>
+								<tbody>
+								<?
+									$rquery = "SELECT * FROM koweb_add_delivery_price ORDER BY no DESC";
+									$rresult = mysqli_query($connect, $rquery);
+									$total = mysqli_num_rows($rresult);
+									if($total > 0){
+									 while($delivery_price = mysqli_fetch_array($rresult)){ ?>
+										<tr>
+											<td><div class="designCheck noText"><input type="checkbox" name="all_delete[]" id="all_<?=$delivery_price[no]?>" value="<?=$delivery_price[no]?>"/><label for="all_<?=$delivery_price[no]?>">한줄선택</label></div></td>
+											<td><?=$delivery_price[title]?></td>
+											<td><?=$delivery_price[start_zip]?> ~ <?=$delivery_price[end_zip]?></td>
+											<td><?=number_format($delivery_price[price])?></td>
+										</tr>
+									<? } ?>
+									<? } else { ?>
+									<tr>
+										<td colspan="4">등록 된 추가배송비 내역이 없습니다.</td>
+									</tr>
+									<? } ?>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</td>
+			</tr>
+		<!--	<tr>
+				<th scope="row">상품구매안내</th>
+				<td>
+					<textarea name="deli_content" id="smart_content">
+					<? if($row[deli_content]){?>
+						<?=$row[deli_content]?>
+					<? } else {?>
+						상품 결제정보<br />
+						고액결제의 경우 안전을 위해 카드사에서 확인전화를 드릴 수도 있습니다. 확인과정에서 도난 카드의 사용이나 타인 명의의 주문등 정상적인 주문이 아니라고 판단될 경우 임의로 주문을 보류 또는 취소할 수 있습니다.  <br /><br />
+
+						무통장 입금은 상품 구매 대금은 PC뱅킹, 인터넷뱅킹, 텔레뱅킹 혹은 가까운 은행에서 직접 입금하시면 됩니다.  <br />
+						주문시 입력한 입금자명과 실제입금자의 성명이 반드시 일치하여야 하며, 7일 이내로 입금을 하셔야 하며 입금되지 않은 주문은 자동취소 됩니다.<br />
+						배송안내<br />
+						배송 방법 : 택배<br />
+						배송 지역 : 전국지역<br />
+						배송 비용 : 무료<br />
+						배송 기간 : 3일 ~ 7일<br />
+						- 산간벽지나 도서지방은 별도의 추가금액을 지불하셔야 하는 경우가 있습니다.<br />
+						고객님께서 주문하신 상품은 입금 확인후 배송해 드립니다. 다만, 상품종류에 따라서 상품의 배송이 다소 지연될 수 있습니다.<br /><br />
+						교환 및 반품안내<br />
+						교환 및 반품이 가능한 경우<br />
+						- 상품을 공급 받으신 날로부터 7일이내 단, 가전제품의<br />
+						  경우 포장을 개봉하였거나 포장이 훼손되어 상품가치가 상실된 경우에는 교환/반품이 불가능합니다.<br />
+						- 공급받으신 상품 및 용역의 내용이 표시.광고 내용과<br />
+						  다르거나 다르게 이행된 경우에는 공급받은 날로부터 3월이내, 그사실을 알게 된 날로부터 30일이내<br /><br />
+
+						교환 및 반품이 불가능한 경우<br />
+						- 고객님의 책임 있는 사유로 상품등이 멸실 또는 훼손된 경우. 단, 상품의 내용을 확인하기 위하여<br />
+						  포장 등을 훼손한 경우는 제외<br />
+						- 포장을 개봉하였거나 포장이 훼손되어 상품가치가 상실된 경우<br />
+						  (예 : 가전제품, 식품, 음반 등, 단 액정화면이 부착된 노트북, LCD모니터, 디지털 카메라 등의 불량화소에<br />
+						  따른 반품/교환은 제조사 기준에 따릅니다.)<br />
+						- 고객님의 사용 또는 일부 소비에 의하여 상품의 가치가 현저히 감소한 경우 단, 화장품등의 경우 시용제품을<br />
+						  제공한 경우에 한 합니다.<br />
+						- 시간의 경과에 의하여 재판매가 곤란할 정도로 상품등의 가치가 현저히 감소한 경우<br />
+						- 복제가 가능한 상품등의 포장을 훼손한 경우<br />
+						  (자세한 내용은 고객만족센터 1:1 E-MAIL상담을 이용해 주시기 바랍니다.)<br /><br />
+
+						※ 고객님의 마음이 바뀌어 교환, 반품을 하실 경우 상품반송 비용은 고객님께서 부담하셔야 합니다.<br />
+						  (색상 교환, 사이즈 교환 등 포함)<br />
+					<? } ?>
+					</textarea>
+				</td>
+			</tr>
+			-->
+		</tbody>
+	</table>
+
+	<!--<h2>기타정보 설정</h2>
+	<table class="bbsView">
+		<caption>기타정보 관리</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">상품구매제한</th>
+				<td>
+				<div class="designRadio">
+					<input type="radio" name="limit_" value="all" id="limit_all"/><label for="limit_all">전체</label>
+					<input type="radio" name="limit_" value="19" id="limit_19"/><label for="limit_19">성인 (본인인증 서비스 사용시 가능합니다.)</label>
+				</div>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">상품구매권한</th>
+				<td><span><input type="text" name="keyword_title" class="input300" value="<?=$row[keyword_title]?>" /></span></td>
+			</tr>
+		</tbody>
+	</table>
+	-->
+
+	<!--
+	<h2>약관 및 정보수집 동의 설정</h2>
+	<div class="box_title">
+		본 양식은 쇼핑몰 운영에 도움을 드리고자 샘플로 제공되는 서식으로 쇼핑몰 운영형태에 따른 수정이 필요합니다. 쇼핑몰에 적용하시기 전, <i class="txt_red">쇼핑몰 운영 사항 등을 확인하시고 적절한 내용을 반영하여 사용</i>하시기 바랍니다.
+	</div>
+	<table class="bbsView mt20">
+		<caption>약관 및 정보수집 동의 관리</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">비회원 <br />개인정보 수집 및 이용에 관한 동의
+					<a href="#" data-tooltip="explan">안내
+						<div>값이 없을경우 회원가입의 개인정보 수집 및 이용에 관한 동의와 연동됩니다.</div>
+					</a>
+				</th>
+				<td>
+					<textarea name="sinfo1" id="sinfo1">
+					<? if($row[sinfo1]){ ?>
+						<?=$row[sinfo1]?>
+					<? } else { ?>
+					<?
+						$info_rows = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'private'"));
+						echo $info_rows[contents];
+					?>
+					<? } ?>
+					</textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">비회원 쇼핑몰 이용약관
+					<a href="#" data-tooltip="explan">안내
+						<div>필수 사항으로 기재를 하셔야 하며 샘플로 제공되는 서식이므로 운영사항 확인 후 내용 반영하여 사용 하시길 바랍니다.</div>
+					</a>
+				</th>
+				<td>
+					<textarea name="sinfo2" id="sinfo2">
+					<? if($row[sinfo2]){ ?>
+						<?=$row[sinfo2]?>
+					<? } else { ?>
+					<?
+						$info_rows = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'sinfo'"));
+						echo $info_rows[contents];
+					?>
+					<? } ?>
+					</textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">비회원 개인정보수집 이용동의
+					<a href="#" data-tooltip="explan">안내
+						<div>필수 사항으로 기재를 하셔야 하며 샘플로 제공되는 서식이므로 운영사항 확인 후 내용 반영하여 사용 하시길 바랍니다.</div>
+					</a>
+				</th>
+				<td>
+					<textarea name="sinfo3" id="sinfo3">
+					<? if($row[sinfo3]){ ?>
+						<?=$row[sinfo3]?>
+					<? } else { ?>
+					<?
+						$info_rows = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'info_offer'"));
+						echo $info_rows[contents];
+					?>
+					<? } ?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">비회원 쇼핑정보 수신동의
+					<a href="#" data-tooltip="explan">안내
+						<div>필수 동의가 아닌 회원가입시 선택사항으로 받는 조항입니다.</div>
+					</a>
+				</th>
+				<td>
+					<textarea name="sinfo4" id="sinfo4"><? if($row[sinfo4]){ ?>
+						<?=$row[sinfo4]?>
+					<? } else { ?>
+					<?
+						$info_rows = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_member_item WHERE item = 'agree2'"));
+						echo $info_rows[contents];
+					?>
+					<? } ?></textarea>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	-->
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="설정 저장">
+	</div>
+</form>
+
+<script type="text/javascript">
+	$(function() {
+		$("select[name=deli_company] option[value='"+"<?=$row[deli_company]?>"+"']").prop("selected", true);
+		$("select[name='deli_type'] option[value='<?=$row[deli_type]?>']").prop("selected", true);
+		$("input:radio[name='limit_']:radio[value='<?=$row[limit_]?>']").prop("checked",true);
+		$("input:radio[name='use_uplus']:radio[value='<?=$row[use_uplus]?>']").prop("checked",true);
+		$("input:radio[name='use_direct']:radio[value='<?=$row[use_direct]?>']").prop("checked",true);
+
+		$("input[type=radio]").change(function(){
+			var key_ = $(this).attr("name");
+			var keyword_ = $(this).attr("value");
+
+			if(keyword_ == "Y"){
+				$("[data-content-type="+key_+"]").css("display","");
+			} else {
+				$("[data-content-type="+key_+"]").css("display","none");
+			}
+		});
+
+		$("select[name=deli_type]").change(function(){
+			$("[data-deli-type]").hide();
+				$("[data-deli-type] input[type=text]").val("");
+			$("[data-deli-type="+$("option:selected", this).val()+"]").show();
+
+			if($("option:selected", this).val() == "fix"){
+				$("[data-deli-type=fix] input[type=text]").attr("disabled" ,false);
+			} else {
+				$("[data-deli-type=fix] input[type=text]").attr("disabled" ,true);
+
+			}
+		});
+
+		$("#add_category").click(function(){
+			var count = $("div[data-deli-type=def] > div").size() + 1;
+			var del_id = "deli_price_type_"+count;
+
+			$("div[data-deli-type=def]").append("<div id='deli_price_type_"+count+"'><input type='text' name='deli_price_type[]' value='' placeholder='상품금액'/>원 이상 <span style='margin-left:15px;'>배송비</span> <input type='text' name='deli_price[]' value='' />원  <a href='#' id='del_price_type_"+count+"' class='button white' onclick='$(\"#"+del_id+"\").remove();'> <span>- 삭제</span></a></div>");
+		});
+
+
+		$("[data-btn-deli-modify]").click(function(){
+			var price = $("#add_price_deli").val();
+			var modify_data = "";
+			var txt = "";
+			$("input[type=checkbox][name='all_delete[]']:checked").each(function(){
+				txt += $(this).val()+"|";
+			});
+			modify_data = txt.substr(0, txt.length-1);
+
+
+			if(!modify_data || modify_data == ""){
+				alert("수정할 지역을 선택하세요");
+				return false;
+			}
+
+			$.ajax({
+				type : "POST",
+				url : "/ko_mall/setting/site/add_price_deli_modi.php",
+				data : {
+					price : price,
+					modify_data : modify_data
+				},
+				success : function(args) {
+
+					window.location.reload();
+
+				},
+				beforeSend: function () {
+					$("#div_ajax_load_image").show();
+				},
+				complete: function () {
+					$("#div_ajax_load_image").hide();
+				}
+			});
+		})
+
+	});
+
+	$(document).on("change","#this_all",function(){
+		if($(this).is(":checked")){
+			$("input[name='all_delete[]']").prop("checked", true);
+		} else {
+			$("input[name='all_delete[]']").prop("checked", false);
+		}
+	});
+
+	$(document).on("click","[data-btn-deli]",function(){
+		var mode = $(this).data("btn-deli");
+		var title = $("#title").val();
+		var start_zip = $("#start_zip").val();
+		var end_zip = $("#end_zip").val();
+		var price = $("#price").val();
+
+		if(!mode) {
+			alert("비정상적인접근");
+			return false;
+		}
+
+		if(mode == "add"){
+			if(!title){
+				alert("지역명을 입력하세요");
+				return false;
+			}
+			if(!start_zip){
+				alert("우편번호시작번호를 입력하세요");
+				return false;
+			}
+			if(!end_zip){
+				alert("우편번호끝번호를 입력하세요");
+				return false;
+			}
+			if(!price){
+				alert("금액을 입력하세요");
+				return false;
+			}
+		}
+
+		if(mode == "del"){
+			var deleted_data = "";
+			var txt = "";
+			$("input[type=checkbox][name='all_delete[]']:checked").each(function(){
+				txt += $(this).val()+"|";
+			});
+			deleted_data = txt.substr(0, txt.length-1);
+		}
+		if(mode == "del"){
+			if(!deleted_data || deleted_data == ""){
+				alert("항목을 선택하세요");
+				return false;
+			}
+		}
+
+		$.ajax({
+			type : "POST",
+			url : "/ko_mall/setting/site/add_price_deli.php",
+			data : {
+				mode : mode,
+				title : title,
+				start_zip : start_zip,
+				end_zip : end_zip,
+				price : price,
+				deleted_data : deleted_data
+			},
+			success : function(args) {
+
+				$("[data-area-addprice]").html(args);
+
+			},
+			beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+			}
+		});
+	});
+
+</script>

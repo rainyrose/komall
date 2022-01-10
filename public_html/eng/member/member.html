@@ -1,0 +1,32 @@
+<? include_once $_SERVER['DOCUMENT_ROOT']."/head.php"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/eng/inc/top.html"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/eng/inc/header.html"; ?>
+<!--임시//-->
+<!-- visual -->
+<div class="area_subVisual navFix">
+	<em data-title-visual>회원관리</em>
+	<i class="sub01"></i>
+</div>
+<!-- //visual -->
+
+<section id="container">
+	<div id="content">
+	<h2 data-title-content></h2>
+	<!-- 본문 -->
+		<? include_once $_SERVER['DOCUMENT_ROOT']."/member/member.php"; ?>
+
+	<!-- //본문 -->
+	</div>
+</section>
+
+
+
+<script type="text/javascript">
+	var mid = "<?=$mid?>";
+	var mid_depth = (mid.length / 3);
+
+	for(var i = 1; i <= mid_depth; i++){
+		$("[data-set-on="+mid.substr(0, i*3)+"]").addClass("on");
+	}
+</script>
+<? include_once $_SERVER['DOCUMENT_ROOT'] . "/eng/inc/footer.html"; ?>

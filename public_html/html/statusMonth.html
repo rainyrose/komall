@@ -1,0 +1,131 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+						
+					
+						<!-- 내용 -->
+						
+					
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>방문자수 통계</h2>
+							
+							<div class="area_calendar type02 status">
+
+								<div class="control">
+									<div>
+										<!-- <a href="#" class="btn_prev">이전달</a> -->
+										<select name="year" id="year" data-date-change="year">
+											<option value="all">전체</option>
+											<option value="2018">2018</option>
+											<option selected="" value="2019">2019</option>
+										</select>
+										<select name="month" id="month" data-date-change="month">
+											<option value="all">전체</option>
+											<option value="02">02</option>
+											<option selected="" value="03">03</option>
+										</select>
+										<a href="#" class="btn_next">다음달</a>
+									</div>
+									<p class="total">2019년 03월 전체 방문자수 : 968</p>
+									<a href="#" class="btn_today button">이번달 보기</a>
+								</div>
+
+								<div class="chart">
+									차트삽입
+								</div>
+
+								<!-- 달력 -->
+								<div class="calendar">
+									<!-- today표시 td class="today" 선택시 class="on" -->
+									<table>
+										<caption>일,월,화,수,목,금,토 요일별 정보를 제공하는 표</caption>
+										<thead>
+											<tr>	
+												<th scope="col" data-calendar="sun">일</th>
+												<th scope="col" data-calendar="mon">월</th>
+												<th scope="col" data-calendar="tue">화</th>
+												<th scope="col" data-calendar="web">수</th>
+												<th scope="col" data-calendar="thu">목</th>
+												<th scope="col" data-calendar="fri">금</th>
+												<th scope="col" data-calendar="sat">토</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td data-calendar="sun"></td>
+												<td data-calendar="mon"></td>
+												<td data-calendar="tue"></td>
+												<td data-calendar="web"></td>
+												<td data-calendar="thu"></td>
+												<td data-calendar="fri">
+													<div><em>1</em>
+														<span>61</span>
+													</div>
+												</td>
+												<td data-calendar="sat">
+													<div><em>2</em>
+														<span>47</span>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td data-calendar="sun" class="on">
+													<div><em>3</em>
+														<span>44</span>
+													</div>
+												</td>
+												<td data-calendar="mon"><div><em>4</em></div></td>
+												<td data-calendar="tue"><div><em>5</em></div></td>
+												<td data-calendar="web"><div><em>6</em></div></td>
+												<td data-calendar="thu"><div><em>7</em></div></td>
+												<td data-calendar="fri"><div><em>8</em></div></td>
+												<td data-calendar="sat">
+													<div><em>9</em>
+														<span>147</span>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td data-calendar="sun"><div><em>10</em></div></td>
+												<td data-calendar="mon"><div><em>11</em></div></td>
+												<td data-calendar="tue"><div><em>12</em></div></td>
+												<td data-calendar="web"><div><em>13</em></div></td>
+												<td data-calendar="thu"><div><em>14</em></div></td>
+												<td data-calendar="fri"><div><em>15</em></div></td>
+												<td data-calendar="sat"><div><em>16</em></div></td>
+											</tr>
+											<tr>
+												<td data-calendar="sun"><div><em>17</em></div></td>
+												<td data-calendar="mon"><div><em>18</em></div></td>
+												<td data-calendar="tue" class="today">
+													<div><em>19</em>
+														<span>99</span>
+													</div>
+												</td>
+												<td data-calendar="web"><div><em>20</em></div></td>
+												<td data-calendar="thu"><div><em>21</em></div></td>
+												<td data-calendar="fri"><div><em>22</em></div></td>
+												<td data-calendar="sat"><div><em>23</em></div></td>
+											</tr>
+											<tr>
+												<td data-calendar="sun"><div><em>24</em></div></td>
+												<td data-calendar="mon"><div><em>25</em></div></td>
+												<td data-calendar="tue"><div><em>26</em></div></td>
+												<td data-calendar="web"><div><em>27</em></div></td>
+												<td data-calendar="thu"><div><em>28</em></div></td>
+												<td data-calendar="fri"></td>
+												<td data-calendar="sat"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<!-- //달력 -->
+							</div>
+
+						</div>
+						
+						
+						
+						<!-- //내용 -->
+									
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

@@ -1,0 +1,115 @@
+			<header id="header">
+				<div class="scrollbar-dynamic" data-preview-menu>
+					<h1 class="logo"><a href="/ko_mall">KOMALL</a></h1>
+					<nav>
+						<!-- 메뉴선택시 li에 class on 처리 -->
+						<ul data-drag-sort="administrator">
+							<li data-on-off="dashboard"><a href="/ko_mall/index.html" data-gnb="home">대시보드</a></li>
+						<?
+							$cms_menu_query = mysqli_query($connect, "SELECT * FROM koweb_administrator_config WHERE state = 'Y' ORDER BY sort ASC");
+							while($cms_menu = mysqli_fetch_array($cms_menu_query)){
+
+								$is_auth_level = true;
+								$is_auth_user = true;
+								$is_auth_dept = true;
+
+								if($_SESSION[auth_level] != "1"){
+								$is_auth_dept = ($cms_menu[use_auth_dept] == "Y") ? auth_checked($connect, "check_dept", "administrator", $cms_menu[id],  $_SESSION[member_dept]) : true;
+								$is_auth_level = ($cms_menu[use_auth_level] == "Y") ? auth_checked($connect, "check_level", "administrator", $cms_menu[id],  $_SESSION[auth_level]) : true;
+								$is_auth_user = ($cms_menu[use_auth_person] == "Y") ? auth_checked($connect, "check_user", "administrator", $cms_menu[id],  $_SESSION[member_id]) : true;
+								}
+
+								if(!$is_auth_level || !$is_auth_dept || !$is_auth_user){
+									continue;
+								}
+								if($cms_menu[id] == "program" || $cms_menu[id] == "online")
+									continue;
+
+
+							?>
+								<li data-unique-no="<?=$cms_menu[no]?>" data-on-off="<?=$cms_menu[id]?>"><a href="/ko_mall/index.html?type=setting&amp;core=manager_setting&amp;manager_type=<?=$cms_menu[id]?>" data-gnb="<?=$cms_menu[id]?>"><?=$cms_menu[title]?></a></li>
+							<? } ?>
+						</ul>
+					</nav>
+
+					<!-- 게시판관리에서 생성된후 없을때 div부터 나오지않도록 -->
+					<div class="add_menu">
+						<h2 data-gnb="board"><a href="#">Board</a></h2>
+						<ul data-drag-sort="board">
+						<?
+							$board_query = "SELECT * FROM koweb_board_config WHERE state ='Y' ORDER BY sort ASC";
+							$board_result = mysqli_query($connect, $board_query);
+							while($board_config = mysqli_fetch_array($board_result)){
+						?>
+							<li data-unique-no="<?=$board_config[no]?>" id="<?=$board_config[id]?>" data-on-off="<?=$board_config[id]?>"><a href="/ko_mall/index.html?type=board&amp;core=manager_board&amp;core_id=<?=$board_config[id]?>"><?=$board_config[title]?></a></li>
+						<? } ?>
+						</ul>
+					</div>
+					<!-- //게시판생성 -->
+
+					<!-- 응용프로그램(단위프로그램) 생성된후 없을때 div부터 나오지않도록 -->
+					<div class="add_menu">
+						<h2 data-gnb="program"><a href="#">Application</a></h2>
+						<ul data-drag-sort="program">
+						<?
+							$program_query = "SELECT * FROM koweb_program_config WHERE state ='Y' ORDER BY sort ASC";
+							$program_result = mysqli_query($connect, $program_query);
+							while($program_config = mysqli_fetch_array($program_result)){
+						?>
+
+							<li data-unique-no="<?=$program_config[no]?>" id="<?=$program_config[id]?>" data-on-off="<?=$program_config[id]?>"><a href="/ko_mall/index.html?type=program&amp;core=manager_program&amp;core_id=<?=$program_config[id]?>"><?=$program_config[title]?></a></li>
+						<? } ?>
+						</ul>
+					</div>
+					<!-- 온라인 폼 생성된후 없을때 div부터 나오지않도록 -->
+					<div class="add_menu">
+						<h2 data-gnb="online"><a href="#">Online Form</a></h2>
+						<ul data-drag-sort="online">
+						<?
+							$online_query = "SELECT * FROM koweb_online_config";
+							$online_result = mysqli_query($connect, $online_query);
+							while($online_config = mysqli_fetch_array($online_result)){
+						?>
+
+							<li data-unique-no="<?=$online_config[no]?>" id="<?=$online_config[id]?>" data-on-off="<?=$online_config[id]?>"><a href="/ko_mall/index.html?type=online&amp;core=manager_online&amp;core_id=<?=$online_config[id]?>"><?=$online_config[title]?></a></li>
+						<? } ?>
+						</ul>
+					</div>
+					<!-- //온라인 폼  -->
+				</div>
+			</header>
+			<div class="area_util">
+				<a href="#" class="btn_menu">Menu Close</a>
+				<ul>
+					<li data-util="admin"><strong><?=$_SESSION[member_id]?></strong> 님 반갑습니다!</li>
+					<li data-util="home"><a href="/" data-util-title="홈페이지바로가기">HOME</a></li>
+					<li data-util="logout"><a href="logout.php" data-util-title="로그아웃">로그아웃</a></li>
+				</ul>
+			</div>
+			<script type="text/javascript">
+			$("ul > li").removeClass("on");
+			if("<?=$core_id?>"){
+				var offset = $("#"+"<?=$core_id?>").offset();
+				$("[data-preview-menu]").animate({scrollTop : offset.top}, 1000);
+				$("[data-on-off="+"<?=$core_id?>"+"]").addClass("on");
+			} else if("<?=$manager_type?>"){
+				$("[data-on-off="+"<?=$manager_type?>"+"]").addClass("on");
+			} else {
+				$("[data-on-off=dashboard]").addClass("on");
+			}
+			</script>
+			<?
+				//board , online, application 나오면 된다.
+				if($type == "board"){
+					$bo_class = "class='cmsbbs'";
+				} else if($type != "setting" && $type != ""){
+					$bo_class = "class='cmsapp'";
+				} else {
+					unset($bo_class);
+				}
+
+			?>
+
+			<section id="contanier" <?=$bo_class?>>
+				<div class="scrollbar-dynamic">
+					<div id="content">

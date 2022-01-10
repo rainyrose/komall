@@ -1,0 +1,63 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/head.php"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/inc/header.html"; ?>
+<?
+include $_SERVER['DOCUMENT_ROOT']."/reservation/config.php";
+print_r($_SESSION);
+?>
+<form method="POST" id='order_form' name='order_form'>
+    <input type='hidden' name='title_mode' value='<?=$_GET[mode]?>' />
+    <input type='hidden' id='orderid' name='orderid' value='<?=$orderid?>' />
+    <input type='hidden' name='mode' value='ship_proc' />
+    <input type='hidden' name='search_tab' value='<?=$search_tab?>' />
+    <input type='hidden' name='s_date' value='<?=$s_date?>' />
+    <input type='hidden' name='r_date' value='<?=$r_date?>' />
+    <input type='hidden' name='s_head_info' value='<?=$s_head_info?>' />
+    <input type='hidden' name='r_head_info' value='<?=$r_head_info?>' />
+    <input type='hidden' name='head_cnt' value='<?=$head_cnt?>' />
+    <input type='hidden' name='baby_head_cnt' value='<?=$baby_head_cnt?>' />
+    <input type='hidden' name='name' value='<?=$name?>' />
+    <input type='hidden' name='phone' value='<?=$phone1?>-<?=$phone2?>-<?=$phone3?>' />
+    <? foreach ($head_type as $head_type_key => $head_type_value) { ?>
+        <input type='hidden' name='head_type[<?=$head_type_key?>]' value='<?=$head_type_value?>' />
+    <? } ?>
+    <? foreach ($head_gender as $head_gender_key => $head_gender_value) { ?>
+        <input type='hidden' name='head_gender[<?=$head_gender_key?>]' value='<?=$head_gender_value?>' />
+    <? } ?>
+    <? foreach ($head_name as $head_name_key => $head_name_value) { ?>
+        <input type='hidden' name='head_name[<?=$head_name_key?>]' value='<?=$head_name_value?>' />
+    <? } ?>
+    <? foreach ($head_birth as $head_birth_key => $head_birth_value) { ?>
+        <input type='hidden' name='head_birth[<?=$head_birth_key?>]' value='<?=$head_birth_value?>' />
+    <? } ?>
+    <? foreach ($head_phone as $head_phone_key => $head_phone_value) { ?>
+        <input type='hidden' name='head_phone[<?=$head_phone_key?>]' value='<?=$head_phone_value?>' />
+    <? } ?>
+    <? foreach ($head_gb as $head_gb_key => $head_gb_value) { ?>
+        <input type='hidden' name='head_gb[<?=$head_gb_key?>]' value='<?=$head_gb_value?>' />
+    <? } ?>
+
+    <div>
+        <input type='radio' id='deposit' checked name='pay_type' value='deposit' /><label for='deposit'>무통장입금</label>
+        <input type='radio' id='card' name='pay_type' value='card' /><label for='card'>신용카드</label>
+    </div>
+</form>
+
+<!--  PG 팝업 활성화  -->
+<div class="area_btn box">
+    <a href="javascript:void(0)" onclick='order_submit()' class="button lg red"><span>결제하기</span></a>
+</div>
+<script language="javascript" type="text/javascript" src="https://stdpay.inicis.com/stdjs/INIStdPay.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/js/dopay.js"></script>
+<script>
+function order_submit(){
+    if($("input[name='pay_type']:checked").val() == "card"){
+        dopay('order_form');
+    }else{
+        $("#order_form").submit()
+    }
+}
+function test(){
+
+}
+</script>

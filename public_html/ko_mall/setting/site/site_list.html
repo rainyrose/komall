@@ -1,0 +1,188 @@
+<?
+$query = "SELECT * FROM koweb_site_config WHERE lang='default' ORDER BY no DESC";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+?>
+<!--
+<nav class="lnb">
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site" class="on">사이트 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=mall">사업자정보 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=pay">쇼핑몰 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=sms">SMS 문구 설정</a></li>
+	</ul>
+</nav>
+-->
+
+<nav class="lnb small" id="pro01">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site" class="on">사이트설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=mall">사업자정보 설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=pay">구매설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=info">이용안내설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=private">개인정보처리방침설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=agreement">이용약관설정</a></li>
+		<li><a href="/ko_mall/index.html?type=setting&core=manager_setting&manager_type=site&mode=sms">SMS문구 설정</a></li>
+	</ul>
+</nav>
+
+
+<div class="box pd">
+<h2>관리자 설정</h2>
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="write_proc" />
+<input type="hidden" name="no" value="<?=$no?>" />
+	<table class="bbsView">
+		<caption>관리자 설정</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">관리자명</th>
+				<td><input type="text" name="administrator" value="<?=$row[administrator]?>" /></td>
+				<th scope="row">관리자 메일주소</th>
+				<td><input type="text" name="administrator_mail" class="inputFull" value="<?=$row[administrator_mail]?>" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>기본설정</h2>
+	<table class="bbsView">
+		<caption>기본설정 - 사이트 관리</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr id="category_">
+				<th scope="row"><label for="category_tmp">사이트 카테고리</label></th>
+				<td id="category_area" class="category" colspan="3">
+					<div class="select_menu">
+						<select name="category" id="category_selected">
+						<?
+						$category_checker = mysqli_query($connect, "SELECT * FROM koweb_product_category WHERE state='Y' ORDER BY no ASC");
+						while($category_ = mysqli_fetch_array($category_checker)){
+						?>
+							<option value="<?=$category_[category]?>"><?=$category_[title]?></option>
+						<? } ?>
+						</select>
+					</div>
+					<script type="text/javascript">
+						$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+					</script>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">사이트 명</th>
+				<td><input type="text" name="title" value="<?=$row[title]?>" id="title"/></td>
+				<th scope="row">키워드+사이트명<br />(게시판, 프로그램 메타태그용)</th>
+				<td><input type="text" name="keyword_title" class="input300" value="<?=$row[keyword_title]?>" id="keyword_title"/></td>
+			</tr>
+			<tr>
+				<th scope="row">사이트 URL</th>
+				<td colspan="3"><input type="text" name="site_url" class="input400" value="<?=$row[site_url]?>" id="site_url"/></td>
+			</tr>
+			<tr>
+				<th scope="row">사이트 설명</th>
+				<td><input type="text" class="input400" name="description" value="<?=$row[description]?>" id="description"/></td>
+				<th scope="row">사이트 설명 ( og )</th>
+				<td><input type="text" class="input400" name="og_description" value="<?=$row[og_description]?>" id="og_description"/></td>
+			</tr>
+			<tr>
+				<th scope="row">og:site_name</th>
+				<td><input type="text" class="input400" name="og_site_name" value="<?=$row[og_site_name]?>" id="og_site_name"/></td>
+				<th scope="row">og:title</th>
+				<td><input type="text" class="input400" name="og_title" value="<?=$row[og_title]?>" id="og_title"/></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<h2>공통설정</h2>
+	<table class="bbsView">
+		<caption>공통설정 - 사이트 관리</caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+			<col style="width:15%"/>
+			<col/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">NAVER</th>
+				<td><input type="text" class="input400" name="naver_tag" value="<?=$row[naver_tag]?>" /></td>
+				<th scope="row">GOOGLE</th>
+				<td><input type="text" class="input400" name="google_tag" value="<?=$row[google_tag]?>" /></td>
+			</tr>
+			<tr>
+				<th scope="row">실명인증 사이트 코드</th>
+				<td colspan="3">
+					<input type="text" name="namecheck_key" maxlength="" class="input400" value="<?=$row[namecheck_key]?>" title="실명인증 사이트 코드" placeholder="실명인증을 사용할 경우에만 작성 해 주세요." />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">SMS 코드</th>
+				<td colspan="3">
+					<input type="text" name="sms_id" maxlength="" class="input100" value="<?=$row[sms_id]?>" title="SMS ID" placeholder="SMS ID" />
+					<input type="text" name="sms_key" maxlength="" class="input300" value="<?=$row[sms_key]?>" title="SMS Secure 코드" placeholder="SMS Secure" />
+
+					<div class="designCheck" style="display:inline-block">
+						<input type="checkbox" name="sms_alert" id="sms_alert" value="Y" /><label for="sms_alert">SMS 잔여건수 알림 사용 (잔여건수 50건 미만일시 경고창 출력)</label>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="btn_area">
+		<input type="submit" class="button lg" value="설정 저장">
+	</div>
+</form>
+<script type="text/javascript">
+	$(function() {
+		$("select[name='member_level'] option[value='<?=$row[member_level]?>']").prop("selected", true);
+		$("input:radio[name='use_member_okey']:radio[value='<?=$row[use_member_okey]?>']").prop("checked",true);
+		$("input:radio[name='use_namecheck']:radio[value='<?=$row[use_namecheck]?>']").prop("checked",true);
+		$("input:radio[name='use_member']:radio[value='<?=$row[use_member]?>']").prop("checked",true);
+		$("input:radio[name='use_point']:radio[value='<?=$row[use_point]?>']").prop("checked",true);
+		$("input:radio[name='use_sms']:radio[value='<?=$row[use_sms]?>']").prop("checked",true);
+		$(":checkbox[name='sms_alert'][value='<?=$row['sms_alert']?>']").prop("checked", true);
+	});
+</script>
+<script type="text/javascript">
+$(function(){
+	$("#category_selected").change(function(){
+		var val_ = $(this).val();
+
+		$.ajax({
+			type : "POST",
+			dataType : "json",
+			url : "/ko_mall/setting/site/site_ajax.php",
+			data : {
+				lang : val_
+			},
+			success : function(args) {
+				console.log(args);
+				$("#title").val(args.title);
+				$("#keyword_title").val(args.keyword_title);
+				$("#site_url").val(args.site_url);
+				$("#description").val(args.description);
+				$("#og_description").val(args.og_description);
+				$("#og_site_name").val(args.og_site_name);
+				$("#og_title").val(args.og_title);
+			},
+			beforeSend: function () {
+				$("#div_ajax_load_image").show();
+			},
+			complete: function () {
+				$("#div_ajax_load_image").hide();
+			}
+		});
+	});
+});
+</script>

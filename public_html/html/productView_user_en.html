@@ -1,0 +1,853 @@
+<? include("../inc/top.html") ?>
+
+			<!-- 내용 -->
+			<div class="area_shopView">
+				<!-- 사진 / info -->
+				<div class="top">
+					<!-- photo -->
+					<div data-shop-view="photo">
+						<div class="img"><img src="" alt="이미지"/></div>
+						<!-- 대표이미지 및 추가이미지는 순서대로 표시 -->
+						<ul class="list shopSliderView">
+							<li><a href="#"><img src="/images/shop/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/shop/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/sample.jpg"/></a></li>
+							<li><a href="#"><img src="/images/sample.jpg"/></a></li>
+						</ul>
+
+						<!-- 소셜 공유사용시 -->
+						<!-- 사용하지않을때 div까지 전체 노출금지 -->
+						<div data-shop-sns="sns">
+							<em>SNS LINK</em>
+							<a href="#" class="face">페이스북</a>
+							<a href="#" class="twitter">트위터</a>
+							<a href="#" class="kakao">카카오톡</a>
+						</div>
+						<!-- //소셜 공유사용시 -->
+					</div>
+					
+					<!-- info -->
+					<div data-shop-view="info">
+						<!-- 상품명 및 블릿아이콘 노출 -->
+						<p class="title">
+							<!-- 블릿 아이콘이 없는경우 span까지 노출금지 -->
+							<span data-shop-icon="icon">
+								<i data-shop-icon="best">BEST</i>
+								<i data-shop-icon="new">NEW</i>
+							</span>
+							무항생제 한우 불고기용(1+등급)
+						</p>
+						<!-- 간략설명  -->
+						<span class="sub">무항생제 한우 불고기용(1+등급)입니다.</span>
+						
+						<!-- 가격 -->
+						<dl data-shop-view="price">
+							<dt>제조사</dt>
+							<dd>BRAUN</dd>
+							<dt>판매가격</dt>
+							<dd>
+								<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+								<span class="price"><i>100,000</i><i>50,000</i></span>
+								<!-- 품절일경우 -->
+								<span class="sold">품절</span>
+							</dd>
+							<dt>배송비</dt>
+							<dd>무료</dd>
+						</dl>
+						<!-- //가격 -->
+						
+						<!-- 옵션 -->
+						<!-- 컬러경우 특수한경우이므로 컬러 옵이 사용안되는 경우 숨김 -->
+						<dl data-shop-view="option">
+							<dt>컬러</dt>
+							<dd>
+								<!-- 컬러옵션에 선택된 컬러코드 및 컬러명 노출 -->
+								<ul class="color">
+									<li>
+										<a href="#"><span style="background-color:#fff">화이트</span></a>
+									</li>
+									<li>
+										<a href="#"><span style="background-color:#ddd">그레이</span></a>
+									</li>
+									<li>
+										<a href="#"><span style="background-color:#000">블랙</span></a>
+									</li>
+								</ul>
+								
+								<!-- 컬러 클릭시 노출 처음에 노출안함 -->
+								<p class="color_choice"><span style="background-color:#fff"></span> 화이트</p>
+							</dd>
+							<dt>사이즈</dt>
+							<dd>
+								<select name="" id="">
+									<option value="">90</option>
+									<option value="">95</option>
+									<option value="">100</option>
+									<option value="">105</option>
+								</select>
+							</dd>
+							<dt>종류</dt>
+							<dd>
+								<select name="" id="">
+									<option value="">01_하비스백</option>
+									<option value="">02_하트아이즈백</option>
+									<option value="">03_마들렌백</option>
+									<option value="">04_선센비치백</option>
+								</select>
+							</dd>
+						</dl>
+						<!-- //옵션 -->
+						
+						<!-- 최소구매 최대구매갯수 -->
+						<div data-shop-view="number">
+							<!-- 값이 없는경우 노출안해도댐 -->
+							<span>최소 주문수량 갯수는 <i>1</i> 개 이상</span>
+							<span>최대 주문수량 갯수는 <i>5</i> 개 이하</span>
+						</div>
+						
+						<!-- 옵션 선택완료된 상품 -->
+						<div data-shop-view="choice">
+							<ul>
+								<!-- 반복 -->
+								<li>
+									<!-- 선택한상품 -->
+									<span>그레이 / 95</span>
+									<span>
+										<div class="count">
+											<button type="button" class="minus">빼기</button>
+											<input type="text" name="" id="" value="1"/>
+											<button type="button" class="plus">더하기</button>
+										</div>
+									</span>
+									<span>50,000원</span>
+									<a href="#" class="del">삭제</a>
+								</li>
+								<!-- //반복 -->
+								<li>
+									<span>레드 / 100</span>
+									<span>
+										<div class="count">
+											<button type="button" class="minus">빼기</button>
+											<input type="text" name="" id="" value="1"/>
+											<button type="button" class="plus">더하기</button>
+										</div>
+									</span>
+									<span>50,000원</span>
+									<a href="#" class="del">삭제</a>
+								</li>
+							</ul>
+						</div>
+						<!-- //옵션 선택완료된 상품 -->
+						
+						<!-- total 가격 -->
+						<div data-shop-view="total">
+							<i>총 상품금액(수량) :</i>
+							<em>100,000원</em>
+							<i>(2개)</i>
+						</div>
+						
+						<!-- btn -->
+						<div class="box_btn">
+							<a href="#" class="button lg">바로구매</a>
+							<a href="#" class="button lg white">장바구니</a>
+							<a href="#" class="button lg white">관심상품</a>
+						</div>
+					</div>
+				</div>
+				
+				<div data-shop-view="conts">
+					<!-- tab -->
+					<ul data-shop-view="tab">
+						<li><a href="#shopView01">상품<br/>상세정보</a></li>
+						<li><a href="#shopView02">상품<br/>구매안내</a></li>
+						<li><a href="#shopView03">상품<br/>사용후기</a></li>
+						<li><a href="#shopView04">상품<br/>Q&A</a></li>
+						<li><a href="#shopView05">관련<br/>상품</a></li>
+					</ul>
+					<!-- //tab -->
+					
+					<!-- 상품상세정보 -->
+					<div id="shopView01">
+						
+
+<div class="area_shop_terms">
+	<h3 class="mt0">How to join</h3>
+	<div class="box_terms">
+		<p>Click on the <strong>Sign Up</strong> link and complete the form in order to create your account. </p>
+		<p>Once your account is created, you can immediately benefit from our membership privileges such as discounts and reward credits. Also, it saves you all the hassle of filling out your billing and shipping information every time you place an order since you can save your information securely on our site.</p>
+	</div>
+</div>
+
+<div class="area_shop_terms">
+	<h3>How to order</h3>
+	<em>Order is processed as below</em>
+	<div class="box_terms">
+		<ul>
+			<li>Step1 : Search for products.</li>
+			<li>Step2 : Add products to your shopping cart.</li>
+			<li>Step3 : Log in with a member ID or non-member order.</li>
+			<li>Step4 : Fill in the order form.</li>
+			<li>Step5 : Proceed with payment.</li>
+			<li>Step6 : Complete the order and you will see the order number.</li>
+		</ul>
+	</div>
+</div>
+
+<div class="area_shop_terms">
+	<h3>Payment</h3>
+	<em>We accept the following forms of payment</em>
+	<div class="box_terms">
+		<ul>
+			<li>Credit Card</li>
+			<li>Visa</li>
+			<li>MasterCard</li>
+			<li>American Express</li>
+			<li>Discover</li>
+			<li>PayPal</li>
+		</ul>
+	</div>
+</div>
+
+<div class="area_shop_terms">
+	<h3>Shipping</h3>
+	<div class="box_terms">
+		<p>Please take into consideration that some products may take additional time for delivery and processing.</p>
+		<p><strong>Important</strong> Your order is shipped once your payment has been cleared. Please contact our customer service center if you would like to request an exchange or return on your order.</p>
+	</div>
+	<em class="mt20">Customs and Duties</em>
+	<div class="box_terms">
+		<p>The recipient will be held responsible for international shipments which may be subject to import duties and taxes.</p>
+		<p>Please be advised that these charges are levied by the destination country and we do not have control over them.</p>
+		<p>In the case that the recipient refuses to receive the parcel, the order will be returned to Korea and will not be re-shipped. Relevant expenses (round-trip shipping, customs, etc.) will be deducted from the refund.</p>
+	</div>
+</div>
+
+<div class="area_shop_terms">
+	<h3>Returns &amp; Exchanges</h3>
+	<em>Address for returns and exchanges</em>
+	<div class="box_terms">
+		<p>#supplier_return_address_info#</p>
+	</div>
+	<em class="mt20">Requirements</em>
+	<div class="box_terms">
+		<p>Please take into consideration that we only accept qualifying returns but not exchanges. Refunds are issued once the returned products clear our inspection.</p>
+
+		<ul class="none mt10">
+			<li>1) An item is eligible for cancellation if
+				<ul>
+					<li>you posted a Return request within 24 hours of payment and your order is still under “Pending” status (if your order is under “Preparing Shipment” status, please contact our customer service center) or</li>
+					<li>the order is delayed for more than 10 days since payment and you have not received any notification regarding the delay or</li>
+					<li>the ordered item is out of stock.</li>
+				</ul>
+			</li>
+			<li>2) We accept return(s) if
+				<ul>
+					<li>you receive a product different from your order or</li>
+					<li>you receive a defective product.</li>
+				</ul>
+
+				<em class="mt20">Return Instructions</em>
+				<ul class="none">
+					<li>(1) Post a return request on our Return forum within three days of receipt. You are required to attach the photos of the received product(s) and include the item code, the order number, and the reason for the return.</li>
+					<li>(2) A customer service representative will be in contact to assist you by email or phone.</li>
+					<li>(3) Items returned must be in their original condition, which includes tags and any packaging. Also, you need to include a note of your order number, name, and user ID.</li>
+					<li class="mt10">Please be advised that returns are accepted ONLY IF you followed the instructions above and your return request has been approved by our staff. Returns that are shipped to us without any prior consent are not accepted.</li>
+					<li>Please note that EVEN the defective/incorrect item(s) must be returned with all of the tags and labels intact. The item(s) must be sent in their original packaging and unworn.</li>
+					<li>Please include all contents of the original package and free gifts (if applicable) in your return packaging.</li>
+					<li>Shipping fee for any return caused by our fault will be paid by the company. However, if EMS’ cash on delivery is not possible then you can scan the return receipt and either mail it with the item to return or post an image of it on the forum. The shipping fee will be refunded once the returned item has arrived.</li>
+				</ul>			
+			</li>
+			<li>3) We do not accept return(s) if
+				<ul>
+					<li>you are returning the items just because you changed your mind (on size, color, etc.)</li>
+					<li>you are returning shoes, bags, or any other accessories</li>
+					<li>the products are damaged due to your mishandling</li>
+					<li>your return request is not approved by our staff</li>
+				</ul>
+
+				<em class="mt20">The following items are not considered defective</em>
+				<ul>
+					<li>Items that are originally manufactured without tags or labels</li>
+					<li>Items with creases that may have been made while shipping</li>
+					<li>Items with unsatisfactory/incomplete finish due to mass production</li>
+				</ul>
+			</li>
+			<li>4) If there is a missing item from your order
+				<ul>
+					<li>Contact our customer service center by phone or by forum (if you cannot reach us by phone) within 1 day of delivery.</li>
+					<li>Please keep all contents of the original package including packaging material (boxes, plastic bags etc.) with you until you are instructed otherwise.</li>
+				</ul>
+			</li>
+		</ul>
+
+		<p>Please note that we may not be able to process the refund for your missing item if you lose or damage any packaging material.</p>
+	</div>
+	
+</div>
+
+<div class="area_shop_terms">
+	<h3>Refunds</h3>
+	
+	<div class="box_terms">
+		<p><strong>It takes 3-5 business days to issue a refund for a returned or cancelled order.</strong></p>
+		<p>Please be advised that your refund may not be processed until the next billing month depending on your credit card issuer's billing schedule.</p>
+	</div>	
+</div>
+
+<div class="area_shop_terms">
+	<h3>Other</h3>
+	<em>Pending period for reward store credit</em>
+	<div class="box_terms">
+		<p>Your reward store credit issued from orders will be added to your account and stay as Pending for 20 days from delivery before validation to compensate time for exchange or returns. Meanwhile, you are free to spend your available store credit balance.</p>
+	</div>
+	<em class="mt20">Requirements</em>
+	<div class="box_terms">
+		<p>If you pay for your order with store credit, you are required to spend a minimum store credit of #min_mileage.”The maximum store credit you can spend on one order is “max_mileage.”</p>
+	</div>
+	<em class="mt20">Cancellation of store credit</em>
+	<div class="box_terms">
+		<ul>
+			<li>Pending credit issued from orders will be automatically cancelled on cancellation or return of the relevant order.</li>
+			<li>Your store credit will be cancelled if you close your account.</li>
+			<li>Also, your store credit will expire if there is no newly issued store credit for three years.</li>
+		</ul>
+	</div>
+</div>
+
+					</div>
+					<!-- //상품상세정보 -->
+					
+					<!-- 상품구매안내 -->
+					<div id="shopView02">
+						에디터에 내용을 기본세팅으로 해주고 고객이 관리자에서 변경할 수 있도록 진행
+					</div>
+					<!-- //상품구매안내 -->
+					
+					<!-- 상품사용후기 -->
+					<div id="shopView03">
+						<p class="title">REVIEW</p>
+						<span class="sub">이상품을 구매한 회원님들의 상품평 입니다.</span>
+						
+						<!-- 아코디언 스타일 목록 -->
+						<!-- 글 10개 노출 -->
+						<ul class="list_shop_accordion">
+							<!-- 반복 -->
+							<li>
+								<!-- 상단 -->
+								<div class="thead">
+									<!-- 평가점수 -->
+									<span data-shop-accordion="eval">
+										<!-- 데이터가 선택된 경우 class on처리 -->
+										<i class="on">매우불만족</i>
+										<i class="on">불만족</i>
+										<i class="on">보통</i>
+										<i>만족</i>
+										<i>매우만족</i>
+									</span>
+									<!-- 제목 -->
+									<a href="#" data-shop-accordion="subject">왜 진작 몰랐는지 후회되네요^^</a>
+									<!-- 아이디 -->
+									<span data-shop-accordion="name">김길동</span>
+									<!-- 작성일 -->
+									<span data-shop-accordion="date">2019.05.04</span>
+								</div>
+								<!-- //상단 -->
+								
+								<!-- 내용 -->
+								<div class="tbody">
+									<!-- 작성된 글 -->
+									<div class="conts">모든 게 궁금해 How’s your day
+										Oh tell me
+										뭐가 널 행복하게 하는지
+										Oh text me
+										
+										Your every picture
+										내 머리맡에 두고 싶어 oh bae
+										Come be my teacher
+										네 모든 걸 다 가르쳐줘
+										Your 1, your 2
+										Listen my my baby 나는
+										저 하늘을 높이 날고 있어
+										(그때 니가 내게 줬던 두 날개로)
+										이제 여긴 너무 높아
+										난 내 눈에 널 맞추고 싶어
+										Yeah you makin’ me a boy with luv
+										
+										Oh my my my oh my my my
+										I've waited all my life
+										네 전부를 함께하고 싶어
+										Oh my my my oh my my my
+										Looking for something right
+										이제 조금은 나 알겠어
+										
+										I want something stronger
+										Than a moment, than a moment, love
+										I have waited longer
+										For a boy with
+										For a boy with luv
+									</div>
+									<!-- //작성된 글 -->
+									
+									<!-- 첨부된 사진 -->
+									<!-- 첨부된 사진이 없는경우 감싼 태그까지 노출되지 않도록 클릭시 사진 새창으로 원본띄어주세요 -->
+									<div class="file">
+										<!-- 반복 -->
+										<a href="/images/sample.jpg" target="_blank"><i><img src="/images/sample.jpg" alt=""/></i></a>
+										<!-- //반복 -->
+										<a href="/images/shop/sample.jpg" target="_blank"><i><img src="/images/shop/sample.jpg" alt=""/></i></a>
+									</div>
+									<!-- //첨부된 사진 -->
+								</div>
+								<!-- //내용 -->
+							</li>
+							<!-- //반복 -->
+							
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="eval">
+										<i class="on">매우불만족</i>
+										<i>불만족</i>
+										<i>보통</i>
+										<i>만족</i>
+										<i>매우만족</i>
+									</span>
+									<a href="#" data-shop-accordion="subject">이런줄 알았으면 구매안할걸 그랬어요 후회되네요</a>
+									<span data-shop-accordion="name">최순자</span>
+									<span data-shop-accordion="date">2019.05.03</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="conts">사계절이 와, 그리고 또 떠나
+										내 겨울을 주고 또 여름도 주었던
+										온 세상이던 널 보낼래 
+										정말 너를 사랑했을까? 
+										
+										언제야, 봄이던가
+										맞아 그땐 한참 서로가
+										셰익스피어의 연극 같은
+										마지막이 될 사랑 마주한 듯
+										둘밖에 안 보였나 봐
+										다른 걸 좀 보고파
+									</div>
+									
+									<div class="file">
+										<a href="#"><i><img src="/images/sample.jpg" alt=""/></i></a>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="eval">
+										<i class="on">매우불만족</i>
+										<i class="on">불만족</i>
+										<i class="on">보통</i>
+										<i class="on">만족</i>
+										<i class="on">매우만족</i>
+									</span>
+									<a href="#" data-shop-accordion="subject">진짜 인생템 핏 완전 좋고 정사이즈로 구매 하면됨.</a>
+									<span data-shop-accordion="name">박야매</span>
+									<span data-shop-accordion="date">2019.05.01</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="conts">사진하고 같은 핏임 정사이즈 구매했는데 딱맞고 길이도 너무좋고 색만 바꿔서 재구매 합니다.
+										많이 파세요.
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="eval">
+										<i class="on">매우불만족</i>
+										<i class="on">불만족</i>
+										<i class="on">보통</i>
+										<i class="on">만족</i>
+										<i>매우만족</i>
+									</span>
+									<a href="#" data-shop-accordion="subject">진짜 인생템 핏 완전 좋고 정사이즈로 구매 하면됨 진짜 인생템 핏 완전 좋고 정사이즈로 구매 하면됨 구매 하면됨.</a>
+									<span data-shop-accordion="name">박야매</span>
+									<span data-shop-accordion="date">2019.05.01</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="conts">사진하고 같은 핏임 정사이즈 구매했는데 딱맞고 길이도 너무좋고 색만 바꿔서 재구매 합니다.
+										많이 파세요.
+									</div>
+								</div>
+							</li>
+						</ul>
+						
+						<!-- btn -->
+						<div class="btn_area tar">
+							<a href="#" class="button">리뷰작성</a>
+							<a href="#" class="button white">모두보기</a>
+						</div>
+						
+						<!-- 페이징 -->
+						<div class="pagination">
+							<a href="#" class="btn_first">맨처음</a>
+							<a href="#" class="btn_prev">이전</a>
+							<!-- 선택된페이지 -->
+							<span>1</span>
+							<!-- //선택된페이지 -->
+							<a href="#">2</a>
+							<a href="#">3</a>
+							<a href="#" class="btn_next">다음</a>
+							<a href="#" class="btn_last">맨마지막</a>
+						</div>
+						<!-- //페이징 -->
+					</div>
+					<!-- //상품사용후기 -->
+					
+					<!-- 상품Q&A -->
+					<div id="shopView04">
+						<p class="title">Q&A</p>
+						<span class="sub">상품에 대해 궁금한 점을 해결해 드립니다.</span>
+						
+						<!-- 아코디언 스타일 목록 -->
+						<!-- 글 10개 노출 -->
+						<ul class="list_shop_accordion">
+							<!-- 반복 -->
+							<li>
+								<!-- 상단 -->
+								<div class="thead">
+									<!-- 답변상황 -->
+									<span data-shop-accordion="status">
+										<!-- <i class="status01">답변대기</i> -->
+										<i class="status02">답변완료</i>
+									</span>
+									<!-- 제목 -->
+									<a href="#" data-shop-accordion="subject"><i class="locked">비밀글</i>비밀글이 기본세팅이고 첨부파일이 있는경우 답변도 되었는 경우</a>
+									<!-- 아이디 -->
+									<span data-shop-accordion="name">김길동</span>
+									<!-- 작성일 -->
+									<span data-shop-accordion="date">2019.05.14</span>
+								</div>
+								<!-- //상단 -->
+								
+								<!-- 내용 -->
+								<div class="tbody">
+									<!-- 작성된 글 -->
+									<div class="conts">모든 게 궁금해 How’s your day
+										Oh tell me
+										뭐가 널 행복하게 하는지
+										Oh text me
+										
+										Your every picture
+										내 머리맡에 두고 싶어 oh bae
+										Come be my teacher
+										네 모든 걸 다 가르쳐줘
+										Your 1, your 2
+										Listen my my baby 나는
+										저 하늘을 높이 날고 있어
+										(그때 니가 내게 줬던 두 날개로)
+										이제 여긴 너무 높아
+										난 내 눈에 널 맞추고 싶어
+										Yeah you makin’ me a boy with luv
+									</div>
+									<!-- //작성된 글 -->
+									
+									<!-- 첨부된 사진 -->
+									<!-- 첨부된 사진이 없는경우 감싼 태그까지 노출되지 않도록 클릭시 사진 새창으로 원본띄어주세요 -->
+									<div class="file">
+										<!-- 반복 -->
+										<a href="/images/sample.jpg" target="_blank"><i><img src="/images/sample.jpg" alt=""/></i></a>
+										<!-- //반복 -->
+										<a href="/images/shop/sample.jpg" target="_blank"><i><img src="/images/shop/sample.jpg" alt=""/></i></a>
+									</div>
+									<!-- //첨부된 사진 -->
+									
+									<!-- 답변 -->
+									<div class="answer">
+										<!-- 작성일/작성자 -->
+										<div class="writer">
+											2019.05.15 - 관리자
+										</div>
+										<!-- 내용 -->
+										<div class="conts">안녕하세요 고객님 이상품은 정사이즈보다 약간 작게 나오느 사이즈로
+										한치수 크게 구매하시길 권해드려요~.
+										궁금한거 있으시면 언제나 문의주세요.											
+										</div>
+									</div>
+									<!-- //답변 -->
+								</div>
+								<!-- //내용 -->
+							</li>
+							<!-- //반복 -->
+							
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="status">
+										<i class="status01">답변대기</i>
+									</span>
+									<a href="#" data-shop-accordion="subject"><i class="locked">비밀글</i>비밀글 권한자가 아닐경우 패스워드 확인</a>
+									<span data-shop-accordion="name">김길동</span>
+									<span data-shop-accordion="date">2019.05.14</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="shop_password">
+										<p>작성시 설정한 비밀번호를 입력해주세요.</p>
+										<input type="password" name="" id="">
+										<a href="#" class="button gray">확인</a>
+										<a href="#" class="button white">취소</a>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="status">
+										<i class="status01">답변대기</i>
+									</span>
+									<a href="#" data-shop-accordion="subject">비밀글이 아니고 글에 첨부파일도 없음</a>
+									<span data-shop-accordion="name">김길동</span>
+									<span data-shop-accordion="date">2019.05.14</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="conts">모든 게 궁금해 How’s your day
+										Oh tell me
+										뭐가 널 행복하게 하는지
+										Oh text me
+										
+										Your every picture
+										내 머리맡에 두고 싶어 oh bae
+										Come be my teacher
+										네 모든 걸 다 가르쳐줘
+										Your 1, your 2
+										Listen my my baby 나는
+										저 하늘을 높이 날고 있어
+										(그때 니가 내게 줬던 두 날개로)
+										이제 여긴 너무 높아
+										난 내 눈에 널 맞추고 싶어
+										Yeah you makin’ me a boy with luv
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="thead">
+									<span data-shop-accordion="status">
+										<i class="status02">답변완료</i>
+									</span>
+									<a href="#" data-shop-accordion="subject"><i class="locked">비밀글</i>사이즈 문의드립니다. 답변있는 항목</a>
+									<span data-shop-accordion="name">김길동</span>
+									<span data-shop-accordion="date">2019.05.14</span>
+								</div>
+								
+								<div class="tbody">
+									<div class="conts">착용샷이 좀 커보이던데 28허리사이즈 이면 정사이즈로 
+										주문해도 상관없나요?
+									</div>
+									<!-- 답변 -->
+									<div class="answer">
+										<div class="writer">
+											2019.05.15 - 관리자
+										</div>
+										<div class="conts">안녕하세요 고객님 이상품은 정사이즈보다 약간 작게 나오느 사이즈로
+										한치수 크게 구매하시길 권해드려요~.
+										궁금한거 있으시면 언제나 문의주세요.											
+										</div>
+									</div>
+									<!-- //답변 -->
+								</div>
+							</li>
+						</ul>
+						
+						<!-- btn -->
+						<div class="btn_area tar">
+							<a href="#" class="button">문의하기</a>
+							<a href="#" class="button white">모두보기</a>
+						</div>
+						
+						<!-- 페이징 -->
+						<div class="pagination">
+							<a href="#" class="btn_first">맨처음</a>
+							<a href="#" class="btn_prev">이전</a>
+							<!-- 선택된페이지 -->
+							<span>1</span>
+							<!-- //선택된페이지 -->
+							<a href="#">2</a>
+							<a href="#">3</a>
+							<a href="#" class="btn_next">다음</a>
+							<a href="#" class="btn_last">맨마지막</a>
+						</div>
+						<!-- //페이징 -->
+						
+					</div>
+					<!-- //상품Q&A -->
+					
+					<!-- 관련상품 -->
+					<div id="shopView05">
+						<p class="title">RECOMMEND ITEMS</p>
+						<span class="sub">같이 보면 좋은 상품을 소개해드립니다.</span>
+						
+						<!-- 목록 -->
+						<ul data-shop-list="default" class="shopSliderGroup">
+							<!-- 반복 -->
+							<li>
+								<a href="#">
+									<!-- 이미지  -->
+									<span class="img">
+										<!-- 대표이미지 -->
+										<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+										<i><img src="/images/sample.jpg" alt=""/></i>
+									</span>
+									<!-- 상품명 -->
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<!-- 간략설명 -->
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<!-- 판매가격 / 시중가격 -->
+									<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+									<span class="price"><i>100,000</i><i>50,000</i></span>
+									<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+									<span class="percent"><i>DC</i>50%</span>
+									<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+									<span data-shop-icon="icon">
+										<!-- best -->
+										<i data-shop-icon="best">BEST</i>
+										<!-- new -->
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<!-- 장바구니/관심상품/상세보기 -->
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<!-- //반복 -->
+	
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<i><img src="/images/sample.jpg" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="best">BEST</i>
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<i><img src="/images/sample.jpg" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="best">BEST</i>
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/shop/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+										<i><img src="/images/sample.jpg" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="best">BEST</i>
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+							<li>
+								<a href="#">
+									<span class="img">
+										<i><img src="/images/sample.jpg" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+									</span>
+									<em>무항생제 한우 불고기용(1+등급)</em>
+									<i>무항생제 한우 불고기용(1+등급)입니다.</i>
+									<span class="price"><i>150,000</i></span>
+									<span data-shop-icon="icon">
+										<i data-shop-icon="new">NEW</i>
+									</span>
+								</a>
+								<div data-shop-list="util">
+									<a href="#" class="basket">장바구니</a>
+									<a href="#" class="interest">관심상품</a>
+									<a href="#" class="view">새창으로 자세히보기</a>
+								</div>
+							</li>
+						</ul>
+						
+					</div>
+					<!-- //관련상품 -->
+				</div>
+	
+				
+			</div>
+			<!-- //내용 -->
+
+
+
+
+
+<? include("../inc/footer.html") ?>

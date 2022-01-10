@@ -1,0 +1,406 @@
+<? include("../inc/top.html") ?>
+<div id="content">
+
+
+
+			<!-- 내용시작 -->
+			<div class="area_shopCart">
+				<!-- 모바일 사용 -->
+				<!-- 상품갯수표시 -->
+				<a href="#" data-shop-view="addcordion">주문상품 <em>(3개)</em></a>
+				<!-- //모바일 사용 -->
+				<div data-shop-view="addcordion_conts">
+					<table class="table">
+						<caption>상품목록</caption>
+						<colgroup>
+							<col/>
+							<col style="width:10%"/>
+							<col style="width:12%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">상품정보</th>
+								<th scope="col">판매가</th>
+								<th scope="col">수량</th>
+								<th scope="col">적립</th>
+								<th scope="col">배송비</th>
+								<th scope="col">합계</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<!-- 상품정보 클릭시 상세이동 -->
+										<a href="#" class="img"><img src="/images/shop/sample.jpg" alt=""/></a>
+										<div>
+											<!-- 상품명 -->
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<!-- 선택한 옵션 -->
+											<!-- 옵션이 없는 경우 아래내용은 노출안됨 -->
+											<i>[옵션 : 레드 / 48]</i>
+											
+											<!-- 적용가능한 쿠폰이 있는경우 노출 -->
+											<a href="#" data-shop-layer="view" class="button sm white">쿠폰사용</a>
+											<!-- 쿠폰적용 레이어 -->
+											<div data-shop-layer="pop">
+												<p class="title">쿠폰적용</p>
+												<div data-shop-layer="coupon">
+													<table class="bbsList">
+														<caption>쿠폰적용목록</caption>
+														<colgroup>
+															<col />
+															<col style="width:30%"/>
+															<col style="width:20%"/>
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">쿠폰명</th>
+																<th scope="col">할인금액</th>
+																<th scope="col">적용</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td class="tal">쿠폰관리 카테고리할인 (티 카테고리)</td>
+																<td>3,000원</td>
+																<td><a href="#" class="button sm white">적용</a></td>
+															</tr>
+															<tr>
+																<td class="tal">쿠폰관리 카테고리할인 (티 카테고리)</td>
+																<td>3,000원</td>
+																<td><a href="#" class="button sm white">적용</a></td>
+															</tr>
+															<tr>
+																<td class="tal">쿠폰관리 카테고리할인 (티 카테고리)</td>
+																<td>3,000원</td>
+																<td><a href="#" class="button sm white">적용</a></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+												<a href="#" class="close">쿠폰적용닫기</a>
+											</div>
+											<!-- //쿠폰적용 레이어 -->
+											
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">1</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">50,000원</td>
+							</tr>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<!-- 상품정보 클릭시 상세이동 -->
+										<a href="#" class="img"><img src="/images/sample.jpg" alt=""/></a>
+										<div>
+											<!-- 상품명 -->
+											<em>카노브이넥티셔츠</em>
+											<!-- 선택한 옵션 -->
+											<i>[옵션 : 블랙 / 95]</i>
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">2</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">100,000원</td>
+							</tr>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<a href="#" class="img"><img src="/images/sample.jpg" alt=""/></a>
+										<div>
+											<em>카노브이넥티셔츠</em>
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">1</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">50,000원</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				<div data-cart-option="info">
+					<a href="#" class="button white">이전화면</a>
+					<p class="icon_shopInfo">상품의 옵션 및 수량 변경은 상품상세 또는 장바구니에서 가능합니다.</p>
+				</div>
+			</div>
+			
+			<div class="area_shopPay">
+				<p class="title">배송 정보</p>
+				<table class="bbsView">
+					<caption>배송 정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:85%"/>
+					</colgroup>
+					<tbody>
+						<!-- 비회원 주문일경우 -->
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주문조회 비밀번호</th>
+							<td>
+								<input type="text" name="" id="">
+								<span>(영문대소문자/숫자/특수문자 중 2가지 이상 조합, 6자~16자)</span>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주문조회 비밀번호 확인</th>
+							<td><input type="text" name="" id=""></td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>이메일</th>
+							<td class="mail">
+								<input type="text" name="email1" id="email1" value="" class="input200">
+								@
+								<select name="tmp_mail" id="tmp_mail" onchange="javascript:mail_check();">
+									<option value="">선택하세요</option>
+									<option value="naver.com">naver.com</option>
+									<option value="daum.net">daum.net</option>
+									<option value="hanmail.net">hanmail.net</option>
+									<option value="hotmail.com">hotmail.com</option>
+									<option value="gmail.com">gmail.com</option>
+									<option value="other">직접입력</option>
+								</select>
+								<input type="text" name="email2" value="" id="email2" disabled class="input200">
+								<input type="hidden" name="email3" id="email3" value="">
+							</td>
+						</tr>
+						<!-- //비회원 주문일경우 -->
+						
+						<!-- 회원 주문일경우 -->
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>배송지 선택</th>
+							<td class="choice_btn">
+								<div class="designRadio" style="display:inline-block; vertical-align:middle;">
+									<input type="radio" name="" id=""/><label for="">회원 정보와 동일</label> <!-- 클릭시 회원정보로 공통단 세팅 -->
+									<input type="radio" name="" id=""/><label for="">기본배송지</label> <!-- 배송지목록에서 기본배송지로 설정한 내용 세팅 / 아무것도 없을땐 노출안함 -->
+									<input type="radio" name="" id=""/><label for="">새로운 배송지</label> <!-- 클릭시 공통단 직접입력 -->
+								</div>
+								<a href="popAddress.html" class="button sm">배송지 목록</a> <!-- 클릭시 팝업 -->
+							</td>
+						</tr>
+						<!-- //회원 주문일경우 -->
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>받으시는 분</th>
+							<td><input type="text" name="" id=""></td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주소</th>
+							<td>
+								<input type="text" class="input200" name="zip" id="zip" value="">	
+								<a href="#" class="button white">우편번호검색</a>
+								<input type="text" class="inputFull" name="" id="" value="" readonly="readonly"/>	
+								<input type="text" class="inputFull" name="" id="" value="" placeholder="상세주소"/>	
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>휴대전화</th>
+							<td class="tel">
+								<input type="text" name="" id="" value="" class="input100">
+								-
+								<input type="text" name="" id="" value="" class="input100">
+								-
+								<input type="text" name="" id="" value="" class="input100">
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">배송메세지</th>
+							<td class="mail">
+								<textarea name="" id="" class="inputFull"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<!-- 포인트사용 -->
+				<p class="title">포인트 사용</p>
+				<div data-shop-view="point">
+					<div>
+						<em>포인트사용 (100점 단위)</em>
+						<span><input type="text" name="" id="" class="input100"/> 점</span>
+					</div>
+					<div>
+						<ul>
+							<li>
+								<em>보유포인트</em>
+								<span>7,200점</span>
+							</li>
+							<li>
+								<em>최대 사용 가능 포인트</em>
+								<span>3,000점</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- //포인트사용 -->
+				
+			</div>
+			
+			
+			<!-- 모바일 사용 -->
+			<a href="#" data-shop-view="addcordion" class="show">결제정보</a>
+			<!-- //모바일 사용 -->
+			
+			<div data-shop-view="addcordion_conts" data-cart-option="total">
+				<!-- 총 구매금액 -->
+				<div class="price">
+					<em>총 구매금액</em>
+					150,000원
+				</div>
+				
+				<!-- 배송비 -->
+				<span>+</span>
+				<div class="deliver">
+					<em>배송비</em>
+					5,000원
+				</div>
+				
+				<!-- 추가 배송비 -->
+				<span>+</span>
+				<div class="deliver_add">
+					<em>추가 배송비</em>
+					3,000원
+				</div>
+				
+				<!-- 포인트 할인 -->
+				<span class="minus">-</span>
+				<div class="point">
+					<em>포인트 할인</em>
+					3,000점
+				</div>
+
+				<!-- 쿠폰 할인 추후 작업시 주석풀고 하세요. 
+				<span class="minus">-</span>
+				<div class="coupon">
+					<em>쿠폰 할인</em>
+					5,000점
+				</div>
+				-->
+				
+				<!-- 결제 예정금액 -->
+				<span>=</span>
+				<div class="total">
+					<em>결제 예정금액</em>
+					200,000원
+				</div>
+			</div>
+			
+			
+			<!-- 비회원이용약관 비회원 주문시 -->
+			<!-- 모바일 사용 -->
+			<a href="#" data-shop-view="addcordion" class="show">약관동의</a>
+			<!-- //모바일 사용 -->
+			
+			<div data-shop-view="addcordion_conts">
+				<div class="area_shop_agree">
+					<div class="designCheck first">
+						<input type="checkbox" name="" id=""/><label for="">쇼핑몰 이용약관, 비회원 구매시 개인정보수집이용 동의에 모두 동의합니다.</label>
+					</div>
+					<dl>
+						<dt>쇼핑몰 이용약관</dt>
+						<dd>
+							<!-- 에디터내용표시 -->
+							<div class="scroll">
+								제1조(목적)이 약관은 OO 회사(전자상거래 사업자)가 운영하는 OO 사이버 몰(이하 “몰”이라 한다)에서 제공하는 인터넷 관련 서비스
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="" id=""/><label for="">동의합니다.</label>
+							</div>
+						</dd>
+						<dt>개인정보수집이용동의</dt>
+						<dd>
+							<!-- 에디터내용표시 -->
+							<div class="scroll">
+								본 양식은 쇼핑몰 운영에 도움을 드리고자 샘플로 제공되는
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="" id=""/><label for="">동의합니다.</label>
+							</div>
+						</dd>
+					</dl>
+				</div>
+			</div>
+			<!-- //비회원이용약관 비회원 주문시 -->
+			
+			
+			<!-- 결제수단 -->
+			<!-- 모바일 사용 -->
+			<a href="#" data-shop-view="addcordion" class="show">결제수단</a>
+			<!-- //모바일 사용 -->
+			<div data-shop-view="addcordion_conts" class="area_shop_payment">
+				<p class="title">결제수단</p>
+				<div class="designRadio blue">
+					<input type="radio" name="" id="" checked/><label for="">무통장입금</label>
+					<input type="radio" name="" id=""/><label for="">가상계좌</label>
+					<input type="radio" name="" id=""/><label for="">계좌이체</label>
+					<input type="radio" name="" id=""/><label for="">휴대폰</label>
+					<input type="radio" name="" id=""/><label for="">신용카드</label>
+				</div>
+				<!-- 무통장입금선택시 -->
+				<div class="bankbook">
+					<ul>
+						<li>
+							<em>은행선택</em>
+							<span>
+								<select name="" id="" class="input300">
+									<option value="">선택하십시오.</option>
+									<option value="">OO은행 12345-67-89012 예금주명</option>
+									<option value="">OO은행 12345-67-89012 예금주명</option>
+								</select>
+							</span>
+						</li>
+						<li>
+							<em>입금자명</em>
+							<span>
+								<input type="text" name="" id="" class="input200" title="입금자명 입력">
+							</span>
+						</li>
+					</ul>
+				</div>
+				<!-- //무통장입금선택시 -->
+			</div>
+			<!-- //결제수단 -->
+			
+			<!-- 최종 구매결제액 -->
+			<!-- 한번더 total 노출 -->
+			<div data-cart-option="total" class="area_shop_final">
+				<!-- 선택된 결제방법 표시 -->
+				<div class="method">
+					<em>결제방법</em>
+					무통장입금
+				</div>
+				<span></span>
+				<div class="total">
+					<em>최종 결제금액</em>
+					200,000원
+				</div>
+			</div>
+			<div class="designCheck">
+				<input type="checkbox" name="" id=""/><label for="">결제정보를 확인하였으며, 구매진행에 동의합니다.</label>
+			</div>
+			<!-- //한번더 total 노출 -->
+			
+			<div class="btn_area">
+				<a href="#" class="button lg">주문하기</a>
+				<a href="#" class="button lg white">취소하기</a>
+			</div>
+			<!-- //내용시작 -->
+
+
+
+
+</div>
+<? include("../inc/footer.html") ?>

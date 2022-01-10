@@ -1,0 +1,148 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/auth_manager.php";
+
+$query = "SELECT * FROM $online_table WHERE no='$no'";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+$mode_title = $online[title]." 수정";
+$phone = explode("-", $row[phone]);
+$email = explode("@", $row[email]);
+
+//관리자가 아님
+if(!$is_admin){
+	if($online[use_member] == "10"){
+	//비밀번호가 없음
+		if($password == ""){
+			url("$common_queryString&amp;mode=check&amp;return_mode=$mode&amp;no=$row[no]");
+			exit;
+		}
+		$password = hash("sha256", $password);
+		//비밀번호가 틀림
+		if($row[password] != $password){
+			alert("해당 내역은 작성자 및 관리자만 확인 가능합니다.");
+			url("$common_queryString&amp;mode=check&amp;return_mode=$mode&amp;no=$row[no]");
+			exit;
+		}
+	} else {
+		if($_SESSION[member_id] != $row[id]){
+			error("해당 내역은 작성자 및 관리자만 확인 가능합니다.");
+			exit;
+		}
+	}
+}
+
+//프로그램 변수 선언
+
+//필수항목
+$required = "";
+if($online[required] == "Y"){
+	$required = "<span class=\"marking\">필수항목</span>";
+}
+?>
+<div id="print_area">
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<?
+				for($i = 1; $i <= 10; $i++){
+					//프로그램 변수 선언
+					$variable_ = $online["variable_".$i];
+					$field_no = "variable_".$i;
+					$variable_ = explode("|", $variable_);
+					$tmp_name = $variable_[0];
+					$tmp_type = $variable_[1];
+					$tmp_state = $variable_[3];
+					$tmp_id = $variable_[4];
+					$tmp_view = $variable_[5];
+
+					if($tmp_state != "Y") continue;
+
+					//필수항목
+					$required = "";
+					$check = "";
+					$tmp_class = "";
+					$tmp_size_class = "input300";
+					$tmp_required = $variable_[2];
+
+					if($tmp_type == "cal"){
+						$tmp_type = "text";
+						$tmp_class = "datepicker";
+						$tmp_size_class = "input100";
+					}
+			?>
+				<tr>
+					<th scope="row"><label for="<?=$tmp_id?>"><?=$tmp_name?></label></th>
+					<td>
+						<?
+							if($tmp_type == "file"){
+									$ext = end(explode(".", strtolower($row[$field_no])));
+
+									if($ext == "png" || $ext == "gif" || $ext == "jpg" || $ext == "bmp" || $ext == "jpeg"){
+										$download =  "<a href=\"/upload/online/".$online_id."/".$row[$field_no]."\" target=\"_blank\">[다운로드]</a>";
+										$row[$field_no] = "<img src=\"/upload/online/".$online_id."/thumb_".$row[$field_no]."\">";
+									} else {
+										$download =  "<a href=\"/upload/online/".$online_id."/".$row[$field_no]."\" target=\"_blank\">[다운로드]</a>";
+										$row[$field_no] = $row[$field_no];
+									}
+							} else {
+										$download = "";
+										$row[$field_no] = nl2br($row[$field_no]);
+							}
+
+						?><?=$row[$field_no]?><br /><?=$download?>
+					</td>
+				</tr>
+			<? } ?>
+			<? if($online[use_phone] == "Y"){  ?>
+				<tr>
+					<th scope="row"><label for="phone">연락처</label></th>
+					<td>
+						<?=$phone[0]?> - <?=$phone[1]?> - <?=$phone[2]?>
+					</td>
+				</tr>
+			<? } ?>
+			<? if($online[use_addr] == "Y"){  ?>
+				<tr>
+					<th scope="row"><label for="phone">주소</label></th>
+					<td>
+						<?=$row[zip]?>	<?=$row[address1]?> <?=$row[address2]?>
+					</td>
+				</tr>
+			<? } ?>
+
+			<? if($online[use_email] == "Y"){  ?>
+				<tr>
+					<th scope="row"><label for="email1">이메일</label></th>
+					<td><?=$email[0]?>@<?=$email[1]?></td>
+					</tr>
+			<? } ?>
+			<tr>
+				<th scope="row"><label for="reg_date">등록일</label></th>
+				<td><?=$row[reg_date]?></td>
+			</tr>
+	
+		</tbody>
+	</table>
+
+	<?
+		if($is_admin){ 
+			include $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/online/comment.html";
+		} 
+	?>
+
+</div>
+<!-- //글쓰기 -->
+<!-- 버튼 -->
+<div class="btn_area">
+	<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button white">수정</a>
+	<a href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$row[no]?>" class="button white">삭제</a>
+	<a href="#" onclick="PrintElem(print_area);" class="button white">출력</a>
+	<a href="<?=$common_queryString?>&amp;mode=list" class="button gray">목록</a>
+</div>
+
+
+					

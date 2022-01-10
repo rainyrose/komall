@@ -1,0 +1,321 @@
+			<!-- 내용 -->
+			<?
+			//페이징 변수
+			if (!$start) $start = 0;
+			$scale = 10; // 리스트 수
+			$page_scale	= 10; // 페이징 수
+
+			if($category){
+				$default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE id = '$category' LIMIT 1"));
+				$navigation = explode("|", $default[depth_history]);
+				$navigation = array_filter($navigation);
+				$product_mob_title = $default[title];
+			} else {
+				$product_mob_title = "상품 전체";
+			}
+
+			if($category){
+				$WHERE .= " AND category_navi LIKE '$default[depth_history]|%'";
+			}
+
+			if($keyword){
+				$WHERE .= " AND product_title LIKE '%$keyword%'";
+			}
+
+
+			$category_col_ = array();
+			$category_get_query = "SELECT * FROM koweb_product_category_config WHERE depth='1' AND category='{$category_config_['category']}'";
+			$category_get_result = query($category_get_query);
+			while($category_get_row = mysqli_fetch_array($category_get_result)){
+			    $category_col_[] = $category_get_row['id'];
+			}
+
+			$category_str = join("','",$category_col_);
+			$WHERE .= " AND LEFT(category,3) IN ('{$category_str}')";
+
+
+
+			$total_query = "SELECT * FROM koweb_product WHERE 1=1 AND shower ='Y' $WHERE";
+			$total_result = mysqli_query($connect, $total_query);
+			$total = mysqli_num_rows($total_result);
+
+			if($sort_mode){
+				if($sort_mode == "new"){
+					$ORDER .= " no DESC, ";
+				} else if($sort_mode == "ptitle"){
+					$ORDER .= " product_title ASC, ";
+				} else if($sort_mode == "lprice"){
+					$ORDER .= " price*1 ASC, ";
+				} else if($sort_mode == "hprice"){
+					$ORDER .= " price*1 DESC, ";
+				} else {
+					$ORDER .= " ( SELECT count(*) FROM board_review WHERE category = koweb_product.id ) DESC, ";
+				}
+			}
+			$ORDER .= " sort ASC";
+			if($sort_mode != "new"){
+				$ORDER .= ", no DESC ";
+			}
+			$query = "SELECT * FROM koweb_product WHERE 1=1 AND shower ='Y' $WHERE ORDER BY $ORDER LIMIT $start, $scale";
+			$result = mysqli_query($connect, $query);
+			?>
+			<!-- 내용 -->
+			<div class="area_shopList">
+				<!-- 카테고리 노출 -->
+				<!-- location형식 -->
+				<ul data-category-location="list">
+					<li>전체상품</li>
+					<!-- 해당카테고리가 없으면 li부터 표시 안함 -->
+					<?
+					$count = 1;
+					foreach($navigation AS $nv){
+						$navi_info = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE id = '$nv' LIMIT 1"));
+					?>
+					<li><?=htmlspecialchars_decode($navi_info[title])?><a href="#" data-category-location="view"><?=htmlspecialchars_decode($navi_info[title])?></a>
+						<ul>
+							<?
+							if($navi_info['depth'] == "1"){
+								$cat_result = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE depth = '$navi_info[depth]' AND category = '$site_language' AND delete_state != 'Y' AND state = 'Y' ORDER BY sort ASC");
+							}else{
+								$cat_result = mysqli_query($connect, "SELECT * FROM koweb_product_category_config WHERE ref_group = '$navi_info[ref_group]' AND depth = '$navi_info[depth]' AND category = '$site_language' AND delete_state != 'Y' AND state = 'Y' AND ref_no = '$navi_info[ref_no]' ORDER BY sort ASC");
+							}
+
+							while($cat_ = mysqli_fetch_array($cat_result)){ ?>
+								<li><a href="/<?=$add_folder?>product/product.html?category=<?=$cat_[id]?>"><?=htmlspecialchars_decode($cat_[title])?></a></li>
+							<? } ?>
+						</ul>
+					</li>
+					<?
+					$count++; }
+					?>
+				</ul>
+				<!-- //location형식 -->
+
+				<!-- 카테고리 -->
+				<!-- 1차 카테고리 접근이 되면 1차의 형제와 1차의 자식2차 / 자식3차 까지 노출
+					 2차 카테고리가 접근이 되면 2차의 형제와 2차의 자식3차까지 노출 -->
+				<? if(return_category_count($connect, "default", "all")){ ?>
+					<div data-category-location="tab">
+						<!-- pc category -->
+						<? if(return_category_count($connect, "default", "pc")){ ?>
+							<ul class="web">
+								<? load_category2($connect, "default", "pc", "4"); ?>
+							</ul>
+						<? } ?>
+						<!-- //pc category -->
+
+						<!-- mob category -->
+						<? if(return_category_count($connect, "default", "mob")) { ?>
+						<div class="mob">
+							<p class="title"><a href="javascript:;" onclick="javascript:history.go(-1);">이전카테고리</a><?=$product_mob_title?></p>
+							<ul>
+								<? load_category_mob($connect, "default", "mob", "4", $category); ?>
+							</ul>
+						</div>
+						<? } ?>
+						<!-- //mob category -->
+					</div>
+				<? } ?>
+				<!-- //카테고리 -->
+
+				<!-- //카테고리 노출 -->
+
+
+				<?
+				$best_query = "SELECT * FROM koweb_product WHERE 1=1 $WHERE AND best = 'Y' AND shower ='Y' ORDER BY sort ASC";
+				$best_result = mysqli_query($connect, $best_query);
+				$best_row = mysqli_num_rows($connect, $best_result);
+				if($best_row > 0){
+				?>
+
+				<!-- best 상품 -->
+				<div class="best">
+					<!-- 목록 -->
+					<ul data-shop-list="default" class="shopSliderGroup">
+						<!-- 반복 -->
+						<?
+							while($best = mysqli_fetch_array($best_result)){
+						?>
+						<li>
+							<a href="/<?=$add_folder?>product/product.html?category=<?=$best[category]?>&amp;id=<?=$best[id]?>&amp;mode=view&amp;sort_mode=<?=$sort_mode?>">
+								<!-- 이미지  -->
+								<span class="img">
+									<!-- 대표이미지 -->
+									<i><img src="/upload/product/<?=rawurlencode($best[title_img])?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+									<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+									<? if($row[img_1]){?>
+									<i><img src="/upload/product/<?=rawurlencode($best[img_1])?>" alt=""/></i>
+									<? } ?>
+								</span>
+								<!-- 상품명 -->
+								<em><?=$best[title]?></em>
+								<!-- 간략설명 -->
+								<i><?=$best[simple_info]?></i>
+								<!-- 판매가격 / 시중가격 -->
+
+
+								<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+								<? if($best['use_telform'] == "Y"){ ?>
+									<span class="sold">전화문의</span>
+								<? }else{ ?>
+									<? if(get_stock($connect, $best[id]) || $best['seller'] != "Y" || $best['use_soldout'] == "Y"){ ?>
+										<span class="sold">품절</span>
+									<? } else {?>
+										<span class="price"><? if($best[origin_price]){ ?><i><?=number_format($best[origin_price])?></i><? } ?><i><?=number_format($best[price])?></i></span>
+										<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+										<? if($best[origin_price]){?>
+											<span class="percent"><i>DC</i><?=100 - floor(($best[price]/$best[origin_price]) * 100)?>%</span>
+										<? } ?>
+									<? } ?>
+								<? } ?>
+
+
+								<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+								<? if($best[best] == "Y" || $best['new'] == "Y"){ ?>
+								<span data-shop-icon="icon">
+									<!-- best -->
+									<? if($best[best] == "Y"){ ?> <i data-shop-icon="best">BEST</i> <? } ?>
+									<!-- new -->
+									<? if($best['new'] == "Y"){ ?> <i data-shop-icon="new">NEW</i> <? } ?>
+								</span>
+								<? } ?>
+							</a>
+							<!-- 관심상품/상세보기 -->
+							<div data-shop-list="util">
+								<a href="javascript:void(0)" onclick="wish_form_submit('<?=$best['id']?>')" class="interest">관심상품</a>
+								<a href="/<?=$add_folder?>product/product.html?category=&id=<?=$best['id']?>&mode=view&sort_mode=" target="_blank" class="view">새창으로 자세히보기</a>
+							</div>
+						</li>
+						<? } ?>
+					</ul>
+				</div>
+				<? } ?>
+				<!-- //best 상품 -->
+
+				<!-- 상품기본목록 -->
+				<div class="default">
+					<!-- total, 정렬 -->
+					<div class="total">
+						<p>총 <i><?=$total?></i>개의 상품이 있습니다.</p>
+						<!-- sort검색시 a태그에 class on 추가 -->
+						<ul class="sort">
+							<li><a href="<?=$PHP_SELF?>?category=<?=$category?>&sort_mode=new" id="new">신상품</a></li>
+							<li><a href="<?=$PHP_SELF?>?category=<?=$category?>&sort_mode=ptitle" id="ptitle">상품명</a></li>
+							<li><a href="<?=$PHP_SELF?>?category=<?=$category?>&sort_mode=lprice" id="lprice">낮은가격</a></li>
+							<li><a href="<?=$PHP_SELF?>?category=<?=$category?>&sort_mode=hprice" id="hprice">높은가격</a></li>
+							<li><a href="<?=$PHP_SELF?>?category=<?=$category?>&sort_mode=review" id="review">사용후기</a></li>
+						</ul>
+						<script type="text/javascript">
+							$("#"+"<?=$sort_mode?>").addClass("on");
+						</script>
+					</div>
+					<!-- //total, 정렬 -->
+
+					<!-- 목록 -->
+					<!-- 12개 노출 -->
+					<ul data-shop-list="default">
+						<!-- 반복 -->
+						<? while($row = mysqli_fetch_array($result)){ ?>
+						<li>
+							<a href="/<?=$add_folder?>product/product.html?category=<?=$row[category]?>&amp;id=<?=$row[id]?>&amp;mode=view&amp;sort_mode=<?=$sort_mode?>">
+								<!-- 이미지  -->
+								<span class="img">
+									<!-- 대표이미지 -->
+									<i><img src="/upload/product/<?=rawurlencode($row[title_img])?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+									<!-- 2번째 추가이미지 첨부된 이미지가 없는 경우 i태그 전체 표기안되게 -->
+									<? if($row[img_1]){?>
+									<i><img src="/upload/product/<?=rawurlencode($row[img_1])?>" alt=""/></i>
+									<? } ?>
+								</span>
+								<!-- 상품명 -->
+								<em><?=$row[product_title]?></em>
+								<!-- 간략설명 -->
+								<i><?=$row[simple_info]?></i>
+								<!-- 판매가격 / 시중가격 -->
+								<!-- 시중가격이 없는경우 i태그부터 삭제 display:none 사용금지 태그자체를 지워야함 -->
+								<? if($row['use_telform'] == "Y"){ ?>
+									<span class="sold">전화문의</span>
+								<? }else{ ?>
+									<? if(get_stock($connect, $row[id]) || $row['seller'] != "Y" || $row['use_soldout'] == "Y"){ ?>
+										<span class="sold">품절</span>
+									<? } else {?>
+										<span class="price"><? if($row[origin_price]){ ?><i><?=number_format($row[origin_price])?></i><? } ?><i><?=number_format($row[price])?></i></span>
+										<!-- 시중가격이 있는경우 판매가격 기준으로 할인 퍼센트 노출 시중가격없는경우 숨김 -->
+										<? if($row[origin_price]){?>
+											<span class="percent"><i>DC</i><?=100 - floor(($row[price]/$row[origin_price]) * 100)?>%</span>
+										<? } ?>
+									<? } ?>
+								<? } ?>
+								<!-- 블릿사용 둘다 사용안할경우 span 까지 전부 숨김 -->
+								<? if($row[best] == "Y" || $row['new'] == "Y"){ ?>
+								<span data-shop-icon="icon">
+									<!-- best -->
+									<? if($row[best] == "Y"){ ?> <i data-shop-icon="best">BEST</i> <? } ?>
+									<!-- new -->
+									<? if($row['new'] == "Y"){ ?> <i data-shop-icon="new">NEW</i> <? } ?>
+								</span>
+								<? } ?>
+							</a>
+							<!-- 관심상품/상세보기 -->
+							<div data-shop-list="util">
+								<a href="javascript:void(0)" onclick="wish_form_submit('<?=$row['id']?>')" class="interest">관심상품</a>
+								<a href="/<?=$add_folder?>product/product.html?category=<?=$row[category]?>&id=<?=$row['id']?>&mode=view&sort_mode=" target="_blank" class="view">새창으로 자세히보기</a>
+							</div>
+						</li>
+						<!-- //반복 -->
+						<? } ?>
+					</ul>
+				</div>
+				<!-- //상품기본목록 -->
+
+				<!-- 페이징 -->
+				<div class="pagination">
+					<?
+						/*----------------------------------------------------------------------------*/
+						// 페이지 표시
+						/*----------------------------------------------------------------------------*/
+
+						if ($total == 0) $total = 1;
+
+						$page_url = "/".$add_folder."product/product.html?category=$category&sort_mode=$sort_mode";
+
+						// 처음
+						echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+						$page = floor($start / ($scale * $page_scale));
+
+						if ($start + $scale >  $scale * $page_scale) {
+							$pre_start = $start - $scale * $page_scale ;
+							echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+						}
+
+						for ($vj = 0; $vj < $page_scale ; $vj++) {
+							$ln = ($page * $page_scale + $vj) * $scale;
+							$vk = $page * $page_scale + $vj + 1 ;
+
+							if ($ln < $total) {
+								if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+								else echo "<span>$vk</span>";
+							}
+						}
+
+						// 마지막
+						$end_page = floor($total - $scale) + 1;
+						if ($end_page <= 0)	$end_page = 0;
+
+						if ($total > (($page + 1) * $scale * $page_scale)) {
+							$n_start = ($page + 1) * $scale * $page_scale ;
+							echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+						}
+
+						$end_page = ceil($total / $scale);
+						if ($total) $end_start = ($end_page -1) * $scale;
+						else $end_start = $end_page;
+
+						echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+					?>
+				</div>
+				<!-- //페이징 -->
+
+			</div>
+			<!-- //내용 -->

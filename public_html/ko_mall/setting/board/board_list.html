@@ -1,0 +1,169 @@
+						<!-- lnb -->
+						<nav class="lnb">
+							<!-- 선택시 a태그 class="on" -->
+							<ul>
+								<li><a href="<?=$common_queryString?>" class="on">게시판 관리</a></li>
+								<? if($_SESSION['member_id'] == "koweb"){ ?>
+								<li><a href="<?=$common_queryString?>&amp;mode=register">게시판 등록</a></li>
+								<? } ?>
+							</ul>
+						</nav>
+						<!-- //lnb -->
+
+						<?
+						//페이징 변수
+						if (!$start) $start = 0;
+						$scale = 10; // 리스트 수
+						$page_scale	= 10; // 페이징 수
+
+						//검색
+						if($keyword){
+							if($search_key == ""){
+								$search_key = "title";
+							}
+							$WHERE .= " AND $search_key LIKE '%$keyword%'";
+						}
+						?>
+
+						<!-- 내용 -->
+
+						<!-- 등록된 게시판이 없는경우만 표시 -->
+						<div class="box no_data" style="display:none">
+							<p>등록된 게시판이 없습니다.<br/>게시판을 먼저 등록하신 후 사용가능합니다.</p>
+							<? if($_SESSION['member_id'] == "koweb"){ ?>
+							<a href="<?=$common_queryString?>&amp;mode=register" class="button lg">게시판 등록</a>
+							<? } ?>
+						</div>
+
+						<!-- 입력 -->
+						<div class="box pd">
+							<h2>게시판 관리</h2>
+
+							<div class="search_bbs">
+								<form action="<?=$_SERVER['PHP_SELF']?>" method="GET" style="display:inline-block;">
+									<input type="hidden" name="type" value="setting"/>
+									<input type="hidden" name="core" value="manager_setting"/>
+									<input type="hidden" name="manager_type" value="board"/>
+									<!-- 검색 -->
+									<select name="search_key" id="searchType">
+										<option value="">전체</option>
+										<option value="title"> 게시판 명</option>
+										<option value="id">게시판 ID</option>
+									</select>
+									<input type="text" id="keyword" name="keyword" value="<?=$keyword?>">
+									<input type="submit" class="button sm gray" value="검색">
+									<!-- //검색 -->
+								</form>
+
+								<? if($auth_write){?>
+								<!-- 버튼 -->
+									<a href="<?=$common_queryString?>&amp;mode=write" class="button sm">글쓰기</a>
+								<? } ?>
+								<!-- //버튼 -->
+							</div>
+							<script type="text/javascript">
+								$("select[name='category'] option[value='<?=$category?>']").attr("selected", true);
+								$("select[name='search_key'] option[value='<?=$search_key?>']").attr("selected", true);
+							</script>
+
+							<table class="bbsList">
+								<caption>히스토리 선택</caption>
+								<colgroup>
+									<col style="width:7%;"/>
+									<col/>
+									<col style="width:20%"/>
+									<col style="width:15%"/>
+									<col style="width:25%"/>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">No.</th>
+										<th scope="col">게시판이름</th>
+										<th scope="col">아이디</th>
+										<th scope="col">스킨</th>
+										<th scope="col">설정변경</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?
+									if($_SESSION[member_id] != "koweb") $ADD_ = "AND id!='board_system'";
+									else unset($ADD_);
+
+									$board_query = "SELECT * FROM koweb_board_config WHERE 1=1 $ADD_ $WHERE ORDER BY sort ASC";
+									$board_result = mysqli_query($connect, $board_query);
+									$total = mysqli_num_rows($board_result);
+
+									$board_result2 = mysqli_query($connect, "SELECT * FROM koweb_board_config WHERE 1=1 $ADD_ $WHERE ORDER BY sort ASC LIMIT $start, $scale");
+									$f_no = $total - $start;
+
+									while($board_ = mysqli_fetch_array($board_result2)){
+									?>
+									<tr>
+										<td><?=$f_no--?></td>
+										<td><?=$board_[title]?></td>
+										<td><?=$board_[id]?></td>
+										<td><?=$board_[skin]?></td>
+										<td>
+											<a href="<?=$common_queryString?>&amp;mode=register_modify&amp;no=<?=$board_[no]?>" class="button sm gray">수정</a>
+											<a href="<?=$common_queryString?>&amp;mode=delete&amp;no=<?=$board_[no]?>" class="button sm white">삭제</a>
+										</td>
+									</tr>
+									<? } ?>
+								</tbody>
+							</table>
+
+							<!-- 버튼 -->
+							<div class="btn_area">
+								<? if($_SESSION['member_id'] == "koweb"){ ?>
+								<a href="<?=$common_queryString?>&amp;mode=register" class="button lg">게시판 등록</a>
+								<? } ?>
+							</div>
+							<!-- //버튼 -->
+						</div>
+						<!-- //내용 -->
+						<div class="pagination">
+						<?
+							/*----------------------------------------------------------------------------*/
+							// 페이지 표시
+							/*----------------------------------------------------------------------------*/
+
+							if ($total == 0) $total = 1;
+
+							$page_url = $common_queryString;
+
+							// 처음
+							echo "<a href='$page_url&amp;start=0' class='btn_first'><span>맨처음</span></a>";
+
+							$page = floor($start / ($scale * $page_scale));
+
+							if ($start + $scale >  $scale * $page_scale) {
+								$pre_start = $start - $scale * $page_scale ;
+								echo "<a href='$page_url&amp;start=$pre_start' class='btn_prev'><span>이전</span></a>";
+							}
+
+							for ($vj = 0; $vj < $page_scale ; $vj++) {
+								$ln = ($page * $page_scale + $vj) * $scale;
+								$vk = $page * $page_scale + $vj + 1 ;
+
+								if ($ln < $total) {
+									if ($ln != $start) echo "<a href='$page_url&amp;start=$ln'>$vk</a>";
+									else echo "<span>$vk</span>";
+								}
+							}
+
+							// 마지막
+							$end_page = floor($total - $scale) + 1;
+							if ($end_page <= 0)	$end_page = 0;
+
+							if ($total > (($page + 1) * $scale * $page_scale)) {
+								$n_start = ($page + 1) * $scale * $page_scale ;
+								echo "<a href='$page_url&amp;start=$n_start' class='btn_next'><span>다음</span></a>";
+							}
+
+							$end_page = ceil($total / $scale);
+							if ($total) $end_start = ($end_page -1) * $scale;
+							else $end_start = $end_page;
+
+							echo "<a href='$page_url&amp;start=$end_start' class='btn_last'><span>맨마지막</span></a>";
+						?>
+					</div>

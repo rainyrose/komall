@@ -1,0 +1,390 @@
+<!-- lnb -->
+<script type="text/javascript">
+	$(function() { 
+		document.addEventListener('keydown', function(event) {
+			if (event.keyCode === 13) {
+				event.preventDefault();
+			}
+		}, true);
+	});
+</script>
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>">게시판 관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=register"  class="on">게시판 등록</a></li>
+	</ul>
+</nav>
+<!-- //lnb -->
+
+<!-- 입력 -->
+<form action="<?=$common_queryString?>" method="POST" name="board_register">
+<input type="hidden" name="mode" value="<?=$mode?>_proc" id="mode"/>
+<input type="hidden" name="no" value="<?=$row[no]?>" id="no" />
+
+
+<div class="box pd">
+	<h2>게시판 등록</h2>
+	<!-- step -->
+	<!-- 해당 스탭이면 class="active" 추가 이전단계도 active유지 -->
+	<ul class="list_step" data-current>
+		<li data-current-step="1" class="active"><span>1</span></li>
+		<li data-current-step="2"><span>2</span></li>
+		<li data-current-step="3"><span>3</span></li>
+	</ul>
+
+	<!-- step01 -->
+	<div class="box_step active_board" board-current-dept="1">
+		<p>게시판 제목을 입력하세요.</p>
+		<input type="text" name="title" placeholder="예) 이슈게시판" title="게시판 제목" data-board-variable="title" data-required="input"/>
+	</div>
+	<!-- //step01 -->
+
+	<!-- step02 -->
+	<div class="box_step preview" style="display:none;"  board-current-dept="2">
+		<p>게시판 유형을 선택하세요.</p>
+		<div class="designRadio">
+			<input type="radio" name="skin" id="default" value="default" data-preview-skin="default" /><label for="default">기본</label>
+			<input type="radio" name="skin" id="notice" value="notice" data-preview-skin="notice"/><label for="notice">공지사항</label>
+			<input type="radio" name="skin" id="gallery" value="gallery" data-preview-skin="gallery"/><label for="gallery">갤러리</label>
+			<input type="radio" name="skin" id="blog" value="blog" data-preview-skin="blog"/><label for="blog">블로그</label>
+			<input type="radio" name="skin" id="pdf" value="pdf" data-preview-skin="pdf"/><label for="pdf">PDF</label>
+		</div>
+		
+		<div class="view">
+			<img src="/ko_mall/images/cms/default.jpg" data-preview-view />
+		</div>
+	</div>
+	<!-- //step02 -->
+
+	<!-- step03 -->
+	<div class="box_step bbs" style="display:none;" board-current-dept="3">
+		<p>게시판의 세부적인 설정을 선택 및 입력하세요.</p>
+		<? include_once $_SERVER[DOCUMENT_ROOT] . "/ko_mall/setting/board/board_form.html"; ?>
+	</div>
+	<!-- //step03 -->
+	<div class="btn_area">
+	<? if($mode == "register_modify"){ ?>
+		<input type="submit" class="button lg" value="등록">
+		<a class="button lg gray" href="?type=setting&core=manager_setting&manager_type=board&amp;start=<?=$start?>&amp;search_key=<?=$search_key?>&amp;keyword=<?=$keyword?>">취소</a>
+	<? } else { ?>
+		<input type="button" class="button lg" value="다음" data-board-next>
+		<input type="submit" class="button lg" value="완료" id="submit_btn" style="display:none;"/>
+		<a class="button lg gray" href="#" data-board-prev>이전</a>
+	<? } ?>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+	$(function(){
+		/* ------------- 게시판 수정 값 세팅 ------------- */
+		if("<?=$mode?>" == "register_modify"){
+			$("[data-current]").hide();
+			$("[board-current-dept=1]").hide();
+			$("[board-current-dept=2]").hide();
+			$("[board-current-dept=3]").show();
+			$("#no").val("<?=$no?>");
+
+			$("select[name='auth_read'] option[value='<?=$row[auth_read]?>']").prop("selected", true);
+			$("select[name='auth_write'] option[value='<?=$row[auth_write]?>']").prop("selected", true);
+			$("select[name='auth_comment'] option[value='<?=$row[auth_comment]?>']").prop("selected", true);
+			$("select[name='auth_delete'] option[value='<?=$row[auth_delete]?>']").prop("selected", true);
+			$("select[name='auth_reply'] option[value='<?=$row[auth_reply]?>']").prop("selected", true);
+			$("select[name='skin'] option[value='<?=$row[skin]?>']").prop("selected", true);
+			$("select[name='file_count'] option[value='<?=$row[file_count]?>']").prop("selected", true);
+			$("input:radio[name='use_category']:radio[value='<?=$row[use_category]?>']").prop("checked",true); 
+			$("input:radio[name='use_reply']:radio[value='<?=$row[use_reply]?>']").prop("checked",true); 
+			$("input:radio[name='use_comment']:radio[value='<?=$row[use_comment]?>']").prop("checked",true); 
+			$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true); 
+			$("input:radio[name='is_membership']:radio[value='<?=$row[is_membership]?>']").prop("checked",true); 
+			$(":checkbox[name='always_secret'][value='<?=$row['always_secret']?>']").prop("checked", true);
+			$("input:radio[name='sms_auth']:radio[value='<?=$row[sms_auth]?>']").prop("checked",true); 
+			$("input:radio[name='spam_auth']:radio[value='<?=$row[spam_auth]?>']").prop("checked",true); 
+		}
+	});
+
+	$(function(){
+		/* ------------- 게시판 생성 설정 ------------- */
+		
+		/* ------------- STEP BASE ------------- */
+
+		//카테고리 미사용일시 // 초기 로딩시 값 설정 disabled 설정
+		if ($("[data-board-properties=use_category]:checked").val() != "Y"){
+			$("[data-board-properties=category_detail]").css("display", "none");
+		} else {
+			$("[data-board-properties=category_detail]").css("display", "");
+		}
+
+		//숫자만
+		$(".numberic").keyup(function(){
+			$(this).val($(this).val().replace(/[^0-9]/gi, ""));
+		});
+
+		//게시물 등록시 단계이동 ( 다음 )
+		$("[data-board-next]").click(function(){
+			//현재 단계
+			var current_aboard = $("[data-current]").data("current");
+			if(!current_aboard) current_aboard = 1;
+
+			var chk = true;
+			$("[board-current-dept="+current_aboard+"] [data-required]").each(function(){
+				if($(this).data("required") == "input"){
+					if(!$(this).val()) { 
+						alert($(this).attr("title")+"을 입력해주세요");
+						chk = false;
+						return false;
+					}
+				} else if($(this).data("required") == "radio"){
+					if(!$(this).is(":checked").length) { 
+						alert($(this).attr("title")+"을 입력해주세요");
+						chk = false;
+						return false;
+					}
+				}
+			});
+
+			if(!chk) return false;
+
+			//다음 단계 버튼값 세팅
+			$(this).data("board-next", current_aboard+1);
+			
+			//다음 단계값
+			var next_aboard =  $(this).data("board-next");
+			if(next_aboard >= 3) next_aboard= 3;
+
+			
+			if(next_aboard == "3"){
+				if(!$("input[name=skin]:checked").length){
+					alert("게시판 타입을 선택해주세요.");
+					chk = false;
+					return false;
+				}
+			}
+		
+			if(!chk) return false;
+
+
+
+			$("[board-current-dept]").each(function(){
+				$(this).css("display", "none");
+			});
+
+			$("[board-current-dept="+next_aboard+"]").css("display","");
+			$("[data-current]").data("current", next_aboard);
+
+			//step 표시
+			$("[data-current-step]").removeClass("active");
+			$("[data-current-step="+next_aboard+"]").addClass("active");
+				
+			if($("[data-current]").data("current") == "3"){
+				$("#submit_btn").css("display","");
+				$("[data-board-next]").css("display","none");
+			} else {
+				$("#submit_btn").css("display","none");
+				$("[data-board-next]").css("display","");
+			}
+		});
+
+		//게시물 등록시 단계이동 ( 이전 )
+		$("[data-board-prev]").click(function(){
+			//현재 단계
+			var current_aboard = $("[data-current]").data("current");
+			if(!current_aboard) current_aboard = 1;
+			
+			//이전 단계 버튼값 세팅
+			$(this).data("board-prev", current_aboard-1);
+
+			//이전 단계값
+			var prev_aboard =  $(this).data("board-prev");
+			if(prev_aboard <= 0) prev_aboard = 1;
+
+			$("[board-current-dept]").each(function(){
+				$(this).css("display", "none");
+			});
+
+			//이전단계 하나만 보이게함
+			$("[board-current-dept="+prev_aboard+"]").css("display","");
+			$("[data-current]").data("current", prev_aboard);
+
+			//step 표시
+			$("[data-current-step]").removeClass("active");
+			$("[data-current-step="+prev_aboard+"]").addClass("active");
+				
+			if($("[data-current]").data("current") == "3"){
+				$("#submit_btn").css("display","");
+				$("[data-board-next]").css("display","none");
+			} else {
+				$("#submit_btn").css("display","none");
+				$("[data-board-next]").css("display","");
+			}
+		});
+
+		//id 중복확인
+		$("[data-id-check]").click(function(){
+			var board_id = $("#id").val();
+			
+			if(!board_id.length) {
+				alert("게시판 ID를 입력해주세요.");
+				return false;
+			}
+
+			$.ajax({
+				type : "POST",
+				url : "/ko_mall/setting/board/board_check_ajax.php",
+				dataType : "json",
+				data : {
+					board_id : board_id
+				},
+				success : function(args) {
+					//console.log(args);
+					if(args.result == "true"){
+						alert("등록 가능한 ID입니다.");
+						$("[data-id-check]").data("id-check",true);
+					} else {
+						alert("등록 불가능한 ID입니다.");
+						$("[data-id-check]").data("id-check",false);
+					}
+				}
+			});
+		});
+		
+		//id가 변경되었을시 새로 중복확인 필요
+		$("#id").keyup(function(){
+			$("[data-id-check]").data("id-check",false);
+		});
+
+		//회원게시판은 글쓰기, 삭제가 비회원이 사용 불가
+		$("input[type=radio][name=is_membership]").change(function(){
+			if($(this).val() == "Y"){
+				$("select[name='auth_delete'] option[value='10']").hide();
+				$("select[name='auth_write'] option[value='10']").hide();
+				$("select[name='auth_write'] option:eq(1)").prop("selected", true);
+				$("select[name='auth_delete'] option:eq(1)").prop("selected", true);
+			} else {
+				$("select[name=auth_delete] option[value='10']").show();
+				$("select[name=auth_write] option[value='10']").show();
+				$("select[name='auth_write'] option:eq(0)").prop("selected", true);
+				$("select[name='auth_delete'] option:eq(0)").prop("selected", true);
+			}
+		});
+
+		//submit시 id중복확인 진행하였는지 확인
+		$("form").submit(function(){
+			if($("[data-id-check]").data("id-check") == false){
+				alert("ID 중복확인을 해주세요.");
+				return false;
+			}
+		});
+
+		/* ------------- STEP 01 ------------- */
+		
+		//step1의 제목값이 step3에 자동입력되도록
+		$("[data-board-variable=title]").keyup(function(){
+			$("#title").val($(this).val());
+		});
+
+		/* ------------- STEP 02 ------------- */
+
+		//답글, 리플 사용불가 게시판 처리 함수
+		function used_board_properties(skin){
+			//카테고리 사용불가 게시판 Array
+			var not_category = [ 'notice', 'calendar_A', 'calendar_B'];
+
+			//답글 사용불가 게시판 Array
+			var not_reply = [ 'notice' , 'blog' , 'calendar_A' , 'calendar_B', 'pdf' , 'youtube' , 'gallery' , 'area' , 'contact', 'nomal_contact'];
+
+			//코멘트 사용불가 게시판 Array
+			var not_comment = [ 'pdf',  'calendar_A', 'calendar_B' ];
+
+			//카테고리 불가시 처리
+			if($.inArray(skin, not_category) !== -1){
+				$("[data-board-properties=use_category]").prop("disabled", true);
+				$("[data-board-properties=category_detail]").css("display", "none");
+			} else {
+				$("[data-board-properties=use_category]").prop("disabled", false);
+				if($("[data-board-properties=use_category]:checked").val() == "Y"){
+					$("[data-board-properties=category_detail]").css("display", "");
+				}
+			}
+			
+			//답글 불가시 처리
+			if($.inArray(skin, not_reply)  !== -1){
+				$("[data-board-properties=use_reply]").prop("disabled", true);
+			} else {
+				$("[data-board-properties=use_reply]").prop("disabled", false);
+			}
+
+				//답글 불가시 처리
+			if($.inArray(skin, not_comment)  !== -1){
+				$("[data-board-properties=use_comment]").prop("disabled", true);
+			} else {
+				$("[data-board-properties=use_comment]").prop("disabled", false);
+			}
+
+
+
+
+
+
+
+			if(skin == "area"){
+				$("[data-board-properties=always_secret]").attr("disabled", true);
+			} else {
+				$("[data-board-properties=always_secret]").attr("disabled", false);
+
+			}
+		}
+
+		//step2 라디오 버튼값에 따라 미리보기 이미지 변경 / step3의 셀렉트 박스값 변경
+		$("[data-preview-skin]").change(function(){
+			if($(this).is(":checked")){
+				$("[data-preview-view]").attr("src", "/ko_mall/images/cms/"+ $(this).data("preview-skin") + ".jpg");
+				$("#skin option[value='"+$(this).data("preview-skin")+"']").attr("selected", true);
+				used_board_properties($("#skin option:selected").val());
+			} 
+		});
+
+
+		/* ------------- STEP 03 ------------- */
+
+		//리플, 카테고리 사용, 미사용 불가 함수
+		used_board_properties($("#skin option:selected").val());
+
+		$("#skin").on("change", function(){ 
+			used_board_properties($("#skin option:selected").val());
+		});
+
+		$("[data-board-properties=use_category]").change(function() {
+			if($(this).val() == "Y"){
+				$("[data-board-properties=category_detail]").css("display", "");
+				$("[data-board-properties=category_detail]").prop("disabled", false);
+			} else {
+				$("[data-board-properties=category_detail]").css("display", "none");
+				$("[data-board-properties=category_detail]").prop("disabled", true);
+			}
+		});
+		
+
+		//부서별 권한설정 사용안함 일시 체크 해제
+		$("#no_dept").click(function(){
+			if(!$(this).is(":checked")){
+				$("[data-dept-list]").attr("checked", false);
+			}
+		});
+
+		$("[data-dept-list]").click(function(){
+			if($(this).is(":checked")){
+				$("#no_dept").prop("checked", true);
+			}
+		});
+
+		$("#add_category").click(function(){
+			var count = $("#category_area > div").size() + 1;
+			var del_id = "category_"+count;
+			$("#category_area").append("<div id='category_"+count+"'><input type='text' name='category_tmp[]'/> <a href='#' id='del_category_"+count+"' class='button white' onclick='$(\"#"+del_id+"\").remove();'><span>- 삭제</span></a></div>");
+		});
+		
+	});
+
+</script>

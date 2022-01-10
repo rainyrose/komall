@@ -1,0 +1,51 @@
+<?
+	$limit = 6;
+	if($next){
+		$paging = "next";
+		$Endpoint = $next;
+	} else if($prev){
+		$paging = "prev";
+		$Endpoint = $prev;
+	} else {
+		$paging = "";
+		$Endpoint = "";
+	}
+
+
+	$instagram = load_instagram($board[instagram_userId], $board[instagram_accessToken], $limit, $paging, $Endpoint);
+	$nextToken = $instagram[next];
+	$prevToken = $instagram[prev];
+
+	unset($instagram['next']);
+	unset($instagram['prev']);
+	$total = count($instagram);
+
+
+?>
+<? if($total > 0) { ?>
+	<ul class="photoList">
+		<? foreach($instagram AS $row){ ?>
+			<li>
+				<a href="<?=$row[permalink]?>" target="_blank">
+					<span class="img">
+					<? if($row[media_type] == "VIDEO"){ ?>
+						<i style="background-image:url(<?=$row[thumbnail_url]?>)"></i>
+					<? } else { ?>
+						<i style="background-image:url(<?=$row[media_url]?>)"></i>
+					<? } ?>
+					</span>
+					<em></em>
+					<span class="write">
+						<em><?=$row[caption]?></em>
+						<i></i>
+					</span>
+				</a>
+			</li>
+<? } ?>
+	</ul>
+<? } else { ?>
+	<div class="none_data">등록된 글이 없습니다.</div>	
+<? } ?>
+
+<a href="<?=$common_queryString?>&next=<?=$nextToken?>">다음페이지</a>
+<a href="<?=$common_queryString?>&before=<?=$prevToken?>">이전페이지</a>

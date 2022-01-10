@@ -1,0 +1,227 @@
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/top.html"; ?>
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/header.html"; ?>
+
+
+
+			<nav class="lnb small">
+				<!-- 선택시 a태그 class="on" -->
+				<ul>
+					<li><a href="/html/orderList.html" class="on">전체주문내역</a></li>
+					<li><a href="/html/returnList.html">반품내역</a></li>
+					<li><a href="/html/payList.html">입금확인요청</a></li>
+				</ul>
+			</nav>
+		
+			<div class="box pd" style="min-height:inherit;">
+				<!-- 주문현황 -->
+				<div class="box_title">
+					<span>주문현황</span>
+					<!-- 선택시 a에 class on 추가 -->
+					<ul>
+						<li><a href="#" class="on"><em>전체</em><i>20</i></a></li>
+						<li><a href="#"><em>주문</em><i>8</i></a></li>
+						<li><a href="#"><em>입금</em><i>3</i></a></li>
+						<li><a href="#"><em>준비</em><i>15</i></a></li>
+						<li><a href="#"><em>배송</em><i>5</i></a></li>
+						<li><a href="#"><em>완료</em><i>5</i></a></li>
+						<li><a href="#"><em>전체취소</em><i>0</i></a></li>
+						<li><a href="#"><em>부분취소</em><i>0</i></a></li>
+					</ul>
+				</div>
+				<!-- //주문현황 -->
+				
+				<h2>상세검색</h2>
+				<table class="table">
+					<caption>상세검색</caption>
+					<colgroup>
+						<col style="width:15%;">
+						<col style="width:35%;">
+						<col style="width:15%;">
+						<col>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row"><label for="">키워드검색</label></th>
+							<td>
+								<select name="" id="">
+									<option value="">주문번호</option>
+									<option value="">회원ID</option>
+								</select>
+								<input type="text" name="" id="" class="input300"/>
+							</td>
+							<th scope="row">주문일자</th>
+							<td>
+								<input type="text" name="start_date" value="" title="시작일" class="input150 datepicker hasDatepicker" placeholder="예) 2019-06-13" data-form-type="datepicker" id="dp1560406375418">
+								<button type="button" class="ui-datepicker-trigger">달력보기</button>
+								~ 
+								<input type="text" name="end_date" value="" title="종료일" class="input150 datepicker hasDatepicker" placeholder="예) 2019-06-13" data-form-type="datepicker" id="dp1560406375419">
+								<button type="button" class="ui-datepicker-trigger">달력보기</button>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">결제수단</th>
+							<td>
+								<div class="designRadio">
+									<input type="radio" name="" id=""/><label for="">전체</label>
+									<input type="radio" name="" id=""/><label for="">무통장</label>
+									<input type="radio" name="" id=""/><label for="">가상계좌</label>
+									<input type="radio" name="" id=""/><label for="">계좌이체</label>
+									<input type="radio" name="" id=""/><label for="">휴대폰</label>
+									<input type="radio" name="" id=""/><label for="">신용카드</label>
+									<input type="radio" name="" id=""/><label for="">PG간편결제</label>
+								</div>
+							</td>
+							<th scope="row">기타선택</th>
+							<td>
+								<div class="designCheck">
+									<input type="checkbox" name="" id=""/><label for="">미수금</label>
+									<input type="checkbox" name="" id=""/><label for="">반품,품절</label>
+									<input type="checkbox" name="" id=""/><label for="">환불</label>
+									<input type="checkbox" name="" id=""/><label for="">포인트주문</label>
+								</div>
+							</td>
+						</tr>						
+					</tbody>
+				</table>
+				<div class="tac" style="padding-top:10px;">
+					<input type="submit" class="button lg" value="검색">
+					<input type="button" class="button lg white" value="초기화">
+				</div>
+			</div>
+			
+			<div class="box pd">
+				<h2>전체주문내역</h2>
+				<table class="bbsList">
+					<caption>전체주문내역</caption>
+					<thead>
+						<tr>
+							<th scope="col">주문번호</th>
+							<th scope="col">상태
+								<a href="#" data-tooltip="explan">안내
+									<div>항목선택시 상태값이 <span class="txt_red">수정반영</span>됩니다.</div>
+								</a>
+							</th>
+							<th scope="col">결제수단</th>
+							<th scope="col">회원ID</th>
+							<th scope="col">연락처</th>
+							<th scope="col">배송받는분</th>
+							<th scope="col">주문상품수</th>
+							<th scope="col">총결제금액</th>
+							<th scope="col">포인트사용</th>
+							<th scope="col">미수금</th>
+							<th scope="col">배송정보</th>
+							<th scope="col">관리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>무통장</td>
+							<td>youngcart5</td>
+							<td>010-1234-4567</td>
+							<td>홍길동</td>
+							<td>5건</td>
+							<td>66,000</td>
+							<td>200</td>
+							<td class="txt_red">0</td>
+							<td>
+								<!-- 배송정보가 입력이 안되어있으면 미표시 -->
+								<div class="area_view_pop">
+									<a href="#" class="button sm white view">정보보기</a>
+									<div class="info">
+										<!-- 송장번호가 여러개있는경우 반복표시 -->
+										<ul>
+											<li><em>우체국택배</em><span>6066236400021</span><a href="#" class="button sm gray">배송추적</a></li>
+											<li><em>우체국택배</em><span>6066236400081</span><a href="#" class="button sm gray">배송추적</a></li>
+										</ul>
+									</div>
+								</div>
+							</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>무통장</td>
+							<td>youngcart5</td>
+							<td>010-1234-4567</td>
+							<td>홍길동</td>
+							<td>5건</td>
+							<td>66,000</td>
+							<td>200</td>
+							<td class="txt_red">0</td>
+							<td>
+								<div class="area_view_pop">
+									<a href="#" class="button sm white view">정보보기</a>
+									<div class="info">
+										<ul>
+											<li><em>우체국택배</em><span>6066236400021</span><a href="#" class="button sm gray">배송추적</a></li>
+										</ul>
+									</div>
+								</div>
+							</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td>2019060811172744</td>
+							<td>
+								<select name="" id="">
+									<option value="">주문</option>
+									<option value="">입금</option>
+									<option value="">준비</option>
+									<option value="">배송</option>
+									<option value="">완료</option>
+									<option value="">취소</option>
+									<option value="">반품</option>
+								</select>
+							</td>
+							<td>무통장</td>
+							<td>youngcart5</td>
+							<td>010-1234-4567</td>
+							<td>홍길동</td>
+							<td>5건</td>
+							<td>66,000</td>
+							<td>200</td>
+							<td class="txt_red">0</td>
+							<td>
+								-
+							</td>
+							<td>
+								<a href="#" class="button sm gray">보기</a>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="12">검색된 결과가 없습니다.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+
+<? include  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/inc/footer.html"; ?>

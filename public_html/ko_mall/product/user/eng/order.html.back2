@@ -1,0 +1,1071 @@
+<?
+if($total_data){
+	$total_data = htmlspecialchars_decode($_POST[total_data]);
+}
+/*
+$not = array(
+		array("product_id" => "21055359", "options" => "3", "add_options" => "5535201|1", "option_flag" => "N"),
+		array("product_id" => "T5013", "options" => "6080484|4", "add_options" => "", "option_flag" => "Y"),
+		array("product_id" => "A3", "options" => "14178241|4^9832992|4", "add_options" => "B1|2", "option_flag" => "Y")
+);
+*/
+
+//print_r($total_data);
+
+//장바구니시
+if($total_data){
+	$options_json = json_decode(urldecode($total_data), true);
+	$options_json1 = json_encode($options_json);
+	$options_json = array_filter($options_json);
+} else {
+	//바로구매시
+	$options_json = array(array("product_id" => $product_id, "options" => $options, "add_options" => $add_options, "option_flag" => $option_flag));
+	$options_json1 = json_encode($options_json);
+}
+
+$order_id = get_micreotime();
+$_SESSION[options_checker] = $options_json1;
+?>
+<script language="javascript" src="https://pretest.uplus.co.kr:9443/xpay/js/xpay_crossplatform.js" type="text/javascript"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AQo594QHoTd-KThNORC5s2CjFeUxlOn1SEVGlX0fuxBEVfmK2ZMuZVdlnUeofHC3JMj8BmWq-cZKQHmM&commit=false"></script>
+
+
+			<form action="<?=$_SERVER[PHP_SELF]?>" method="POST" enctype="application/json" name="LGD_PAYINFO" id="LGD_PAYINFO">
+			<input type="hidden" name="mode" value="order_proc" />
+			<input type="hidden" name="add_delivery_price" value="<?=get_add_delivery_price($connect, $_SESSION[member_id])?>" data-add-deliveryhidden/>
+			<input type="hidden" name="id" value="<?=$id?>" />
+			<input type="hidden" name="category" value="<?=$category?>" />
+			<input type="hidden" name="option_" value="<?=htmlspecialchars($options_json1, ENT_QUOTES)?>" />
+			<input type="hidden" name="order_id" value="<?=$order_id?>" />
+			<input type="hidden" name="ref_product" value="<?=$product_id?>" />
+			<input type="hidden" name="toid" value="" />
+			<div class="area_shopCart">
+
+
+				<a href="#" data-shop-view="addcordion">주문상품 <em>(<?=count($options_json)?>개)</em></a>
+
+				<div data-shop-view="addcordion_conts">
+					<table class="table">
+						<caption>상품목록</caption>
+						<colgroup>
+							<col/>
+							<col style="width:10%"/>
+							<col style="width:12%"/>
+							<col style="width:10%"/>
+
+							<col style="width:10%"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">상품정보</th>
+								<th scope="col">판매가</th>
+								<th scope="col">수량</th>
+								<th scope="col">적립</th>
+
+								<th scope="col">합계</th>
+							</tr>
+						</thead>
+						<tbody>
+						<?
+						$price_check = 0;
+						$ik = 0;
+						$jk = 0;
+
+						$check_cnt_product_array = array();
+						$product_id_array = array();
+						foreach($options_json AS $json){
+
+							$option_flag = $json[option_flag];
+							$options = $json[options];
+							$add_options = $json[add_options];
+							$product_id = $json[product_id];
+							$product_id_array[] = $product_id;
+							if($option_flag == "Y"){
+								$options_data = explode("^", $options);
+							} else {
+								$options_data = $options;
+								$options_data = array($id."|".$options);
+							}
+
+							$add_options_data = explode("^", $add_options);
+							$add_options_data = array_filter($add_options_data);
+
+							$options_data = array_filter($options_data);
+
+							$product_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_product WHERE id = '$product_id' LIMIT 1"));
+							if($product_[use_telform] == "Y") $site_pay[use_uplus] = "N";
+							foreach($options_data AS $odata){
+
+								$option_detail = explode("|", $odata);
+
+								if(!$option_detail[1] || $option_detail[1] == "0"){
+									error("비정상적인 접근입니다. 올바른 수량이 아닙니다.");
+									exit;
+								}
+
+								if($product_[min_count])
+								$check_cnt_product_array[$product_[id]]['min'] = $product_[min_count];
+								if($product_[max_count])
+								$check_cnt_product_array[$product_[id]]['max'] = $product_[max_count];
+								$check_cnt_product_array[$product_[id]]['cnt'] = $check_cnt_product_array[$product_[id]]['cnt'] + $option_detail[1];
+								$check_cnt_product_array[$product_[id]]['title'] = $product_[product_title];
+
+								$option_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE id='$option_detail[0]' AND ref_product = '$product_[no]' LIMIT 1"));
+
+								if($option_[price_type] == "+"){
+									$option_detail_price = $product_[price] + $option_[price];
+								} else if($option_[price_type] == "-") {
+									$option_detail_price = $product_[price] - $option_[price];
+								} else {
+									//옵션이 없을때
+									$option_detail_price = $product_[price];
+								}
+
+								$option_price = ($option_detail_price * $option_detail[1]);
+								$price_check += $option_price;
+
+								if($product_[point_type] == "2"){
+									$option_point = ($option_price * ($product_[point_detail] / 100));
+								}
+
+						?>
+								<tr>
+									<td data-cart-table="product" class="tal">
+										<div data-cart-option="img">
+
+											<a href="/<?=$add_folder?>product/product.html?mode=view&id=<?=$product_[id]?>" class="img"><img src="/upload/product/<?=$product_[title_img]?>" alt=""/></a>
+											<div>
+
+												<em><?=$product_[product_title]?></em>
+
+
+												<? if($option_flag == "Y"){?>
+												<i>[ 옵션 : <?=$option_[title]?> ]</i>
+												<? } ?>
+
+											</div>
+										</div>
+									</td>
+									<? if($product_[use_telform] != "Y"){ ?>
+									<td data-cart-table="price" data-price-conv="option_price" data-uniq-odp="<?=$ik?>"><?=number_format($option_detail_price)?>원</td>
+									<? }else{ ?>
+									<td data-cart-table="price">전화문의</td>
+									<? } ?>
+									<td data-cart-table="count"><?=$option_detail[1]?></td>
+									<td data-cart-table="point"><?=number_format($option_point)?> P</td>
+
+									<? if($product_[use_telform] != "Y"){ ?>
+									<td data-cart-table="total" data-price-conv="total_price" data-uniq-op="<?=$ik?>"><?=number_format($option_price)?>원</td>
+									<? }else{ ?>
+									<td data-cart-table="total">전화문의</td>
+									<? } ?>
+								</tr>
+							<? $ik++; } ?>
+
+							<?
+								foreach($add_options_data AS $aodata){
+									$add_option_detail = explode("|", $aodata);
+									$add_option_ = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_option_detail WHERE id='$add_option_detail[0]' AND ref_product = '$product_[no]' ANd otype='add' LIMIT 1"));
+
+									if($add_option_[price_type] == "+"){
+										$add_option_detail_price = 0 + $add_option_[price];
+									} else if($add_option_[price_type] == "-") {
+										$add_option_detail_price = 0 - $add_option_[price];
+									}
+
+
+									$add_option_price = ($add_option_detail_price * $add_option_detail[1]);
+									$price_check += $add_option_price;
+
+									//포인트 직접설정
+									if($product_[point_type] == "2"){
+										$add_option_point = ($add_option_price * ($product_[point_detail] / 100));
+									}
+
+
+								?>
+									<tr>
+										<td data-cart-table="product" class="tal">
+											<div data-cart-option="img">
+
+												<a href="/<?=$add_folder?>product/product.html?mode=view&id=<?=$product_[id]?>" class="img"><img src="/upload/product/<?=$product_[title_img]?>" alt=""/></a>
+												<div>
+
+													<em>[추가옵션] <?=$add_option_[title]?></em>
+
+
+												</div>
+											</div>
+										</td>
+										<td data-cart-table="price" data-price-conv="add_option_price" data-uniq-aodp="<?=$jk?>"><?=number_format($add_option_detail_price)?>원</td>
+										<td data-cart-table="count"><?=$add_option_detail[1]?></td>
+										<td data-cart-table="point"><?=number_format($add_option_point)?> P</td>
+
+										<td data-cart-table="total" data-price-conv="add_total_price" data-uniq-aop="<?=$jk?>"><?=number_format($add_option_price)?>원</td>
+									</tr>
+								<?
+							$jk++;}
+						}
+						foreach ($check_cnt_product_array as $k_product_id => $k_product_value) {
+							if($k_product_value[min] && $k_product_value[cnt] < $k_product_value[min]){error("[".$k_product_value[title]."] 상품의 최소구매갯수는 ".$k_product_value[min]."개 입니다.");}
+							if($k_product_value[max] && $k_product_value[cnt] > $k_product_value[max]){error("[".$k_product_value[title]."] 상품의 최대구매갯수는 ".$k_product_value[max]."개 입니다.");}
+						}
+						 ?>
+						</tbody>
+					</table>
+				</div>
+
+				<div data-cart-option="info">
+					<a href="#" onclick="javascript:history.go(-1);" class="button white">이전화면</a>
+					<p class="icon_shopInfo">상품의 옵션 및 수량 변경은 상품상세 또는 장바구니에서 가능합니다.</p>
+				</div>
+			</div>
+			<?
+			if($_SESSION[order_type] == "member"){
+				$query = "SELECT * FROM koweb_member WHERE id = '$_SESSION[member_id]' AND state='Y' LIMIT 1";
+				$result = mysqli_query($connect, $query);
+				$row = mysqli_fetch_array($result);
+				$phone = explode("-", $row[phone]);
+				$email = explode("@", $row[email]);
+				$point_ = mysqli_fetch_array(mysqli_query($connect, "SELECT SUM(point) AS total FROM koweb_point WHERE member='$row[id]'"));
+			}?>
+
+
+			<? if( !isset($_SERVER["HTTPS"]) || $_SERVER['HTTPS'] == "" ){ ?>
+				<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+			<? }else{ ?>
+				<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+			<? } ?>
+				<script type="text/javascript">
+					function execDaumPostcode()
+					{
+						new daum.Postcode(
+						{
+							oncomplete: function(data)
+							{
+								// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+								// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+								// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+								var fullAddr  = "";					// 최종 주소 변수
+								var extraAddr = "";					// 조합형 주소 변수
+
+								// 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+								if (data.userSelectedType === "R")
+								{
+									// 사용자가 도로명 주소를 선택했을 경우
+									fullAddr = data.roadAddress;
+								}
+								else
+								{
+									// 사용자가 지번 주소를 선택했을 경우(J)
+									fullAddr = data.jibunAddress;
+								}
+
+								// 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+								if (data.userSelectedType === "R")
+								{
+									// 법정동명이 있을 경우 추가한다.
+									if (data.bname !== "")
+									{
+										extraAddr += data.bname;
+									}
+
+									// 건물명이 있을 경우 추가한다.
+									if (data.buildingName !== "")
+									{
+										extraAddr += (extraAddr !== "" ? ", " + data.buildingName : data.buildingName);
+									}
+
+									// 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+									fullAddr += (extraAddr !== "" ? " (" + extraAddr + ")" : "");
+								}
+
+								// 우편번호와 주소 정보를 해당 필드에 넣는다.
+								document.getElementById("zip").value      = data.zonecode;			// 5자리 새우편번호 사용
+								document.getElementById("address1").value = fullAddr;
+
+								// 커서를 상세주소 필드로 이동한다.
+								document.getElementById("address2").focus();
+
+								$("[data-expected-price]").val($("[data-expected-price]").val() - $("[data-add-deliveryhidden]").val());
+								$("[data-expected-price]").text(number_format($("[data-expected-price]").val()));
+								$("[data-total-price]").text(number_format($("[data-expected-price]").val()));
+
+								 $.ajax({
+									type : "POST",
+									url : "/ko_mall/product/user/add_delivery_ajax.php",
+									data : {
+										zipcode: data.zonecode
+									},
+									success : function(args) {
+
+										$("[data-add-delivery]").text(number_format(args));
+										$("[data-add-deliveryhidden]").val(args);
+
+										$("[data-expected-price]").val(parseInt($("[data-expected-price]").val()) + parseInt($("[data-add-deliveryhidden]").val()));
+										$("[data-expected-price]").text(number_format($("[data-expected-price]").val()));
+										$("[data-total-price]").text(number_format($("[data-expected-price]").val()));
+									}
+								});
+
+							}
+						}).open();
+					}
+				</script>
+				<script type="text/javascript">
+					function mail_check(){
+						if($("#tmp_mail").val() == "other"){
+							$("#email2").val("");
+							$("#email2").prop("disabled", "");
+						} else {
+							$("#email2").val("");
+							$("#email2").val($("#tmp_mail").val());
+							$("#email2").prop("disabled", "disabled");
+						}
+							$("#email3").val($("#email2").val());
+					}
+				</script>
+				<script type="text/javascript">
+					$(function() {
+						$("select[name='tmp_email'] option[value='<?=$email[1]?>']").prop("selected", true);
+						$("select[name='tmp_mail'] option[value='<?=$email[1]?>']").prop("selected", true);
+						$("select[name='phone1'] option[value='<?=$phone[0]?>']").prop("selected", true);
+					});
+				</script>
+
+			<div class="area_shopPay">
+				<p class="title">배송 정보</p>
+				<table class="bbsView">
+					<caption>배송 정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:85%"/>
+					</colgroup>
+					<tbody>
+
+						<? if($_SESSION[order_type] == "guest"){?>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주문자 아이디</th>
+							<td>
+								<span style='font-weight:800'><?=$_SESSION['member_id']?></span>
+								<span>(비회원 주문조회에 필요합니다)</span>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주문 비밀번호</th>
+							<td>
+								<input type="password" name="password" id="password">
+								<p>(영문과 숫자 조합, 6자~12자)</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>비밀번호 확인</th>
+							<td><input type="password" name="password_re" id="password_re"></td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>이메일</th>
+							<td class="email">
+
+								<input type="text" name="email1" id="email1" value="<?=$email[0]?>" class="<?=$email_required?>" title="이메일"/> @
+								<select name="tmp_mail" id="tmp_mail" onchange="javascript:mail_check();" class="input150">
+									<option value="">선택하세요</option>
+									<option value="naver.com">naver.com</option>
+									<option value="daum.net">daum.net</option>
+									<option value="hanmail.net">hanmail.net</option>
+									<option value="hotmail.com">hotmail.com</option>
+									<option value="gmail.com">gmail.com</option>
+									<option value="other">직접입력</option>
+								</select>
+								<input type="text" name="email2" value="<?=$email[1]?>" id="email2" disabled class="<?=$email_required?>" title="이메일"/>
+							</td>
+						</tr>
+
+						<? } ?>
+						<? if($_SESSION[order_type] == "member"){?>
+						<?
+						$address_query = "SELECT count(*) as cnt FROM koweb_address WHERE member='{$_SESSION['member_id']}'";
+						$address_result = mysqli_query($connect,$address_query);
+						$address_row = mysqli_fetch_array($address_result);
+						$address_flag = false;
+						if($address_row['cnt'] > 0) $address_flag = true;
+						?>
+
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>배송지 선택</th>
+							<td class="choice_btn">
+								<div class="designRadio" style="display:inline-block; vertical-align:middle;">
+									<input type="radio" name="address_type" onchange="get_main_address('1')" value="1" id="address_type1" checked/><label for="address_type1">회원 정보와 동일</label>
+									<? if($address_flag == ture){ ?>
+									<input type="radio" name="address_type" onchange="get_main_address('2')" value="2" id="address_type2"/><label for="address_type2">기본배송지</label>
+									<? } ?>
+									<input type="radio" name="address_type" onchange="get_main_address('3')" value="3" id="address_type3"/><label for="address_type3">새로운 배송지</label>
+								</div>
+								<a href="javascript:void(0)" onclick="open_address_list()" class="button sm">배송지 목록</a>
+							</td>
+						</tr>
+
+						<? } ?>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>받으시는 분</th>
+							<td><input type="text" name="name" id="name" value="<?=$row[name]?>"></td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>주소</th>
+							<td>
+								<input type="text" class="input100" name="zip" id="zip" value="<?=$row[zip]?>" readonly="readonly">
+								<a href="javascript:;" class="button white" onclick="javascript:execDaumPostcode();">우편번호검색</a>
+								<input type="text" class="inputFull" name="address1" id="address1" value="<?=$row[address1]?>" readonly="readonly"/>
+								<input type="text" class="inputFull" name="address2" id="address2" value="<?=$row[address2]?>" placeholder="상세주소"/>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><span class="marking">필수입력</span>휴대전화</th>
+							<td class="tel">
+								<input type="text" name="phone1" id="phone1" value="<?=$phone[0]?>" class="input70" maxlength=4>
+								-
+								<input type="text" name="phone2" id="phone2" value="<?=$phone[1]?>" class="input70" maxlength=4>
+								-
+								<input type="text" name="phone3" id="phone3" value="<?=$phone[2]?>" class="input70" maxlength=4>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">배송메세지</th>
+							<td class="mail">
+								<textarea name="memo" id="memo" class="inputFull"><?=$row[memo]?></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<? if($_SESSION[order_type] == "member"){?>
+
+
+				<p class="title">포인트 사용</p>
+				<div data-shop-view="point">
+					<div>
+						<em>포인트사용 <p style="font-size:12px;">(100점 단위)</p></em>
+						<span><input type="text" name="use_point" id="use_point" class="input100" data-keyup-point/> 점</span>
+					</div>
+					<div>
+						<ul>
+							<li>
+								<em>보유포인트</em>
+								<span><?=number_format($point_[total])?>점</span>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+
+				<? } ?>
+
+			</div>
+
+
+
+			<a href="#" data-shop-view="addcordion" class="show">결제정보</a>
+
+
+			<div data-shop-view="addcordion_conts" data-cart-option="total">
+				<? if($product_[use_telform] != "Y"){ ?>
+
+				<div class="price">
+					<em>총 구매금액</em>
+					<span data-product-total><?=number_format($price_check)?>원</span>
+				</div>
+
+
+				<span>+</span>
+				<div class="deliver">
+					<em>배송비</em>
+					<? $delivery_ = get_delivery_price($connect, $product_id_array, $price_check); ?>
+					<span data-delivery><?=number_format($delivery_)?>원</span>
+				</div>
+
+
+				<span>+</span>
+				<div class="deliver_add">
+					<em>추가 배송비</em>
+					<? $delivery_add = 	get_add_delivery_price($connect, $_SESSION[member_id]); ?>
+					<span data-add-delivery><?=number_format($delivery_add)?>원</span>
+				</div>
+
+
+				<span class="minus">-</span>
+				<div class="point">
+					<em>포인트 할인</em>
+					<span data-use-point>0점</span>
+				</div>
+
+
+
+
+				<span>=</span>
+				<div class="total">
+					<em>결제 예정금액</em>
+					<? $expected = $price_check+$delivery_+$delivery_add; ?>
+					<input type="hidden" data-expected-price value="<?=$expected?>" />
+					<span data-expected-price><?=number_format($expected)?>원</span>
+				</div>
+				<? }else{ ?>
+				<div class="total">
+				<em><?=$mall_config[company_phone]?></em>
+				<span data-expected-price>전화문의</span>
+				</div>
+				<? } ?>
+			</div>
+
+
+
+			<? if($_SESSION[order_type] == "guest"){ ?>
+
+
+			<a href="#" data-shop-view="addcordion" class="show">약관동의</a>
+
+
+			<div data-shop-view="addcordion_conts">
+				<div class="area_shop_agree">
+					<div class="designCheck first">
+						<input type="checkbox" id="allagree"/><label for="allagree">쇼핑몰 이용약관, 비회원 구매시 개인정보수집이용 동의에 모두 동의합니다.</label>
+					</div>
+					<dl>
+						<dt>개인정보 수집 및 이용에 관한 동의</dt>
+						<dd>
+
+							<div class="scroll">
+								<?=htmlspecialchars_decode($site_pay[sinfo1])?>
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="agree1" id="agree1"/><label for="agree1">동의합니다.</label>
+							</div>
+						</dd>
+						<dt>쇼핑몰 이용약관</dt>
+						<dd>
+
+							<div class="scroll">
+								<?=htmlspecialchars_decode($site_pay[sinfo2])?>
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="agree2" id="agree2"/><label for="agree2">동의합니다.</label>
+							</div>
+						</dd>
+						<dt>개인정보수집이용동의</dt>
+						<dd>
+
+							<div class="scroll">
+								<?=htmlspecialchars_decode($site_pay[sinfo3])?>
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="agree3" id="agree3"/><label for="agree3">동의합니다.</label>
+							</div>
+						</dd>
+						<dt>쇼핑정보 수신동의</dt>
+						<dd>
+
+							<div class="scroll">
+								<?=htmlspecialchars_decode($site_pay[sinfo4])?>
+							</div>
+							<div class="designCheck">
+								<input type="checkbox" name="agree4" id="agree4"/><label for="agree4">동의합니다.</label>
+							</div>
+						</dd>
+					</dl>
+				</div>
+			</div>
+
+			<? } ?>
+
+
+
+
+			<a href="#" data-shop-view="addcordion" class="show">결제수단</a>
+
+			<div data-shop-view="addcordion_conts" class="area_shop_payment">
+				<p class="title">결제수단</p>
+				<div class="designRadio blue">
+					<input type="radio" name="pay_type" id="pay_type1" checked value="무통장입금" data-pay-type="direct"/><label for="pay_type1">무통장입금</label>
+					<? if($site_pay[use_uplus] == "Y"){ ?>
+						<input type="radio" name="pay_type" id="pay_type5" value="신용카드" data-pay-type="SC0010"/><label for="pay_type5">신용카드</label>
+						<input type="radio" name="pay_type" id="pay_type3" value="계좌이체" data-pay-type="SC0030"/><label for="pay_type3">계좌이체</label>
+						<? if($site_pay[use_phone_pay] == "Y"){?>
+						<input type="radio" name="pay_type" id="pay_type4" value="휴대폰" data-pay-type="SC0060"/><label for="pay_type4">휴대폰</label>
+						<? } ?>
+						<? if($site_pay[use_culture_pay] == "Y"){?>
+						<input type="radio" name="pay_type" id="pay_type6" value="문화상품권" data-pay-type="SC0111"/><label for="pay_type6">문화상품권</label>
+						<? } ?>
+						<? if($site_pay[use_tel_pay] == "Y"){?>
+						<input type="radio" name="pay_type" id="pay_type7" value="유선전화결제" data-pay-type="SC0070"/><label for="pay_type7">유선전화결제</label>
+						<? } ?>
+					<? } ?>
+					<input type="radio" name="pay_type" id="pay_type12" value="paypal" data-pay-type="paypal"/><label for="pay_type12">PAYPAL</label>
+				</div>
+
+				<? $use_direct_list = explode("\n", nl2br($site_pay[use_direct_content])); ?>
+				<div class="bankbook">
+					<ul>
+						<li>
+							<em>은행선택</em>
+							<span>
+								<select name="bank_info" id="bank_info" class="input300">
+									<option value="">선택하십시오.</option>
+									<? foreach($use_direct_list AS $dl){ ?>
+										<? $dl = str_replace("<br />", "", $dl); ?>
+										<option value="<?=$dl?>"><?=$dl?></option>
+									<? } ?>
+								</select>
+							</span>
+						</li>
+						<li>
+							<em>입금자명</em>
+							<span>
+								<input type="text" name="bank_name" id="bank_name" class="input200" title="입금자명 입력" value="<?=$row[name]?>">
+							</span>
+						</li>
+						<li class="cash_paper">
+							<em>현금영수증</em>
+							<span>
+								<select name="cash_paper_type" id="cash_paper_type" class="input200">
+									<option value="">선택하세요</option>
+									<option value="소득공제용">소득공제용</option>
+									<option value="지출증빙용">지출증빙용</option>
+								</select>
+								<select name="cash_paper_method" id="cash_paper_method" class="input200">
+									<option value="">선택하세요</option>
+									<option value="휴대폰번호" data-cash-paper="소득공제용">휴대폰번호</option>
+									<option value="현금영수증카드" data-cash-paper="소득공제용">현금영수증카드</option>
+									<option value="기타카드" data-cash-paper="소득공제용">기타카드</option>
+									<option value="사업자번호" data-cash-paper="지출증빙용">사업자번호</option>
+								</select>
+							</span>
+							<span>
+								<input type="text" name="cash_paper_data" id="cash_paper_data" placeholder="정보입력 (숫자만 입력하세요)" value="">
+							</span>
+						</li>
+						<script type="text/javascript">
+							$(function(){
+								$("#cash_paper_type option[value='']").prop("selected", true);
+								$("#cash_paper_type").change(function(){
+									var this_ = $(this);
+									$("#cash_paper_method option[value='']").prop("selected", true);
+
+									$("#cash_paper_method option").each(function(){
+										if($(this).data("cash-paper") == $(this_).val()){
+											$(this).show();
+										} else {
+											$(this).hide();
+										}
+									});
+								});
+							});
+						</script>
+					</ul>
+				</div>
+
+			</div>
+
+
+
+
+
+
+
+
+			<div data-cart-option="total" class="area_shop_final">
+
+				<div class="method">
+					<em>결제방법</em>
+					<span data-pay-type>무통장입금</span>
+				</div>
+				<span></span>
+				<div class="total">
+					<em>최종 결제금액</em>
+					<? if($product_[use_telform] != "Y"){ ?>
+					<span data-total-price><?=number_format($expected)?></span>원
+					<? }else{ ?>
+					<span data-total-price>전화문의</span>
+					<? } ?>
+				</div>
+			</div>
+
+
+			<div class="designCheck">
+				<input type="checkbox" name="agree5" id="agree5"/><label for="agree5">결제정보를 확인하였으며, 구매진행에 동의합니다.</label>
+			</div>
+
+
+			<div class="btn_area">
+				<input type="submit" class="button lg" value="주문하기" data-payment-proc>
+				<a href="#" class="button lg white" onclick="javascript:history.go(-1);">취소하기</a>
+			</div>
+		</form>
+
+
+		<div id="popLayer01" data-pop-layer="layer" style="display:none;">
+			<div class="popBox mini">
+				<h2><span>PAYPAL결제</span></h2>
+				<div class="popConts">
+					<div id="paypal-button-container"></div>
+				</div>
+			</div>
+		</div>
+
+<div id="areag"></div>
+<script src="/js/pay.js"></script>
+<script type="text/javascript">
+	$("#allagree").change(function(){
+		if($(this).is(":checked")){
+			if($("#agree1").length){
+				$("#agree1").prop("checked", true);
+			}
+
+			if($("#agree2").length){
+				$("#agree2").prop("checked", true);
+			}
+
+			if($("#agree3").length){
+				$("#agree3").prop("checked", true);
+			}
+
+			if($("#agree4").length){
+				$("#agree4").prop("checked", true);
+			}
+		} else {
+			if($("#agree1").length){
+				$("#agree1").prop("checked", false);
+			}
+
+			if($("#agree2").length){
+				$("#agree2").prop("checked", false);
+			}
+
+			if($("#agree3").length){
+				$("#agree3").prop("checked", false);
+			}
+
+			if($("#agree4").length){
+				$("#agree4").prop("checked", false);
+			}
+		}
+	});
+
+	$(function(){
+		$("form").submit(function(){
+			var chk = true;
+
+
+			if($("#name").val() == ""){
+				alert("받으시는분을 입력해주세요");
+				chk = false;
+				return false;
+			}
+
+			if($("#zip").val() == "" || $("#address1").val() == "" || $("#address2").val() == ""){
+				alert("주소를 입력해주세요.");
+				chk = false;
+				return false;
+			}
+
+			if("<?=$_SESSION[order_type]?>" == "guest"){
+				if($("#password").val() == ""){
+					alert("주문조회 비밀번호를 입력해주세요");
+					chk = false;
+					return false;
+				}
+
+				if($("#password_re").val() != $("#password").val()){
+					alert("주문조회 비밀번호를 확인해주세요");
+					chk = false;
+					return false;
+				}
+
+				if(!$("#agree1").is(":checked")) {
+					alert("개인정보 수집 및 이용에 관한 동의에 동의하여야 구매가 가능합니다.");
+					chk = false;
+					return false;
+				}
+
+				if(!$("#agree2").is(":checked")) {
+					alert("쇼핑몰 이용약관에 동의하여야 구매가 가능합니다.");
+					chk = false;
+					return false;
+				}
+
+				if(!$("#agree3").is(":checked")) {
+					alert("개인정보수집이용동의에 동의하여야 구매가 가능합니다.");
+					chk = false;
+					return false;
+				}
+
+				if(!$("#agree4").is(":checked")) {
+				//	alert("쇼핑정보 수신동의에 동의하여야 구매가 가능합니다.");
+				//	return false;
+				}
+			} else {
+
+				if($("#phone1").val() == "" || $("#phone2").val() == "" || $("#phone3").val() == ""){
+					alert("휴대전화를 입력해주세요.");
+					chk = false;
+					return false;
+				}
+
+			}
+
+			if($("input[type=radio][name=pay_type]:checked").val() == "무통장입금"){
+				if(!$("select[name=bank_info]").val()) {
+					alert("입금은행을 선택해주세요.");
+					chk = false;
+					return false;
+				}
+
+				if(!$("input[name=bank_name]").val()) {
+					alert("입금자명을 입력해주세요.");
+					chk = false;
+					return false;
+				}
+			}
+
+			if(!$("#agree5").is(":checked")) {
+				alert("구매진행에 동의해주세요.");
+				return false;
+			}
+			if(!chk) return false;
+
+			if("<?=$site_pay[uplus_type]?>" == "Y"){
+				var paymode = "test";
+			} else {
+				var paymode = "service";
+			}
+			var paytype = $("input[type=radio][name=pay_type]:checked").data("pay-type");
+			var Ispaypal = $("input[name='toid']").val();
+			if(paytype == "direct"){
+				var origin_action = "<?=$_SERVER[PHP_SELF]?>";
+				document.LGD_PAYINFO.action = origin_action;
+				document.LGD_PAYINFO.target = "";
+			} else if(paytype == "paypal"){
+				if(Ispaypal == ""){
+					showPopup(popLayer01);
+					return false;
+				}
+			} else{
+				doPay(paymode, paytype);
+				//안써주면 실행안됨 doPay에서 처리됨
+				return false;
+			}
+
+		});
+	});
+
+<? if($_SESSION[order_type] == "member"){?>
+function open_address_list(){
+	window.open("/product/address.html","배송지 목록","width=400,height=700");
+}
+
+function get_main_address(num){
+	var doc = window.document;
+	if(num == 1){
+		var phone = "<?=$row['phone']?>";
+		var name = "<?=$row['name']?>";
+		var zip = "<?=$row['zip']?>";
+		var address1 = "<?=$row['address1']?>";
+		var address2 = "<?=$row['address2']?>";
+		var phoneList = phone.split("-");
+		doc.getElementById("phone1").value = phoneList[0];
+		doc.getElementById("phone2").value = phoneList[1];
+		doc.getElementById("phone3").value = phoneList[2];
+		doc.getElementById("name").value = name;
+		doc.getElementById("zip").value = zip;
+		doc.getElementById("address1").value = address1;
+		doc.getElementById("address2").value = address2;
+	}
+	if(num == 2){
+		$.ajax({
+			type : "GET",
+			url : "/ko_mall/product/user/ajax_get_main_address.php",
+			success : function(args) {
+				var res = JSON.parse(args);
+				var phoneList = res.phone.split("-");
+				doc.getElementById("phone1").value = phoneList[0];
+				doc.getElementById("phone2").value = phoneList[1];
+				doc.getElementById("phone3").value = phoneList[2];
+				doc.getElementById("name").value = res.name;
+				doc.getElementById("zip").value = res.zip;
+				doc.getElementById("address1").value = res.address1;
+				doc.getElementById("address2").value = res.address2;
+			}
+		});
+	}
+	if(num == 3){
+		doc.getElementById("phone1").value = "";
+		doc.getElementById("phone2").value = "";
+		doc.getElementById("phone3").value = "";
+		doc.getElementById("name").value = "";
+		doc.getElementById("zip").value = "";
+		doc.getElementById("address1").value = "";
+		doc.getElementById("address2").value = "";
+	}
+}
+<? } ?>
+</script>
+
+<script type="text/javascript">
+	$("input[type=radio][name=pay_type]").change(function(){
+
+		if($(this).val() == "paypal"){
+			var option = <?= json_encode($options_json); ?>;
+			var zip = $("input[name='zip']").val();
+
+			$.ajax({
+				type : "POST",
+				url : "/product/convert_price_ajax.php",
+				data : {
+					mode : "USD",
+					option : option,
+					zip : zip
+				},
+				success : function(args) {
+					var result = JSON.parse(args);
+					var option_add = result.add;
+					var option_ori = result.option;
+
+
+					for(var i = 0; i < option_ori.length; i++){
+						$("[data-uniq-op="+i+"]").text(option_ori[i].option_price +" USD");
+						$("[data-uniq-odp="+i+"]").text(option_ori[i].option_detail_price +" USD");
+					}
+					if(option_add){
+						for(var j = 0; j < option_add.length; j++){
+							$("[data-uniq-aop="+j+"]").text(option_add[j].add_option_price +" USD");
+							$("[data-uniq-aodp="+j+"]").text(option_add[j].add_option_detail_price +" USD");
+						}
+					}
+
+					$("span[data-expected-price]").text(result.total + " USD");
+					$("span[data-product-total]").text(result.product_total + " USD");
+					$("span[data-delivery]").text(result.delivery_price + " USD");
+					$("span[data-add-delivery]").text(result.delivery_add_price + " USD");
+					$("[data-total-price]").text(result.total + " USD");
+				}
+			});
+
+			$(".bankbook").hide();
+		} else {
+
+			var option = <?= json_encode($options_json); ?>;
+			var zip = $("input[name='zip']").val();
+
+			$.ajax({
+				type : "POST",
+				url : "/product/convert_price_ajax.php",
+				data : {
+					mode : "WON",
+					option : option,
+					zip : zip
+
+				},
+				success : function(args) {
+					var result = JSON.parse(args);
+					var option_add = result.add;
+					var option_ori = result.option;
+
+					for(var i = 0; i < option_ori.length; i++){
+						$("[data-uniq-op="+i+"]").text(number_format(option_ori[i].option_price) +" 원");
+						$("[data-uniq-odp="+i+"]").text(number_format(option_ori[i].option_detail_price) +" 원");
+					}
+					if(option_add){
+						for(var j = 0; j < option_add.length; j++){
+							$("[data-uniq-aop='"+j+"']").text(number_format(option_add[j].add_option_price) +" 원");
+							$("[data-uniq-aodp='"+j+"']").text(number_format(option_add[j].add_option_detail_price) +" 원");
+						}
+					}
+					//토탈
+					$("span[data-expected-price]").text(number_format(result.total) + " 원");
+					$("span[data-product-total]").text(number_format(result.product_total) + " 원");
+					$("span[data-delivery]").text(number_format(result.delivery_price) + " 원");
+					$("span[data-add-delivery]").text(number_format(result.delivery_add_price) + " 원");
+					$("[data-total-price]").text(number_format(result.total) + " 원");
+				}
+			});
+
+			if($(this).val() == "무통장입금"){
+				$(".bankbook").show();
+			} else {
+				$(".bankbook").hide();
+			}
+		}
+
+		$("[data-pay-type]").text($(this).next("label").text());
+	});
+</script>
+<script type="text/javascript">
+
+	$(document).on("focusout", "[data-keyup-point]", function(){
+
+		var limit_ = parseInt("<?=$point_[total]?>");
+		if($(this).val() % 100 !== 0){
+			alert("포인트 사용은 100점단위로 사용가능합니다.");
+			$(this).val("");
+			return false;
+		}
+
+		if($(this).val() > parseInt("<?=$expected?>")){
+			alert("최종결제금액보다 높게 사용 할 수 없습니다.");
+			$(this).val("");
+			return false;
+		}
+
+		if(parseInt($(this).val()) > limit_){
+			alert("잔여 보유 포인트가 부족합니다.");
+			$(this).val("");
+			return false;
+		}
+
+		if(!$(this).val()){
+
+			$("[data-use-point]").text("0점");
+			$("[data-expected-price]").text(number_format(parseInt("<?=$expected?>"))+"원");
+			$("[data-total-price]").text(number_format(parseInt("<?=$expected?>")));
+			return false;
+		}
+
+		$("[data-use-point]").text(number_format($(this).val())+"점");
+		$("[data-expected-price]").text(number_format(parseInt("<?=$expected?>") - parseInt($(this).val()))+"원");
+		$("[data-total-price]").text(number_format(parseInt("<?=$expected?>") - parseInt($(this).val())));
+	});
+
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+
+	var expected = $("[data-total-price]").text().replace(" USD", "");
+
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: expected
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        //alert('Transaction completed by ' + details.payer.name.given_name);
+        // Call your server to save the transaction
+
+		 if (details.error === 'INSTRUMENT_DECLINED') {
+			return actions.restart();
+		 }
+
+		if(details.status == "COMPLETED"){
+			$("input[name='toid']").val(data.orderID);
+			//alert(data.orderID);
+
+			var origin_action = "<?=$_SERVER[PHP_SELF]?>";
+			document.LGD_PAYINFO.action = origin_action;
+			document.LGD_PAYINFO.target = "";
+			document.LGD_PAYINFO.submit();
+		} else {
+			alert("Payment failure");
+		}
+
+      });
+    }
+  }).render('#paypal-button-container');
+</script>

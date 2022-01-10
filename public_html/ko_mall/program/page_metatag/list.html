@@ -1,0 +1,124 @@
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="write_proc" />
+
+<div id="div_ajax_load_image" style="display:none;">
+	<img src="/ko_mall/images/common/loading.gif" style="width:30%;"/>
+</div>
+	<h2 class="mt0"><?=$program[title]?></h2>
+	<table class="bbsView">
+		<caption><?=$program[title]?></caption>
+		<colgroup>
+			<col style="width:15%"/>
+			<col/>
+			<col style="width:15%"/>
+			<col style="width:35%"/>
+		</colgroup>
+		<tbody>
+			<tr>
+				<th scope="row">FILE</th>
+				<td colspan="3">
+				<span id="folder_select_area">
+						<?
+							$dir = opendir("$_SERVER[DOCUMENT_ROOT]"."/contents/");
+							while ($folder = readdir($dir)) {
+								if ( $folder != "." && $folder != ".." && $folder != "contents.php") { 
+						?>			
+								<span><?=$folder?></span><br />
+						<? 
+									$sub_dir = opendir("$_SERVER[DOCUMENT_ROOT]"."/contents/".$folder."/");
+									while($sub_folder = readdir($sub_dir)){
+										if ( $sub_folder != "." && $sub_folder != ".." && $sub_folder != "default.php" && $sub_folder != "page.html" && $sub_folder != "lnb.php" && $sub_folder != "configuration.php") { 
+											$target_file = "/contents/".$folder."/" . $sub_folder;
+						?>
+											<span style="padding-left:40px; margin-botton:35px;"> ㄴ <a href="#" onclick="ajax_load_data('<?=$target_file?>');"><?=$sub_folder?></a><a href="<?=$target_file?>" target="_blank" style="margin-left:30px;" class="button sm">컨텐츠 새창보기</a></span><br />
+						<?
+										}
+									}
+								}
+							} 
+						?>
+				</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">FILE_URL</th>
+				<td colspan="3"><span><input type="text" name="site_url" class="input300"value="" id="site_url" /></span></td>
+			</tr>
+			<tr>
+				<th scope="row">description</th>
+				<td colspan="3"><span><input type="text" class="inputFull" name="description" value="" id="description"  /></span></td>
+			</tr>
+			<tr>
+				<th scope="row">og:description</th>
+				<td colspan="3"><span><input type="text" class="inputFull" name="og_description" value="" id="og_description" /></span></td>
+			</tr>
+			<tr>
+				<th scope="row">og:site_name</th>
+				<td colspan="3"><span><input type="text" class="inputFull" name="og_site_name" value="" id="og_site_name" /></span></td>
+			</tr>
+			<tr>
+				<th scope="row">og:title</th>
+				<td colspan="3"><span><input type="text" class="inputFull" name="og_title" value="" id="og_title" /></span></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="btn_area">
+		<input type="submit" class="button red" value="설정 저장">
+	</div>
+</form>	
+
+<script type="text/javascript">
+
+function ajax_load_data(dir) {
+	
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/program/page_metatag/ajax_load_data.php",
+		dataType:"JSON",
+		data : {
+			variable : dir
+		},
+		success : function(args) {
+		console.log(args);
+			$("#site_url").val(args.url);
+			$("#description").val(args.description);
+			$("#og_description").val(args.og_description);
+			$("#og_site_name").val(args.og_site_name);
+			$("#og_title").val(args.og_title);
+			$("#title").val(args.og_title);
+
+		},
+		 beforeSend: function () {
+			$("#div_ajax_load_image").show();
+		 },
+		 complete: function () {
+			$("#div_ajax_load_image").hide();
+		 }
+	});
+}
+
+function ajax_folder(dir) {
+	$.ajax({
+		type : "POST",
+		url : "/ko_mall/program/page_metatag/ajax_folder.php",
+		data : {
+			variable : dir
+		},
+		success : function(args) {
+				$("#folder_select_area").children().not().eq(1).remove();
+				$("#folder_select_area").append(args);
+		}
+	});
+}
+</script>
+<script type="text/javascript">
+	$(function() {
+		$("select[name='member_level'] option[value='<?=$row[member_level]?>']").prop("selected", true);
+		$("input:radio[name='use_member_okey']:radio[value='<?=$row[use_member_okey]?>']").prop("checked",true); 
+		$("input:radio[name='use_namecheck']:radio[value='<?=$row[use_namecheck]?>']").prop("checked",true); 
+		$("input:radio[name='use_member']:radio[value='<?=$row[use_member]?>']").prop("checked",true); 
+	});
+	$("#folder").change(function(){
+		ajax_folder($(this).val());
+	});
+</script>

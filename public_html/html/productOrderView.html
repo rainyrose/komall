@@ -1,0 +1,281 @@
+<? include("../inc/top.html") ?>
+<div id="content">
+
+
+
+			<!-- 내용시작 -->
+			<div class="area_shopCart">
+				<!-- 주문번호 -->
+				<div class="area_shopNumber">
+					<em>주문번호</em> <i>2019060616425988</i>
+				</div>
+				<!-- //주문번호 -->
+			
+				<!-- 모바일 사용 -->
+				<!-- 상품갯수표시 -->
+				<a href="#" data-shop-view="addcordion">주문상품 <em>(3개)</em></a>
+				<!-- //모바일 사용 -->
+				<div data-shop-view="addcordion_conts">
+					<table class="table">
+						<caption>상품목록</caption>
+						<colgroup>
+							<col/>
+							<col style="width:10%"/>
+							<col style="width:12%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+							<col style="width:10%"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">상품정보</th>
+								<th scope="col">판매가</th>
+								<th scope="col">수량</th>
+								<th scope="col">적립</th>
+								<th scope="col">배송비</th>
+								<th scope="col">합계</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<!-- 상품정보 클릭시 상세이동 -->
+										<a href="#" class="img"><img src="/images/shop/sample.jpg" alt=""/></a>
+										<div>
+											<!-- 배송상태 -->
+											<span class="status">상태 : <span>주문</span></span>
+											<!-- 상품명 -->
+											<em>무항생제 한우 불고기용(1+등급)</em>
+											<!-- 선택한 옵션 -->
+											<!-- 옵션이 없는 경우 아래내용은 노출안됨 -->
+											<i>[옵션 : 레드 / 48]</i>
+											<!-- 클릭시 상품정보와 함께 사용후기글쓰기로 이동 -->
+											<!-- 이미 사용후기가 작성된 경우에는 클릭시 나의 사용후기 목록으로 이동한다. -->
+											<a href="#" class="button sm white">사용후기작성</a>
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">1</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">50,000원</td>
+							</tr>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<!-- 상품정보 클릭시 상세이동 -->
+										<a href="#" class="img"><img src="/images/sample.jpg" alt=""/></a>
+										<div>
+											<!-- 배송상태 -->
+											<span class="status">상태 : <span>입금</span></span>
+											<!-- 상품명 -->
+											<em>카노브이넥티셔츠</em>
+											<!-- 선택한 옵션 -->
+											<i>[옵션 : 블랙 / 95]</i>
+											<a href="#" class="button sm white">사용후기작성</a>
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">2</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">100,000원</td>
+							</tr>
+							<tr>
+								<td data-cart-table="product" class="tal">
+									<div data-cart-option="img">
+										<a href="#" class="img"><img src="/images/sample.jpg" alt=""/></a>
+										<div>
+											<!-- 배송상태 -->
+											<span class="status">상태 : <span>배송</span></span>
+											<em>카노브이넥티셔츠</em>
+											<a href="#" class="button sm white">사용후기작성</a>
+										</div>
+									</div>
+								</td>
+								<td data-cart-table="price">50,000원</td>
+								<td data-cart-table="count">1</td>
+								<td data-cart-table="point">100</td>
+								<td data-cart-table="deliver">무료</td>
+								<td data-cart-table="total">50,000원</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			<div class="area_shopPay">
+				<p class="title">배송지 정보</p>
+				<table class="bbsView">
+					<caption>배송 정보</caption>
+					<colgroup>
+						<col data-write="th" style="width:15%"/>
+						<col data-write="td" style="width:85%"/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">받으시는 분</th>
+							<td>홍길동</td>
+						</tr>
+						<tr>
+							<th scope="row">주소</th>
+							<td>
+								(우 13575) 대구광역시 달성군 옥포읍 돌미로 20
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">휴대전화</th>
+							<td class="tel">
+								010-1234-4567
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">배송메세지</th>
+							<td class="mail">물건 옵션 재확인 부탁드려요~</td>
+						</tr>
+						<!-- 비회원 주문일경우 -->
+						<tr>
+							<th scope="row">이메일</th>
+							<td class="mail">test@naver.com</td>
+						</tr>
+						<!-- //비회원 주문일경우 -->
+						<!-- 배송관련정보 -->
+						<tr>
+							<th scope="row">송장번호</th>
+							<td class="mail">
+								우체국택배 6066236549081
+								<a href="#" target="_blank" class="button sm white">배송추적</a>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">송장번호</th>
+							<td class="mail">
+								우체국택배 6066229847336
+								<a href="#" target="_blank" class="button sm white">배송추적</a>
+							</td>
+						</tr>
+						<!-- //배송관련정보 -->
+					</tbody>
+				</table>
+				
+				<!-- 포인트사용 -->
+				<p class="title">포인트 사용</p>
+				<div data-shop-view="point">
+					<div>
+						<em>적립포인트</em>
+						<span>600 점</span>
+					</div>
+					<div>
+						<ul>
+							<li>
+								<em>보유포인트</em>
+								<span>7,200점</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- //포인트사용 -->
+				
+				<!-- 결제정보 -->
+				<p class="title">결제정보</p>
+				<div data-shop-view="point" class="type02">
+					<div>
+						<em>주문번호</em>
+						<span>2019052614101153</span>
+					</div>
+					<div>
+						<em>주문일시</em>
+						<span>2019-05-26 14:10:25</span>
+					</div>
+				</div>
+				<div data-shop-view="point" class="type02">
+					<div>
+						<em>결제방식</em>
+						<span>무통장<a href="#" class="button sm white">입금확인요청</a></span>
+					</div>
+					<div>
+						<em>결제금액</em>
+						<span>확인전</span>
+					</div>
+				</div>
+				<!-- 무통장입금 사용시 -->
+				<div data-shop-view="point" class="type02">
+					<div>
+						<em>입금자명</em>
+						<span>홍길동</span>
+					</div>
+					<div>
+						<em>입금계좌</em>
+						<span>OO은행 12345-67-89012 예금주명</span>
+					</div>
+				</div>
+				<!-- //무통장입금 사용시 -->
+				<!-- //결제정보 -->
+				
+			</div>
+			
+			
+			<!-- 모바일 사용 -->
+			<a href="#" data-shop-view="addcordion" class="show">결제세부내역</a>
+			<!-- //모바일 사용 -->
+			
+			<div data-shop-view="addcordion_conts" data-cart-option="total">
+				<!-- 총 구매금액 -->
+				<div class="price">
+					<em>총 구매금액</em>
+					150,000원
+				</div>
+				
+				<!-- 배송비 -->
+				<span>+</span>
+				<div class="deliver">
+					<em>배송비</em>
+					5,000원
+				</div>
+				
+				<!-- 추가 배송비 -->
+				<span>+</span>
+				<div class="deliver_add">
+					<em>추가 배송비</em>
+					3,000원
+				</div>
+				
+				<!-- 포인트 할인 -->
+				<span class="minus">-</span>
+				<div class="point">
+					<em>포인트 할인</em>
+					3,000점
+				</div>
+
+				<!-- 쿠폰 할인 추후 작업시 주석풀고 하세요. 
+				<span class="minus">-</span>
+				<div class="coupon">
+					<em>쿠폰 할인</em>
+					5,000점
+				</div>
+				-->
+				
+				<!-- 결제 예정금액 -->
+				<span>=</span>
+				<div class="total">
+					<em>총 구매액</em>
+					200,000원
+				</div>
+			</div>
+			
+			<!-- 마이페이지에서 접근을 할경우만 주문취소하기 및 목록 노출 -->
+			<div class="btn_area">
+				<a href="#" class="button lg">주문취소하기</a>
+				<a href="#" class="button lg white">목록</a>
+			</div>
+
+			<!-- //내용 -->
+
+
+
+
+</div>
+<? include("../inc/footer.html") ?>

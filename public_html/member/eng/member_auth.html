@@ -1,0 +1,10 @@
+<form method='post' action="<?=$PHP_SELF?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="<?=$return_mode?>" />
+<input type="hidden" name="return_mode" value="<?=$return_mode?>" />
+<div class="secret_area">
+	<p>Please enter a password.</p>
+	<input type="password" id="passwd" name="password" maxlength="30" placeholder="Password">
+	<input type="submit" value="Confirm" class="button" />
+	<a href="/eng" onclick="" class="button gray">Cancel</a>
+</div>
+</form>

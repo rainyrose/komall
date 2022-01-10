@@ -1,0 +1,53 @@
+<? include_once $_SERVER['DOCUMENT_ROOT'] . "/site_setup.php"; ?>
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>로그인 | KOWEB CMS</title>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="/ko_mall/css/login.css"/>
+		
+		<script type="text/javascript" src="/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="/js/base.js"></script>
+		<script type="text/javascript" src="/js/module.js"></script>
+		<script type="text/javascript" src="/js/custom.js"></script>
+		
+		<script>
+			$(window).load(function(){
+				setTimeout(function(){
+					$('.login_area').addClass('active');
+				}, 200);
+			});
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<div class="login_area">
+				<h1>KOWEB CMS - Content Management System</h1>
+				<span class="info">#회원관리<i>#응용프로그램관리</i><br/>#컨텐츠관리<i>#게시판관리</i></span>
+				<div class="form">
+					<h2>Member login</h2>
+					<form action="./login_proc.php" method="post">
+						<ul>
+							<li><input type="text" name="admin_id" id="id" title="아이디입력"/><label for="id">ID</label></li>
+							<li><input type="password" name="admin_password" id="password" title="비밀번호입력"/><label for="password">Password</label></li>
+							<li><input type="submit" class="btn_submit" value="Login"/></li>
+						</ul>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		<script>
+			$(".login_area input").bind("change paste keyup", function() {
+				if($(this).val().length == 0){
+					$(this).parent('li').removeClass('active');
+				}else{
+					$(this).parent('li').addClass('active');
+				}				  
+			});
+		</script>
+	</body>
+</html>

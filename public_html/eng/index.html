@@ -1,0 +1,105 @@
+<? include_once $_SERVER['DOCUMENT_ROOT']."/head.php"; ?>
+<? include $_SERVER['DOCUMENT_ROOT']."/inc/count.php"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/eng/inc/top.html"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/eng/inc/header.html"; ?>
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>ADMINISTRATOR PAGE</h2>
+		<div style="margin-top:10px;">
+			<a href="/ko_mall/login.html" class="button blue">관리자 페이지</a>
+		</div>
+	</div>
+
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>MENU LIST</h2>
+		<div style="margin-top:10px;">
+				<ul>
+				<?
+					load_menu($connect);
+				?>
+				</ul>
+		</div>
+	</div>
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>회원가입</h2>
+		<div style="margin-top:10px;">
+		<? if(!$_SESSION[member_id]) { ?>
+			<a href="/member/member.html?mode=agree" class="button ">회원가입</a></li>
+			<a href="/member/member.html?" class="button ">로그인</a></li>
+		<? } ?>
+			<a href="/member/member.html?mode=check&amp;return_mode=modify" class="button "><?=$_SESSION[member_id]?> 마이페이지</a></li>
+			<a href="/member/member.html?mode=logout" class="button "><?=$_SESSION[member_id]?> 로그아웃</a></li>
+		</div>
+	</div>
+
+
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>BOARD LIST</h2>
+		<div style="margin-top:10px;">
+				<?
+					$board_query = "SELECT * FROM koweb_board_config WHERE state ='Y' ORDER BY sort ASC";
+					$board_result = mysqli_query($connect, $board_query);
+					while($board_config = mysqli_fetch_array($board_result)){
+				?>
+					<a href="/ko_mall/index.html?type=board&amp;core=manager_board&amp;core_id=<?=$board_config[id]?>" class="button white"><?=$board_config[title]?></a></li>
+				<? } ?>
+		</div>
+	</div>
+
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>PROGRAM LIST</h2>
+		<div style="margin-top:10px;">
+		<?
+			$program_query = "SELECT * FROM koweb_program_config WHERE state ='Y' ORDER BY sort ASC";
+			$program_result = mysqli_query($connect, $program_query);
+			while($program_config = mysqli_fetch_array($program_result)){
+		?>
+		<a href="/ko_mall/index.html?type=program&amp;core=manager_program&amp;core_id=<?=$program_config[id]?>" class="button"><?=$program_config[title]?></a>
+		<? } ?>
+
+		<a href="/product/product.html" class="button">상품목록</a>
+		<a href="/member/member.html?" class="button white">로그인(비회원주문조회포함)</a>
+		<a href="/member/member.html?mode=check&return_mode=modify" class="button white">마이페이지-정보수정</a>
+		<a href="/member/member.html?mode=intro" class="button white">마이페이지-인트로</a>
+		<a href="/member/member.html?mode=logout" class="button ">로그아웃</a></li>
+
+		</div>
+	</div>
+
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>디자인 가이드 - 관리자</h2>
+		<div style="margin-top:10px;">
+			<a href="/html/menuList.html" class="button gray">메뉴관리</a>
+			<a href="/html/contAdd.html" class="button gray">컨텐츠관리</a>
+			<a href="/html/addBoard.html" class="button gray">게시판관리</a>
+			<a href="/html/statusMonth.html" class="button gray">통계</a>
+			<a href="/html/productList.html" class="button black">상품관리목록</a>
+			<a href="/html/productWrite.html" class="button black">상품관리등록</a>
+			<a href="/html/orderList.html" class="button black">주문관리-전체주문내역</a>
+			<a href="/html/returnList.html" class="button black">주문관리-반품내역</a>
+			<a href="/html/payList.html" class="button black">주문관리-입금요청내역</a>
+			<a href="/html/orderView.html" class="button black">주문관리-주문상세</a>
+			<a href="/html/salesView.html" class="button black">매출관리-일일매출</a>
+			<a href="/html/salesView02.html" class="button black">매출관리-기간별,월간,연간매</a>
+		</div>
+	</div>
+
+	<div style="padding:20px; border-bottom:1px dashed #cfcece;">
+		<h2>디자인 가이드 - 사용자</h2>
+		<div style="margin-top:10px;">
+			<a href="/html/productList_user.html" class="button white">상품목록</a>
+			<a href="/html/productView_user.html" class="button white">상품상세</a>
+			<a href="/html/productReview.html" class="button white">후기보기-목록(모아보기)/나의후기</a>
+			<a href="/html/productQna.html" class="button white">Q&A-목록(모아보기)/나의문의</a>
+			<a href="/html/productWrite_user.html" class="button white">글작성</a>
+			<a href="/html/productCart.html" class="button white">장바구니</a>
+			<a href="/html/productPay.html" class="button white">주문하기</a>
+			<a href="/html/popAddress.html" class="button white">배송지 목록(팝업레이아웃포함)</a>
+			<a href="/html/productOrderView.html" class="button white">주문완료/주문상세내역</a>
+			<a href="/html/productMypage.html" class="button white">마이페이지-인트로</a>
+			<a href="/html/productOrderList.html" class="button white">마이페이지-주문내역</a>
+			<a href="/html/productWishList.html" class="button white">마이페이지-관심상품</a>
+			<a href="/html/productPoint.html" class="button white">마이페이지-적립포인트</a>
+			<a href="/html/productLogin.html" class="button white">로그인(비회원주문조회포함)</a>
+		</div>
+	</div>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/eng/inc/footer.html"; ?>

@@ -1,0 +1,92 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_admin/auth_manager.php";
+
+$mode_title = $site[title]." 등록";
+
+if($mode == "modify"){
+	$query = "SELECT * FROM $program_table WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $site[title]." 수정";
+}
+?>
+<form action="<?=$PHP_SELF?>" method="post" name="form" enctype="multipart/form-data">
+	<input type="hidden" name="program_id" value="<?=$program_id?>" />
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="return_url" value="<?=$url?>" />
+	<input type="hidden" name="no" value="<?=$row[no]?>" />
+	<table class="bbsView">
+		<caption><?=$mode_title?></caption>
+		<colgroup>
+			<col data-write="th" style="width:15%"/>
+			<col data-write="td" style="width:85%"/>
+		</colgroup>
+		<tbody>
+			<!--<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="">구분</label></th>
+				<td><select name="type" id="type"><option value="pc">pc</option><option value="mob">mob</option></select></td>
+			</tr>-->
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title">제목</label></th>
+				<td>
+					<input type="text" name="title" value="<?=$row[title]?>" class="inputFull"/>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title_img">PC 이미지</label></th>
+				<td class="file">
+					<span>
+						<input type="file" name="pc_img" id="pc_img" />
+						<? if($row[pc_img]) { ?><span>기존 파일 : <a href="/upload/program/<?=$program_id?>/<?=$row[pc_img]?>" target="_blank"><?=$row[pc_img]?></a></span><? } ?>
+
+						<em style="font-size:13px; color:#f0204c; margin-left:10px;">이미지 최적사이즈 (1680 x 544) 2메가 이상 첨부 불가능</em>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="mob_img">MOB 이미지</label></th>
+				<td class="file">
+					<span>
+						<input type="file" name="mob_img" id="mob_img" />
+						<? if($row[mob_img]) { ?><span>기존 파일 : <a href="/upload/program/<?=$program_id?>/<?=$row[mob_img]?>" target="_blank"><?=$row[mob_img]?></a></span><? } ?>
+
+						<em style="font-size:13px; color:#f0204c; margin-left:10px;">이미지 최적사이즈 (860 x 755) 2메가 이상 첨부 불가능</em>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><span class="marking">필수항목</span><label for="title_img">링크</label></th>
+				<td>
+					<input type="text" name="link" value="<?=$row[link]?>" class="inputFull"/>
+					<p>http:// 부터 입력해주시고, 없으면 #을 입력해주세요.</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" onclick="msgImpletion();" class="button" value="저장" />
+		<a href="/ko_mall/index.html?type=program&core=manager_program&core_id=koweb_main_visual" class="button gray">취소</a>
+	</div>
+</form>
+<script type="text/javascript">
+	$("#type option[value='"+"<?=$row[type]?>"+"']").prop("selected", true);
+
+	<? if($mode=="write"){ ?>
+	$("form[name='form']").submit(function(){
+		var check = true;
+		if(!$("#pc_img").val()){
+			alert("PC 이미지를 넣어주세요");
+			check = false;
+		}
+		if(!check) return false;
+
+		if(!$("#mob_img").val()){
+			alert("MOB 이미지를 넣어주세요");
+			check = false;
+		}
+		if(!check) return false;
+	})
+	<? } ?>
+</script>

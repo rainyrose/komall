@@ -1,0 +1,205 @@
+<!-- lnb -->
+<nav class="lnb">
+	<!-- 선택시 a태그 class="on" -->
+	<ul>
+		<li><a href="<?=$common_queryString?>" >회원목록</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=config">회원가입관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=level" class="on">회원등급관리</a></li>
+		<li><a href="<?=$common_queryString?>&amp;mode=dept">부서관리</a></li>
+	</ul>
+</nav>
+<!-- //lnb -->
+
+<?
+$query = "SELECT * FROM $setting_table ORDER BY no DESC LIMIT 1";
+$result = mysqli_query($connect, $query);
+$row = mysqli_fetch_array($result);
+$row[level] = sprintf('%02d',$row[level]);
+?>
+
+<div id="div_ajax_load_image" class="area_loding" style="display:none">
+	<img src="/images/content/loading.gif" class="img" alt="loading">
+</div>
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+<input type="hidden" name="no" value="<?=$no?>" />
+
+	<div class="box pd" style="min-height:0px;">
+		<h2>회원 등급 설정</h2>
+		<table class="bbsList">
+			<caption>회원 등급 설정</caption>
+			<colgroup>
+				<col style="width:30%;"/>
+				<col />
+				<col style="width:30%;"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">회원 등급 </th>
+					<th scope="col">회원 등급명</th>
+					<th scope="col">관리</th>
+				</tr>
+			</thead>
+			<tbody data-list-area>
+				<?
+				$level_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+				$level_result = mysqli_query($connect, $level_query);
+				while($level = mysqli_fetch_array($level_result)){
+					if($level[admin_auth]) $admin_state = "<i class=\"icon_admin\">Admin</i>";
+					else unset($admin_state);
+				?>
+					<tr>
+						<td><?=$level[level]?></td>
+						<td data-level-info="<?=$level[level]?>"><?=$admin_state?> <span data-ori-title><?=$level[level_title]?></span></td>
+						<td data-button-area="<?=$level[level]?>" data-level-type="<?=$level[admin_auth]?>">
+							<a href="#" class="button sm gray" data-level-button="modify">수정</a>
+							<? if($_SESSION['member_id'] == "koweb"){ ?>
+							<? if($level[level] != 1 && $level[level] != 10 && $level[level] != 9){ ?>
+							<a href="#" class="button sm white" data-level-button="delete">삭제</a>
+							<? } ?>
+							<? } ?>
+						</td>
+					</tr>
+				<? } ?>
+			</tbody>
+		</table>
+		<div class="btn_area">
+			<a href="javascript:void(0);" onclick="javascript:showPopup(popLayer01);" class="button lg">회원등급추가</a>
+		</div>
+	</div>
+
+	<div id="popLayer01" style="display:none;">
+		<div class="popBox">
+			<!-- title -->
+			<h2>회원등급추가</h2>
+			<!-- scroll -->
+			<div class="scrollbar-inner">
+				<div class="popinBox">
+
+					<table class="table hover">
+						<caption>회원등급추가</caption>
+						<colgroup>
+							<col style="width:25%"/>
+							<col/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col">회원등급</th>
+								<th scope="col">회원등급명</th>
+								<th scope="col">관리자권한</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<?
+										$res_query = "SELECT * FROM koweb_member_level ORDER BY level ASC";
+										$res_result = mysqli_query($connect, $res_query);
+										while($res = mysqli_fetch_assoc($res_result)){
+											$res_[] = $res[level];
+										}
+									?>
+									<select name="level_" id="level_">
+										<?
+											for($i = 1; $i <= 10; $i++){
+												if(!in_array($i, $res_)){
+													echo "<option value=\"$i\">$i</option>";
+												}
+											}
+										?>
+									</select>
+								</td>
+								<td>
+									<input type="text" name="level_title" value="" id="level_title" />
+								</td>
+								<td>
+									<div class="designCheck">
+										<input type="checkbox" name="new_admin_auth" value="ADMIN" id="new_admin_auth" />
+										<label for="new_admin_auth">관리자</label>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="btn_area">
+						<a href="#" class="button lg" data-level-button="write">추가</a>
+						<a href="#" class="button lg white btn_close">닫기</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function process_level_ajax( mode, level, title, admin_auth){
+
+			$.ajax({
+				type: "POST",
+				url: "/ko_mall/setting/member/member_level_ajax.php",
+				data : {
+					mode : mode,
+					admin_auth : admin_auth,
+					level : level,
+					title : title
+				},
+				success : function(args) {
+					$("[data-list-area]").html(args);
+					console.log(args);
+				},beforeSend: function () {
+					$("#popLayer01").css("display","none");
+					$("#div_ajax_load_image").show();
+				},
+				complete: function () {
+					$("#div_ajax_load_image").hide();
+					if(mode == "write"){
+						location.reload();
+					}
+				}
+			});
+		}
+
+		$(document).on("click", "[data-level-button]", function(){
+			var changed;
+			var level = $(this).parents("td").data("button-area");
+
+			var info = $("[data-level-info="+level+"]");
+			var origin_title = $("[data-level-info="+level+"]").children("span");
+			var btn_area = $("[data-button-area="+level+"]");
+
+			var input_ = "<input type=\"text\" name=\"level_title\" value=\"" + origin_title.text() + "\" class=\"input200\" data-new-title=\""+level+"\" id=\"new_level_title\"/><div class=\"designCheck\" data-new-auth=\""+level+"\" style=\"display:inline-block; margin-left:5px;\"><input type=\"checkbox\" name=\"admin_auth\" id=\"admin_auth_"+level+"\" value=\"ADMIN\" /><label for=\"admin_auth_"+level+"\">관리자</label></div>";
+
+			if($(this).data("level-button") == "modify"){
+				changed  = "<a href=\"#\" class=\"button sm \" data-level-button=\"save\">저장</a> ";
+				changed += "<a href=\"#\" class=\"button sm white\" data-level-button=\"cancle\">취소</a>";
+				info.append(input_);
+
+				if($(this).parent($("[data-level-type]")).data("level-type") == "ADMIN"){
+					$("#admin_auth_"+level+"[value='ADMIN']").prop("checked", true);
+				}
+
+				origin_title.css("display","none");
+				btn_area.html(changed);
+
+			} else if($(this).data("level-button") == "cancle"){
+				$("[data-new-title="+level+"]").remove();
+				$("[data-new-auth="+level+"]").remove();
+
+				origin_title.css("display","");
+				changed  = "<a href=\"#\" class=\"button sm gray\" data-level-button=\"modify\">수정</a> ";
+				if( level != 1 && level != 10 ){
+					changed += "<a href=\"#\" class=\"button sm white\" data-level-button=\"delete\">삭제</a>";
+				}
+				btn_area.html(changed);
+			}  else if($(this).data("level-button") == "delete"){
+				if(confirm("삭제된 데이터는 복구하실 수 없습니다.\r\n정말로 삭제하시겠습니까?")){
+					process_level_ajax("delete", level);
+				}
+			} else if($(this).data("level-button") == "save"){
+
+				process_level_ajax("modify", level, $("[data-new-title="+level+"]").val(), $("#admin_auth_"+level+":checked").val());
+
+			} else if($(this).data("level-button") == "write"){
+				process_level_ajax("write", $("#level_ option:selected").val(), $("#level_title").val(), $("#new_admin_auth:checked").val());
+
+			}
+		});
+	</script>

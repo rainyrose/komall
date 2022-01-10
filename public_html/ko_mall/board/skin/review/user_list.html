@@ -1,0 +1,170 @@
+<?
+//페이징 변수
+if (!$start) $start = 0;
+$scale = $board[list_limit]; // 리스트 수
+$page_scale	= 10; // 페이징 수
+//검색
+
+if($keyword){
+	if($search_key == "all"){
+		$WHERE .= " AND title LIKE '%$keyword%' AND name LIKE '%$keyword%'";
+		$PRODUCT_WHERE .= " AND product_title LIKE '%$keyword%'";
+	}else if($search_key == "product"){
+		$PRODUCT_WHERE .= " AND product_title LIKE '%$keyword%'";
+	}else{
+		$WHERE .= " AND $search_key LIKE '%$keyword%'";
+	}
+
+}
+if($me) $WHERE .= " AND id='{$_SESSION['member_id']}'";
+//join해서 카테고리로 상품정보 가져와야하는데.. 조인 관리 귀찮아서 상품만 한번에 다 모아서 진행..
+$product_col_query = "SELECT * FROM koweb_product WHERE seller='Y' $PRODUCT_WHERE";
+$product_col_result = mysqli_query($connect,$product_col_query);
+$product_col = array();
+while($product_col_row = mysqli_fetch_array($product_col_result)){
+	$product_col[$product_col_row['no']]['title'] = $product_col_row['product_title'];
+	$product_col[$product_col_row['no']]['id'] = $product_col_row['id'];
+	$product_col[$product_col_row['no']]['title_img'] = $product_col_row['title_img'];
+}
+$category_col = array_keys($product_col);
+if($PRODUCT_WHERE) $WHERE .= " AND category IN ('".join("','",$category_col)."')";
+
+
+//리스트
+$total_query = "SELECT * FROM $board_id WHERE 1=1 $WHERE AND no != '199' ORDER BY notice DESC, reg_date DESC, no DESC";
+$total_result = mysqli_query($connect, $total_query);
+$total = mysqli_num_rows($total_result);
+
+$query = "SELECT * FROM $board_id WHERE 1=1  $WHERE AND no != '199' ORDER BY notice DESC, ref_group DESC, depth ASC, no DESC LIMIT $start, $scale";
+$result = mysqli_query($connect, $query);
+$score_target_arr = array("매우불만족"=>0,"불만족"=>1,"보통"=>2,"만족"=>3,"매우만족"=>4);
+
+if($mid == "member") $mid = $content_default['menu_id'];
+$menu_default = mysqli_fetch_array(mysqli_query($connect, "SELECT * FROM koweb_menu_config WHERE menu_id = '$mid' LIMIT 1"));
+
+$nick_chk_query = "SELECT nick_chk FROM koweb_board_config WHERE id='board_review'";
+$nick_chk_result = mysqli_query($connect, $nick_chk_query);
+$nick_row = mysqli_fetch_array($nick_chk_result);
+?>
+			<!-- 내용 -->
+			<ul class="list_shop_accordion menuAll">
+				<? if($total > 0) { ?>
+					<? $f_no = $total - $start; ?>
+					<? while($row = mysqli_fetch_array($result)){
+						$score = $score_target_arr[$row['review_score']];
+						?>
+						<li>
+					        <!-- 상단 -->
+					        <div class="thead">
+								<a href="/product/product.html?mode=view&amp;id=<?=$product_col[$row['category']]['id']?>" data-shop-accordion="product">
+									<!-- 대표이미지 -->
+									<i class="img"><img src="/upload/product/<?=$product_col[$row['category']]['title_img']?>" onError="this.src='/images/board/no_image.gif';" alt=""/></i>
+								</a>
+					            <!-- 답변상황 -->
+								<span data-shop-accordion="eval">
+					                <!-- 데이터가 선택된 경우 class on처리 -->
+					                <i class="<?=$score >= 0 ? "on" : ""?>">매우불만족</i>
+					                <i class="<?=$score >= 1 ? "on" : ""?>">불만족</i>
+					                <i class="<?=$score >= 2 ? "on" : ""?>">보통</i>
+					                <i class="<?=$score >= 3 ? "on" : ""?>">만족</i>
+					                <i class="<?=$score >= 4 ? "on" : ""?>">매우만족</i>
+					            </span>
+					            <!-- 제목 -->
+					            <a href="#" data-shop-accordion="subject"><? if($row['secret'] == "Y"){ ?><i class="locked">비밀글</i><? } ?><?=$row['title']?></a>
+					            <!-- 아이디 -->
+					            <span data-shop-accordion="name"><?= ($nick_row[nick_chk] == "Y") ? mb_strimwidth($row['name'], 0, 4, "**", "utf-8") : $row['name'] ?></span>
+					            <!-- 작성일 -->
+					            <span data-shop-accordion="date"><?=str_replace("-",".",reset(explode(" ",$row['reg_date'])))?></span>
+					        </div>
+					        <!-- //상단 -->
+
+
+
+					        <? if($row['secret'] == "Y" && $board['auth_comment'] > $_SESSION['auth_level'] && !in_array($row['no'],$_SESSION['qna_secret'])){ ?>
+					            <div class="tbody">
+					                <div class="shop_password">
+					                    <p>작성시 설정한 비밀번호를 입력해주세요.</p>
+					                    <input class='password' type="password" name="password">
+					                    <a href="javascript:void(0)" onclick="check_password('<?=$row['no']?>',this)" class="button gray">확인</a>
+					                </div>
+					            </div>
+					        <? }else{ ?>
+					        <!-- 내용 -->
+					        <div class="tbody">
+					            <!-- 작성된 글 -->
+					            <div class="conts">
+					                <?=$row['comments']?>
+					            </div>
+					            <!-- //작성된 글 -->
+
+					            <!-- 첨부된 사진 -->
+					            <!-- 첨부된 사진이 없는경우 감싼 태그까지 노출되지 않도록 클릭시 사진 새창으로 원본띄어주세요 -->
+					            <div class="file">
+					                <? for($i = 1; $i<=$board['file_count']; $i++){ ?>
+					                    <? if($row['file_'.$i]){ ?>
+					                        <? $ext = end(explode(".", strtolower($row['file_'.$i]))); ?>
+					                        <? if($ext == "jpg" || $ext == "png" || $ext == "jpeg" || $ext == "bmp"){ ?>
+					                        <a href="/upload/<?=$board_id?>/<?=$row['file_'.$i]?>" target="_blank"><i><img src="/upload/<?=$board_id?>/<?=$row['file_'.$i]?>" alt=""/></i></a>
+					                        <? } ?>
+					                    <? } ?>
+					                <? } ?>
+					            </div>
+					            <!-- //첨부된 사진 -->
+								<? if($row['id'] == $_SESSION['member_id']){ ?>
+								<div class="btn">
+									<a href="/board/board.html?board_id=<?=$board_id?>&mode=modify&no=<?=$row['no']?>" class="button sm">글수정</a>
+									<a href="javascript:void(0)" onclick="if(confirm('복구할수 없습니다. 정말로 삭제하시겠습니까?'))window.location.href='/board/board.html?board_id=<?=$board_id?>&mode=delete&no=<?=$row['no']?>'" class="button sm white">글삭제</a>
+								</div>
+								<? } ?>
+					            <?
+					            $ref_board_no = $row['no'];
+					            $comm_query = " SELECT *  FROM board_comment WHERE board_id='$board_id' AND ref_board_no = '$ref_board_no' ORDER BY ref_group ASC, ref_depth ASC, no DESC";
+					            $comm_result = mysqli_query($connect, $comm_query);
+					            while($comm_row = mysqli_fetch_array($comm_result)) {
+					            ?>
+					            <!-- 답변 -->
+
+					            <div class="answer">
+					                <!-- 작성일/작성자 -->
+					                <div class="writer">
+					                    <?
+					                    $date = explode(" ",$comm_row['reg_date']);
+					                    $date_ = explode("-",reset($date));
+					                    ?>
+					                    <?=$date_[0]?>.<?=$date_[1]?>.<?=$date_[2]?> - <?=$comm_row['name']?>
+					                </div>
+					                <!-- 내용 -->
+					                <div class="conts"><?=$comm_row['comments']?>
+					                </div>
+					            </div>
+					            <? } ?>
+					            <!-- //답변 -->
+					        </div>
+					        <? } ?>
+					        <!-- //내용 -->
+					    </li>
+					<? } ?>
+				<? } else { ?>
+					<li class="shop_nodata">
+						등록된 글이 없습니다.
+					</li>
+				<? } ?>
+			</ul>
+
+			<!-- 내용 -->
+
+<!-- 검색 및 버튼 -->
+<? include "search.html"; ?>
+<!-- 검색 및 버튼 -->
+
+<!-- page -->
+<? include "paging.html"; ?>
+<!-- //page -->
+<script>
+<? if($no){ ?>
+$(window).ready(function(){
+	$(".trigger<?=$no?>").click();
+	$('html, body').animate({scrollTop : $(".trigger<?=$no?>").offset().top-50}, 400);
+})
+<? } ?>
+</script>

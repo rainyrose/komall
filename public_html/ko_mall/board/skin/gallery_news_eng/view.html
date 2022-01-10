@@ -1,0 +1,165 @@
+<?
+	if (!$auth_read) error("You do not have permission to view.");
+
+	$query = "SELECT * FROM $board_id WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	if($row[tag_type] != "TAG"){
+		//$row[comments] = nl2br($row[comments]);
+	}
+
+	//관리자가 아님
+	if(!$is_admin){
+		//password가 없음
+		if($row[secret] == "Y"){
+			if($board[is_membership] != "Y"){
+				if($_SESSION[this_info] != hash("sha256", $row[no])){
+					if($password == "" ){
+						url($common_queryString . "&amp;mode=check&amp;return_mode=view&amp;no=$row[no]&amp;start=$start");
+						unset($_SESSION[this_info]);
+						exit;
+					}
+					//password가 틀림
+					$password = hash("sha256", $password);
+
+					if($row[password] != $password){
+						alert("This post can only be checked by the author and the administrator.");
+						unset($_SESSION[this_info]);
+						url($common_queryString . "&amp;mode=check&amp;return_mode=view&amp;no=$row[no]&amp;start=$start");
+						exit;
+					}
+				} else {
+					unset($_SESSION[this_info]);
+				}
+			 } else {
+				if($_SESSION[member_id] != $row[id]){
+					error("This post can only be checked by the author and the administrator.");
+					exit;
+				}
+			}
+		}
+	}
+	mysqli_query($connect, "UPDATE $board_id SET view_count = view_count +1 WHERE no='$no'");
+	unset($_SESSION[this_info]);
+
+	if($row[category]){
+		$sub_title = "[".$row[category]."]";
+	}
+?>
+<h3 class="bbsTitle"><?=$sub_title?> <?=$row[title]?></h3>
+<table class="bbsView">
+	<caption>게시판 상세보기</caption>
+	<colgroup>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:35%"/>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:35%"/>
+	</colgroup>
+	<tbody>
+		<tr>
+			<th scope="row" data-view="date">Date Created</th>
+			<td><?=$row[reg_date]?></td>
+			<th scope="row" data-view="count">views</th>
+			<td><?=$row[view_count]+1?></td>
+		</tr>
+		<tr>
+			<td colspan="4" class="conts">
+				<div class="conts">
+					<!-- 이미지 view단표시 -->
+					<div class="img">
+						<?
+							$file_count = 0;
+							for ($i = 1; $i <= $board[file_count]; $i++){
+								$file_title =  $row["file_".$i];
+								if($file_title){
+									$ext = end(explode(".", strtolower($file_title)));
+									if($ext == "jpg" || $ext == "png" || $ext == "jpeg" || $ext == "bmp"){
+										//echo "<img src=\"/upload/$board_id/".rawurlencode($file_title)."\" alt=\"\"/><br /><br />";
+									}
+									$file_count++;
+								}
+							}
+						?>
+					</div>
+					<!-- //이미지 view단표시 -->
+					<?=$row[comments]?>
+					<p style="margin-top:110px; color:white;"><?=nl2br($row[etc])?></p>
+				</div>
+			</td>
+		</tr>
+		<!-- Attachments이 있는경우 -->
+		<? if($file_count > 0){ ?>
+			<tr>
+				<th scope="row" data-view="file">Attachments</th>
+				<td colspan="3">
+					<!-- 파일List -->
+					<ul class="list_file">
+						<?
+							for ($i = 1; $i <= $board[file_count]; $i++){
+									$file_title =  $row["file_".$i];
+									if($file_title){
+										echo "<li><a href=\"/board/download.php?board_id=$board_id&amp;file=$file_title\">$file_title</a></li>";
+								  }
+							}
+						?>
+					</ul>
+				</td>
+			</tr>
+		<? } ?>
+		<!-- //Attachments -->
+	</tbody>
+</table>
+<?
+	//코멘트 사용하는 게시판인지 Confirm
+	if($board[use_comment] == "Y") {
+		include "comment.html";
+	}
+?>
+
+<!-- Previous/next -->
+<?
+	// next글, Previous글
+	$temp_next = mysqli_fetch_array(mysqli_query($connect, "SELECT no, title FROM $board_id WHERE  no>'$no' ORDER BY  no ASC LIMIT 1"));
+	if ($temp_next) $next = "$common_queryString&amp;no=$temp_next[no]&amp;mode=view";
+	else $next = "#";
+	// Previous글
+	$temp_prev = mysqli_fetch_array(mysqli_query($connect, "SELECT no, title FROM $board_id WHERE no<'$no' ORDER BY no DESC LIMIT 1"));
+	if ($temp_prev) $prev = "$common_queryString&amp;no=$temp_prev[no]&amp;mode=view";
+	else $prev = "#";
+?>
+<table class="bbsView page">
+	<caption>Previous next view</caption>
+	<colgroup>
+		<col data-view="th" style="width:15%"/>
+		<col data-view="td" style="width:85%"/>
+	</colgroup>
+	<tbody>
+		<tr>
+			<th scope="row">Previous view</th>
+			<td><a href="<?=$prev?>"><?=$temp_prev[title]?></a></td>
+		</tr>
+		<tr>
+			<th scope="row">next view</th>
+			<td><a href="<?=$next?>"><?=$temp_next[title]?></a></td>
+		</tr>
+	</tbody>
+</table>
+<!-- //Previous/next -->
+
+<!-- 버튼 -->
+<div class="btn_area">
+	<? if($auth_read){ ?>
+		<a href="<?=$common_queryString?>&amp;mode=modify&amp;no=<?=$row[no]?>" class="button">Modify</a>
+	<? } ?>
+	<? if($is_admin){ ?>
+		<a href="<?=$common_queryString?>&amp;mode=delete&amp;return_mode=list&amp;no=<?=$row[no]?>" class="button" onclick="return confirm('Deleted data cannot be recovered. Are you sure you want to delete?');">delete</a>
+	<? } else if($auth_delete){ ?>
+		<? if($board[is_membership] != "Y"){ ?>
+			<a href="<?=$common_queryString?>&amp;mode=check&amp;return_mode=delete&amp;no=<?=$row[no]?>" class="button">delete</a>
+		<? } else { ?>
+			<a href="<?=$common_queryString?>&amp;mode=delete&amp;return_mode=delete&amp;no=<?=$row[no]?>" class="button">delete</a>
+		<? } ?>
+	<? } ?>
+	<a href="<?=$common_queryString?>" class="button">List</a>
+</div>
+<!-- //버튼 -->

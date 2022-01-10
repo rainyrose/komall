@@ -1,0 +1,340 @@
+<?
+include_once  $_SERVER['DOCUMENT_ROOT'] . "/ko_mall/auth_manager.php";
+
+$mode_title = $online[title]." 등록";
+
+if($mode == "modify"){
+	$query = "SELECT * FROM koweb_online_config WHERE no='$no'";
+	$result = mysqli_query($connect, $query);
+	$row = mysqli_fetch_array($result);
+	$mode_title = $online[title]." 수정";
+	$dept_auth_tmp = explode("|", $row[dept_auth]);
+	$variable_sort_tmp = explode("|", $row[sort]);
+
+	$temp_use = explode("|",$row['use_email']);
+	$row['use_email'] = $temp_use[0];
+	$use_email_r = $temp_use[1] ? $temp_use[1] : "";
+
+	$temp_use = explode("|",$row['use_phone']);
+	$row['use_phone'] = $temp_use[0];
+	$use_phone_r = $temp_use[1] ? $temp_use[1] : "";
+
+	$temp_use = explode("|",$row['use_addr']);
+	$row['use_addr'] = $temp_use[0];
+	$use_addr_r = $temp_use[1] ? $temp_use[1] : "";
+
+}else{
+	$variable_sort_tmp  = array(1,2,3,4,5,6,7,8,9,10);
+}
+
+?>
+<div class="box pd">
+
+
+<form method='post' action="<?=$common_queryString?>" enctype='multipart/form-data'>
+	<input type="hidden" name="mode" value="<?=$mode?>_proc" />
+	<input type="hidden" name="no" value="<?=$no?>" />
+	<input type="hidden" name="level_auth_person" value="<?=$row[use_level_auth]?>" data-access-person="koweb_member_level" />
+	<input type="hidden" name="department_auth_person" value="<?=$row[use_dept_auth]?>" data-access-person="koweb_department" />
+	<input type="hidden" name="member_auth_person" value="<?=$row[use_user_auth]?>" data-access-person="koweb_member" />
+		<h2>온라인 폼</h2>
+		<table class="bbsView">
+			<caption><?=$mode_title?></caption>
+			<colgroup>
+				<col data-write="th" style="width:15%"/>
+				<col data-write="td" style="width:85%"/>
+			</colgroup>
+			<tbody>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">신청프로그램 제목</label></th>
+					<td><input type="text" name="title" id="title" class="inputFull required" value="<?=$row[title]?>" title="신청프로그램 제목" /></td>
+				</tr>
+				<? if($mode == "modify"){ ?>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span><label for="title">신청프로그램 아이디</label></th>
+						<td><input type="hidden" name="id" value="<?=$row[id]?>" /><?=$row[id]?></td>
+						
+					</tr>
+				<? } else { ?>
+					<tr>
+						<th scope="row"><span class="marking">필수항목</span><label for="title">신청프로그램 아이디</label></th>
+						<td>
+							koweb_online_<input type="text" name="id" size="10" maxlength="20" value="<?=$row[id]?>" title="ID" id="id" class="input200 required" data-id-check placeholder="해당아이디로 DB table이 생성됩니다."/><span data-result="id" style="margin-left:5px; font-weight:bold; font-size:12px;"></span>
+						</td>
+					</tr>
+				<? } ?>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="category">항목</label></th>
+					<td id="category_area">
+						<table class="tac">
+							<thead>
+								<tr>
+									<th>항목명</th>
+									<th>항목ID</th>
+									<th>필수여부</th>
+									<th>타입선택</th>
+									<th>타입세부</th>
+									<th>사용여부</th>
+									<th>검색사용</th>
+									<th>목록노출</th>
+								</tr>
+							</thead>
+							<tbody <? if($mode == "modify"){ echo 'data-drag-sort="koweb_online_config"'; }?> data-drag-sort-type = "online" data-drag-sort-no = "<?=$no?>">
+							<?
+							$valiable_cnt = 10;
+							for($wrap_i = 1; $wrap_i <= $valiable_cnt; $wrap_i++){
+								$i = $variable_sort_tmp[$wrap_i-1];
+								$temp_sort[] = $i;
+								if($mode == "modify"){
+									$variable_ = $row["variable_".$i];
+									$variable_ = explode("|", $variable_);
+									$tmp_name = $variable_[0];
+									$tmp_type = $variable_[1];
+									$tmp_required = $variable_[2];
+									$tmp_state = $variable_[3];
+									$tmp_id = $variable_[4];
+									$tmp_view_list = $variable_[5];
+									$tmp_search = $variable_[6];
+									$tmp_type_option = $variable_[7];
+								}
+							?>
+								<tr data-unique-no = <?=$i?> >
+									<td><input type="text" name="variable_name_<?=$i?>" class="input100" placeholder="예) 성명"  value="<?=$tmp_name?>" /> </td>
+									<td><input type="text" name="variable_id_<?=$i?>" class="input100" placeholder="예) name"  value="<?=$tmp_id?>" /> </td>
+									<td>
+										<select name="required_<?=$i?>" id="required_<?=$i?>">
+											<option value="Y"<? if($tmp_required == "Y") echo "selected"; ?>>필수항목</option>
+											<option value="N"<? if($tmp_required == "N") echo "selected"; ?>>선택항목</option>
+										</select>
+									</td>
+									<td>
+										<select name="variable_type_<?=$i?>" id="variable_type_<?=$i?>" onchange="changeTypeOptionDisable(this)">
+											<option value="text"<? if($tmp_type == "text") echo "selected"; ?>>텍스트</option>
+											<option value="textarea"<? if($tmp_type == "textarea") echo "selected"; ?>>textarea</option>
+											<option value="file"<? if($tmp_type == "file") echo "selected"; ?>>파일</option>
+											<option value="cal"<? if($tmp_type == "cal") echo "selected"; ?>>달력</option>
+											<option value="radio"<? if($tmp_type == "radio") echo "selected"; ?>>radio</option>
+											<option value="select"<? if($tmp_type == "select") echo "selected"; ?>>select</option>
+										</select>
+									</td>
+									<td><input type="text" name="variable_type_option_<?=$i?>" class="input300" placeholder="예) 옵션1^옵션2"  value="<?=$tmp_type_option?>" /> </td>
+									<td><div class="designCheck"><input type="checkbox" name="variable_state_<?=$i?>" value="Y" id="state_<?=$i?>" <? if($tmp_state == "Y") echo "checked"; ?> /><label for="state_<?=$i?>">사용</label></div></td>
+									<td><div class="designCheck"><input type="checkbox" name="variable_search_<?=$i?>" value="Y" id="search_<?=$i?>" <? if($tmp_search == "Y") echo "checked"; ?> /><label for="search_<?=$i?>">사용</label></div></td>
+									<td><div class="designCheck"><input type="checkbox" name="variable_view_<?=$i?>" value="Y" id="view_<?=$i?>" <? if($tmp_view_list == "Y") echo "checked"; ?> /><label for="view_<?=$i?>">출력</label></div></td>
+								</tr>
+							<? } ?>
+							</tbody>
+						</table>
+					<script>
+						/*
+						 * variable_type_ select태그에 onchage를 파일이 열때 모든 type select에 적용시키기위해
+						 * Dom이 생성되고 난후 variable_type_ select를 찾아 모두 실행
+						 * 2019-03-11
+						 * 서세윤
+						 */
+						//querySelectorAll IE8이상 적용
+						var type_Elements = document.querySelectorAll("select[name^=variable_type_]");
+						for(var i=0; i < type_Elements.length; i++){
+							changeTypeOptionDisable(type_Elements[i]);
+						}
+					</script>
+
+
+					<!--<a href="#" id="add_category" class="button gray">+ 추가</a>-->
+					<?
+						$count = 0;
+						foreach($category as $value){
+							if($count != 0){
+							$del_id = "#category_".$count;
+					?>
+						<div id="category_<?=$count?>">
+							<input type="text" name="variable_name[]" value="<?=$value?>" />
+							<a href="#" id="del_category_<?=$count?>" onclick="$('<?=$del_id?>').remove();" class="button white">- 삭제</a>
+						</div>
+					<?
+						}
+						$count++;
+					}
+					?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">전화번호 사용</label></th>
+					<td>
+						<div class="designRadio"><input type="radio" name="use_phone" value="Y" id="use_phoneY" /><label for="use_phoneY">사용</label>
+						<input type="radio" name="use_phone" value="N" id="use_phoneN" /><label for="use_phoneN">미사용</label>
+						<input type="checkbox" name="use_phone_r" value="R" id="use_phoneR" /><label for="use_phoneR">필수</label>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">주소 사용</label></th>
+					<td>
+						<div class="designRadio"><input type="radio" name="use_addr" value="Y" id="use_addrY" /><label for="use_addrY">사용</label>
+						<input type="radio" name="use_addr" value="N" id="use_addrN" /><label for="use_addrN">미사용</label></div>
+						<input type="checkbox" name="use_addr_r" value="R" id="use_addrR" /><label for="use_addrR">필수</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">이메일 사용</label></th>
+					<td>
+						<div class="designRadio"><input type="radio" name="use_email" value="Y" id="use_emailY" /><label for="use_emailY">사용</label>
+						<input type="radio" name="use_email" value="N" id="use_emailN" /><label for="use_emailN">미사용</label></div>
+						<input type="checkbox" name="use_email_r" value="R" id="use_emailR" /><label for="use_emailR">필수</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="use_member">최소 신청제한</label></th>
+					<td>
+						<select name="use_member" id="use_member">
+						<? 
+						if($member_config_[use_member_apply] != "Y") $ADD_LEVEL = "AND level != '9'";
+						else unset($ADD_LEVEL);
+						$level_result = mysqli_query($connect, "SELECT * FROM koweb_member_level WHERE 1=1 $ADD_LEVEL ORDER BY level DESC");
+						while($level = mysqli_fetch_array($level_result)){
+						?>
+							<option value="<?=$level[level]?>"><?=$level[level_title]?></option>
+						<? } ?>
+						</select> 
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">리스트 노출</label></th>
+					<td>
+						<div class="designRadio"><input type="radio" name="use_view" value="Y" id="use_viewY" /><label for="use_viewY">사용</label>
+						<input type="radio" name="use_view" value="N" id="use_viewN" /><label for="use_viewN">미사용</label></div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">본인인증 사용</label></th>
+					<td>
+						<div class="designRadio">
+						<input type="radio" name="use_namecheck" value="Y" id="use_namecheckY" /><label for="use_namecheckY">사용</label>
+						<input type="radio" name="use_namecheck" value="N" id="use_namecheckN" /><label for="use_namecheckN">미사용</label></div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="title">개인정보 정보제공 동의</label></th>
+					<td>
+						<div class="designRadio"><input type="radio" name="use_private_agree" value="Y" id="use_private_agreeY" /><label for="use_private_agreeY">사용</label>
+						<input type="radio" name="use_private_agree" value="N" id="use_private_agreeN" /><label for="use_private_agreeN">미사용</label></div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="marking">필수항목</span><label for="private_text">개인정보 정보제공 약관</label></th>
+					<td>
+						<textarea name="private_text" id="private_text" cols="2" style="width:100%;"><?=$row[private_text]?></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	<script type="text/javascript">
+		$("input:radio[name='work_category']:radio[value='<?=$row[work_category]?>']").prop("checked",true);
+	</script>
+	<!-- //글쓰기 -->
+	<!-- 버튼 -->
+	<div class="btn_area">
+		<input type="submit" class="button" value="저장" />
+		<a href="<?=$PHP_SELF?>?type=<?=$type?>&core=<?=$core?>&manager_type=<?=$manager_type?>" class="button gray">취소</a>
+	</div>
+	<input name='sort' type='hidden' value="<?=join("|",$temp_sort)?>" />
+</form>
+
+<!-- //버튼 -->
+<script type="text/javascript">
+	$("#add_category").click(function(){
+		var count = $("#category_area > div").size() + 2;
+		var del_id = "category_"+count;
+		if(count	> 10){
+			alert("총 10개의 항목을 지정 할 수 있습니다.");
+			return false;
+		}
+		$("#category_area").append("<div id='category_"+count+"'><input type='text' name='variable_name_"+count+"' placeholder='항목명' /> <select name='required_"+count+"'><option value='Y'>필수항목</option><option value='N'>선택항목</option></select> <select name='variable_type_"+count+"'><option value='text'>텍스트</option><option value='file'>파일</option></select><a href='#' id='del_category_"+count+"' onclick='$(\"#"+del_id+"\").remove();' class='button white'><span>- 삭제</span></a></div>");
+	});
+
+	$("input[name='use_file']").click(function(){
+
+			if($(this).val() == "Y"){
+				$("#file_area").css("display","");
+			} else {
+				$("#use_file_count option:eq(0)").attr("selected", "selected");
+				$("#file_area").css("display","none");
+			}
+	});
+	$(function(){
+		$("input:checkbox[name='use_addr_r']:checkbox[value='<?=$use_addr_r?>']").prop("checked",true);
+		$("input:checkbox[name='use_email_r']:checkbox[value='<?=$use_email_r?>']").prop("checked",true);
+		$("input:checkbox[name='use_phone_r']:checkbox[value='<?=$use_phone_r?>']").prop("checked",true);
+		$("input:radio[name='use_phone']:radio[value='<?=$row[use_phone]?>']").prop("checked",true);
+		$("input:radio[name='use_addr']:radio[value='<?=$row[use_addr]?>']").prop("checked",true);
+		$("input:radio[name='use_email']:radio[value='<?=$row[use_email]?>']").prop("checked",true);
+		$("input:radio[name='use_namecheck']:radio[value='<?=$row[use_namecheck]?>']").prop("checked",true);
+		$("input:radio[name='use_view']:radio[value='<?=$row[use_view]?>']").prop("checked",true);
+		$("input:radio[name='use_private_agree']:radio[value='<?=$row[use_private_agree]?>']").prop("checked",true);
+		$("input:radio[name='state']:radio[value='<?=$row[state]?>']").prop("checked",true);
+		$("select[name='use_member'] option[value='<?=$row[use_member]?>']").prop("selected", true);
+	});
+
+	function check_infomation(mode, data){
+		$.ajax({
+			type : "POST",
+			url : "/ko_mall/setting/online/online_check_ajax.php",
+			dataType : "json",
+			data : {
+				type : mode,
+				variable : data
+			},
+			success : function(args) {
+				if(args.result == "true"){
+					if("<?=$mode?>" != "modify"){
+						var id_length = data.length;
+						var id_pattern = new RegExp(/^[a-z0-9_]+$/);
+
+						if (!id_pattern.test(data)) {
+							$("[data-result="+mode+"]").html("아이디는 영문, 숫자 혼합만 사용 가능합니다.");
+							$("[data-"+mode+"-check]").data(mode+"-check",false);
+							return false;
+						} 
+						if(id_length < 4 || id_length > 20){
+							$("[data-result="+mode+"]").html("아이디는 한글, 특수문자를 제외한 4~20자까지의 영문과 숫자로 입력해주세요.");
+							$("[data-"+mode+"-check]").data(mode+"-check",false);
+							return false;
+						} 
+					}
+					$("[data-"+mode+"-check]").data(mode+"-check",true);
+					$("[data-result="+mode+"]").html("등록가능한 "+mode+"입니다.");
+
+				} else if(args.result == "not_data"){
+					$("[data-"+mode+"-check]").data(mode+"-check",false);
+					$("[data-result="+mode+"]").html(mode+"를 입력해주세요.");
+				} else {
+					$("[data-"+mode+"-check]").data(mode+"-check",false);
+					$("[data-result="+mode+"]").html("등록 불가능한 "+mode+"입니다.");
+				}
+			}
+		});
+	}
+
+	$(function(){
+		//id 중복확인
+		$("#id").on({
+			keyup: function(){
+				check_infomation("id", $(this).val());
+			}
+		});
+		//submit시 id중복확인 진행하였는지 확인
+		$("[data-program-proc]").click(function(){
+			var chk2 = true;
+			if("<?=$mode?>" != "modify"){
+				if($("[data-id-check]").data("id-check") == false){
+					alert("온라인 아이디를 올바르게 입력해주세요.");
+					$("#id").focus();
+					chk2 = false;
+					return false;
+				}
+				if(!chk2) return false;
+			}
+		});
+	});
+</script>
+</div>

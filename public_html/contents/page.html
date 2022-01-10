@@ -1,0 +1,24 @@
+<? include_once $_SERVER['DOCUMENT_ROOT']."/head.php"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/top.html"; ?>
+<? include_once $_SERVER['DOCUMENT_ROOT']."/inc/header.html"; ?>
+<!--임시//-->
+	<section id="container">
+		<div id="content">
+		<? include_once "./default.php"; ?>
+		<? include_once "./lnb.php"; ?>
+		<? include_once "./configuration.php"; ?>
+		</div>
+	</section>
+</div>
+
+
+
+<script type="text/javascript">
+	var mid = "<?=$mid?>";
+	var mid_depth = (mid.length / 2);
+
+	for(var i = 1; i <= mid_depth; i++){
+		$("[data-set-on="+mid.substr(0, i*2)+"]").addClass("on");
+	}
+</script>
+<? include("inc/footer.html") ?>

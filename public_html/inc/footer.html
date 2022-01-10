@@ -1,0 +1,72 @@
+			<!-- footer -->
+			<footer id="footer">
+				<div class="top">
+					<div class="inr">
+						<div class="story">
+							<h2>OUT STORY</h2>
+							<a href="/contents/01_about/sub01.html">KOWEB몰을 알려드립니다!</a>
+						</div>
+						<div class="notice">
+							<h2>NEWS</h2>
+							<!-- 목록 6개노출 -->
+							<ul class="list">
+								<?
+								$notice_query = "SELECT * FROM board_notice order by no desc limit 0,6";
+								$notice_result = query($notice_query);
+								while($notice_row = mysqli_fetch_array($notice_result)){ ?>
+								<li><a href="/contents/03_board/board.html?board_id=board_notice&start=&category=&search_key=&keyword=&mode=view&no=<?=$notice_row[no]?>"><?=$notice_row[title]?></a>
+								<? } ?>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+				<div class="bottom">
+					<ul class="link">
+						<li><a href="/member/member.html?mode=agreement">이용약관</a></li>
+						<li><a href="/member/member.html?mode=private">개인정보처리방침</a></li>
+						<li><a href="/member/member.html?mode=guide">이용안내</a></li>
+						<li><a href="/ko_mall"><strong>관리자</strong></a></li>
+					</ul>
+
+					<ul class="sns">
+						<li><a href="#" data-sns="face">페이스북</a></li>
+						<li><a href="#" data-sns="instar">인스타그램</a></li>
+						<li><a href="#" data-sns="blog">블로그</a></li>
+						<li><a href="#" data-sns="kakao">카카오스토리</a></li>
+					</ul>
+
+					<div class="copy">
+						<span>회사명 : <?=$mall_config[company]?></span>
+						<span>주소 : <?=$mall_config[company_address]?></span>
+						<br/>
+						<span>대표자 : <?=$mall_config[ceo_name]?></span>
+						<span>대표전화 : <a href="<?=$mall_config[company_phone]?>"><?=$mall_config[company_phone]?></a></span>
+						<span>FAX : <?=$mall_config[fax_no]?></span>
+						<br/>
+						<span>E-MAIL : <a href="mailto:<?=$mall_config[it_mail]?>"><?=$mall_config[it_mail]?></a></span>
+						<span>사업자등록번호 : <?=$mall_config[company_regist_no]?></span>
+						<br/>
+						<span>통신판매업신고 : <?=$mall_config[t_no]?></span>
+						<p>Copyright(C) 케이오웹. All right reserved. Designed by KOWEB.</p>
+					</div>
+				</div>
+			</footer>
+			<!-- //footer -->
+		</div>
+	</body>
+</html>
+<script>
+	if("<?=$_SESSION[board_config]?>" == "okkk"){
+		var params = {};  
+		window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, 
+			function(str, key, value) { 
+				params[key] = value; 
+			}
+		);
+		$(opener.document).find("#pap").val(params.code);
+		<? unset($_SESSION[board_config]); ?>
+		//$.removeCookie('Get'); // => false
+		self.close();
+	}
+</script>
